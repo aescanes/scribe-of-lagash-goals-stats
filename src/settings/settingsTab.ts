@@ -10,6 +10,7 @@ import {
 	writingDaysInMonth,
 	writingDaysPerWeek,
 } from "../data/goalMath";
+import { SCRIBE_GENERATED_PREFIX } from "../data/exclusion";
 
 /** Lower-case noun for the active metric, singular kept simple ("word"/"character"). */
 function unitLabel(plugin: ScribeGoalsStatsPlugin): string {
@@ -32,12 +33,13 @@ export class ScribeGoalsStatsSettingTab extends PluginSettingTab {
 		const { containerEl } = this;
 		containerEl.empty();
 
+		this.renderGeneral(containerEl);
 		this.renderWritingGoals(containerEl);
 		this.renderStats(containerEl);
 	}
 
-	private renderWritingGoals(containerEl: HTMLElement): void {
-		new Setting(containerEl).setName("Writing goals").setHeading();
+	private renderGeneral(containerEl: HTMLElement): void {
+		new Setting(containerEl).setName("General").setHeading();
 
 		new Setting(containerEl)
 			.setName("Story folder")
@@ -52,6 +54,40 @@ export class ScribeGoalsStatsSettingTab extends PluginSettingTab {
 					await this.plugin.saveSettings();
 				});
 			});
+
+		new Setting(containerEl)
+			.setName("Excluded notes and folders")
+			.setDesc(
+				createFragment((frag) => {
+					frag.appendText(
+						"Notes and folders to leave out of the writing goals and statistics — " +
+							"one vault-relative path per line. Naming a folder excludes everything inside it.",
+					);
+					frag.createEl("br");
+					frag.appendText(
+						`Files and folders named with the "${SCRIBE_GENERATED_PREFIX} " prefix ` +
+							"(created by the Scribe of Lagash plugins) are always excluded.",
+					);
+				}),
+			)
+			.addTextArea((area) => {
+				area.setPlaceholder("Notes/Scratchpad\nArchive");
+				area.setValue(this.plugin.settings.excludedPaths.join("\n"));
+				area.inputEl.rows = 4;
+				area.inputEl.cols = 40;
+				area.inputEl.addClass("scribe-excluded-paths");
+				area.onChange(async (value) => {
+					this.plugin.settings.excludedPaths = value
+						.split("\n")
+						.map((line) => line.trim())
+						.filter(Boolean);
+					await this.plugin.saveSettings();
+				});
+			});
+	}
+
+	private renderWritingGoals(containerEl: HTMLElement): void {
+		new Setting(containerEl).setName("Writing goals").setHeading();
 
 		new Setting(containerEl)
 			.setName("Metric")

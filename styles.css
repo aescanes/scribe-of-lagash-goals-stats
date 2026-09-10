@@ -26,6 +26,14 @@
 	gap: var(--size-4-1);
 }
 
+/* ---- Settings: excluded notes/folders ---- */
+
+.scribe-excluded-paths {
+	width: 100%;
+	font-family: var(--font-monospace);
+	resize: vertical;
+}
+
 /* ---- Goals & Stats view ---- */
 
 /* Container for the stats / goal-progress view. Real layout rules land here as

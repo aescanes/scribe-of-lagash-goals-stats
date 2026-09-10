@@ -11,6 +11,13 @@ export interface ScribeGoalsStatsSettings {
 	 */
 	storyFolder: string;
 
+	/**
+	 * Extra vault-relative notes and folders to leave out of the writing goals
+	 * and statistics, one per line in the UI. Scribe-generated "(SL) …" paths
+	 * are always excluded and are not stored here (see `isExcluded`).
+	 */
+	excludedPaths: string[];
+
 	/** Whether goals and statistics count words or characters. */
 	metric: GoalMetric;
 
@@ -27,6 +34,7 @@ export interface ScribeGoalsStatsSettings {
 
 export const DEFAULT_SETTINGS: ScribeGoalsStatsSettings = {
 	storyFolder: "",
+	excludedPaths: [],
 	metric: "words",
 	dailyGoal: 500,
 	// Default to writing every day; the author unchecks the days they take off.
@@ -45,6 +53,9 @@ export function normalizeSettings(
 	const days = Array.isArray(merged.writingDays) ? merged.writingDays : [];
 	return {
 		storyFolder: typeof merged.storyFolder === "string" ? merged.storyFolder : "",
+		excludedPaths: Array.isArray(merged.excludedPaths)
+			? merged.excludedPaths.filter((p): p is string => typeof p === "string" && p.trim() !== "")
+			: [],
 		metric: merged.metric === "characters" ? "characters" : "words",
 		dailyGoal:
 			Number.isFinite(merged.dailyGoal) && merged.dailyGoal > 0
