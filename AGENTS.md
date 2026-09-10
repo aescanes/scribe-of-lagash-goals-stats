@@ -4,11 +4,11 @@ Guidance for AI agents working on this repository. Read this before making chang
 
 ## Concept
 
-**Scribe of Lagash - Goals & Stats** is an Obsidian plugin that helps novelists
-set writing goals and see detailed statistics for those goals and for the novel
+**Scribe of Lagash - Goals & Stats** is an Obsidian plugin that helps storytellers
+set writing goals and see detailed statistics for those goals and for the story
 as a whole (word counts, progress toward goals, repeated words, and more). It is
 the second plugin in the **"Scribe of Lagash"** series — a set of independent,
-single-concern Obsidian plugins for planning and writing novels. The series
+single-concern Obsidian plugins for planning and writing stories. The series
 shares one per-note frontmatter vocabulary, `scribe-note-*` (date, characters,
 places, status, …), so a note's metadata means the same thing to every plugin
 and is written once; this plugin's key list is centralized in
@@ -25,7 +25,7 @@ Rules:
 > The implementation is being built fresh. This project reuses the **structure
 > and conventions** of the first series plugin (Scribe of Lagash -
 > Visualization) — the same build/test/release tooling, the shared
-> `scribe-note-*` frontmatter, and the title/book-folder recognition approach —
+> `scribe-note-*` frontmatter, and the title / story-folder recognition approach —
 > but is **not bound** to its module layout where a different shape fits a
 > goals-and-stats plugin better. Update this section as the code lands.
 
@@ -72,7 +72,7 @@ The rules that bite most often here:
   — not `<h1>`/`<h2>`.
 - **Vault access:** look notes up with `getFileByPath()` / `getAbstractFileByPath()`
   — don't scan every file to match a path (a full scan is only OK for discovery,
-  e.g. finding every note under a book folder). `normalizePath()` every
+  e.g. finding every note under a story folder). `normalizePath()` every
   user-supplied path. Edit the plugin's own files with `Vault.process()` /
   `FileManager.processFrontMatter()`; never `Vault.modify()` a note the user is
   editing — and this plugin does not write to the user's notes at all.

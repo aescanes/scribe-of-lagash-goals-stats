@@ -12,6 +12,20 @@
 	color: #b851a5;
 }
 
+/* ---- Settings: writing-days picker ---- */
+
+.scribe-weekday-picker {
+	display: flex;
+	flex-wrap: wrap;
+	gap: var(--size-4-2);
+}
+
+.scribe-weekday {
+	display: flex;
+	align-items: center;
+	gap: var(--size-4-1);
+}
+
 /* ---- Goals & Stats view ---- */
 
 /* Container for the stats / goal-progress view. Real layout rules land here as

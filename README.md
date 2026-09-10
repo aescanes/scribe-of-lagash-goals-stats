@@ -3,10 +3,10 @@
 ![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)
 ![Minimum Obsidian version](https://img.shields.io/badge/obsidian-%E2%89%A51.10.0-8b6cef)
 
-An [Obsidian](https://obsidian.md) plugin that helps novelists set **writing
-goals** and see **detailed statistics** for those goals and for the novel as a
+An [Obsidian](https://obsidian.md) plugin that helps storytellers set **writing
+goals** and see **detailed statistics** for those goals and for the story as a
 whole. It is the second plugin in the **Scribe of Lagash** series, a set of
-independent, focused tools for planning and writing novels in Obsidian.
+independent, focused tools for planning and writing stories in Obsidian.
 
 ## Planned features
 
@@ -18,12 +18,12 @@ scope:
   over time.
 - **Goal stats** — daily/weekly writing streaks, words added per session,
   projected completion date, and how each day compares to the target pace.
-- **Novel stats** — total and per-chapter/scene word, sentence, and paragraph
+- **Story stats** — total and per-chapter/scene word, sentence, and paragraph
   counts; average scene and chapter length; reading-time estimate.
 - **Repeated-word analysis** — most-frequent words and phrases across the
-  whole novel or a single chapter, with common stop-words filtered out, to
+  whole story or a single chapter, with common stop-words filtered out, to
   surface overused crutch words.
-- **Per-book scoping** — every statistic can be computed for one book folder
+- **Per-story scoping** — every statistic can be computed for one story folder
   or the whole vault.
 
 See [`docs/feature-plans/`](docs/feature-plans/) for the detailed plan of each

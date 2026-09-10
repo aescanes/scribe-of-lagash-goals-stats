@@ -2,9 +2,9 @@
 
 Thanks for your interest in contributing to Scribe of Lagash - Goals & Stats.
 This project is part of the **Scribe of Lagash** series — independent
-Obsidian plugins that help novelists plan and write, each focused on one
+Obsidian plugins that help storytellers plan and write, each focused on one
 concern. This particular plugin covers writing goals and statistics for a
-novel (progress tracking, word counts, repeated-word analysis, and more).
+story (progress tracking, word counts, repeated-word analysis, and more).
 
 ## Ways to contribute
 
