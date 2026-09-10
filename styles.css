@@ -1,15 +1,27 @@
+/* ---- Plugin brand accent ---- */
+
+/* The plugin's magenta accent, as overridable CSS custom properties. These are
+   set only here in CSS (never from JavaScript) and used only on the plugin's
+   own elements — no core Obsidian colour is overridden. A theme or user snippet
+   can restyle the plugin by redefining these. Dark theme lightens them so they
+   stay legible on a dark background. */
+body {
+	--scribe-accent: #81096b;
+	--scribe-accent-soft: #b851a5;
+}
+
+.theme-dark {
+	--scribe-accent: #b851a5;
+	--scribe-accent-soft: #d9a3cc;
+}
+
 /* ---- Ribbon icon ---- */
 
 /* The view icon follows the theme everywhere (currentColor); only the ribbon
-   button gets the brand colour, lighter on dark themes for legibility. */
+   button gets the brand accent. */
 .scribe-ribbon-icon,
 .scribe-ribbon-icon:hover {
-	color: #81096b;
-}
-
-.theme-dark .scribe-ribbon-icon,
-.theme-dark .scribe-ribbon-icon:hover {
-	color: #b851a5;
+	color: var(--scribe-accent);
 }
 
 /* ---- Settings: writing-days picker ---- */
@@ -32,6 +44,32 @@
 	width: 100%;
 	font-family: var(--font-monospace);
 	resize: vertical;
+}
+
+/* ---- File explorer: word/character count badge ---- */
+
+.scribe-explorer-count {
+	flex-shrink: 0;
+	font-size: var(--font-ui-smaller);
+	font-variant-numeric: tabular-nums;
+}
+
+/* A note's own count: sits just after the name, softer so the name stays dominant. */
+.scribe-explorer-count.mod-note {
+	margin-left: var(--size-4-2);
+	color: var(--scribe-accent-soft);
+}
+
+/* A folder's rolled-up total: pushed to the right edge of the row, stronger. */
+.scribe-explorer-count.mod-folder {
+	margin-left: auto;
+	padding-left: var(--size-4-2);
+	color: var(--scribe-accent);
+}
+
+.tree-item-self:hover .scribe-explorer-count,
+.tree-item-self.is-active .scribe-explorer-count {
+	color: var(--text-normal);
 }
 
 /* ---- Goals & Stats view ---- */

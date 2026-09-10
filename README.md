@@ -8,10 +8,19 @@ goals** and see **detailed statistics** for those goals and for the story as a
 whole. It is the second plugin in the **Scribe of Lagash** series, a set of
 independent, focused tools for planning and writing stories in Obsidian.
 
-## Planned features
+## Features
 
-The implementation is being built fresh; nothing here ships yet. The intended
-scope:
+Working now:
+
+- **File-explorer counts** — every note inside the story folder shows its word
+  (or character) count next to its name in the file explorer, and every folder
+  shows the total of the notes beneath it. Counts update as you write.
+- **Writing-goal settings** — a story folder, a words/characters metric, a
+  daily goal, and the days of the week you write; the weekly and monthly
+  targets are worked out from those. Plus a list of notes and folders to
+  exclude from everything the plugin measures.
+
+Planned:
 
 - **Writing goals** — set targets (total word count, words per day/session, a
   deadline, per-chapter or per-scene length) and track progress toward them

@@ -29,24 +29,35 @@ Rules:
 > but is **not bound** to its module layout where a different shape fits a
 > goals-and-stats plugin better. Update this section as the code lands.
 
-Intended shape:
+Shape so far (grows as features land):
 
 - Entry point: [`src/main.ts`](src/main.ts) → `ScribeGoalsStatsPlugin` — onload
-  wiring only (ribbon icon, commands, a stats/goals view, settings tab); owns
-  any index as a child `Component`.
-- [`src/types.ts`](src/types.ts) — `FRONTMATTER_KEYS` (**single source of
-  truth** for key names) plus the plugin's own data types (goals, snapshots,
-  stat results).
-- [`src/data/`](src/data/) — **pure modules, no Obsidian imports**: title
-  parsing, tokenizing / word & sentence counting, stop-word filtering,
-  repeated-word tallying, and goal pace / projection math. Everything
-  unit-testable lives here.
-- [`src/views/`](src/views/) — DOM-only rendering of stats and goal progress.
-  Any non-trivial computation is a pure function in `src/data/` that the view
-  calls; the view does not do math inline.
-- [`src/settings/`](src/settings/) — the settings tab.
-- [`styles.css`](styles.css) — Obsidian CSS variables only (`var(--...)`); no
-  hardcoded colours. Plugin classes are prefixed `.scribe-`.
+  wiring only (settings tab, and child `Component`s such as the explorer
+  decorator; ribbon icon / commands / a stats view later). `saveSettings()`
+  pokes the decorator to re-render.
+- `src/types.ts` — *not created yet*. When frontmatter or shared domain types
+  are needed, this holds `FRONTMATTER_KEYS` (**single source of truth** for key
+  names) plus the plugin's own data types (goals, snapshots, stat results).
+- [`src/data/`](src/data/) — **pure modules, no Obsidian imports** (importing a
+  type-only symbol from `src/settings/` is fine). Everything unit-testable
+  lives here: `goalMath` (weekly/monthly targets), `exclusion` (`isExcluded`
+  plus the always-on `(SL) ` rule), `scope` (`inStoryFolder`), `textMetrics`
+  (`countWords` / `countCharacters` / `stripFrontmatter` / `measure`),
+  `countTree` (`folderTotals`), `countFormat` (`formatCount`). Later:
+  tokenizing, sentence counting, stop-word filtering, repeated-word tallying,
+  pace / projection.
+- [`src/views/`](src/views/) — Obsidian-facing rendering. `explorerDecorator.ts`
+  paints counts into the file explorer. Any non-trivial computation is a pure
+  function in `src/data/` that the view calls; the view does not do math inline.
+- [`src/settings/`](src/settings/) — `settings.ts` (interface, defaults,
+  `normalizeSettings`) and `settingsTab.ts` (the tab; imperative `display()`).
+- [`styles.css`](styles.css) — prefer Obsidian's own CSS variables
+  (`var(--text-muted)`, `var(--size-4-2)`, …). Plugin classes are prefixed
+  `.scribe-`. The one hardcoded-colour exception is the plugin's magenta brand
+  accent: it is defined once as `--scribe-accent` / `--scribe-accent-soft`
+  (with a `.theme-dark` override) and everything else references those
+  variables. Never introduce another raw hex; never set a colour from
+  JavaScript; never override a core Obsidian colour.
 
 ## Conventions (enforced — don't violate)
 
