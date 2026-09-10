@@ -1,0 +1,187 @@
+# AGENTS.md
+
+Guidance for AI agents working on this repository. Read this before making changes.
+
+## Concept
+
+**Scribe of Lagash - Goals & Stats** is an Obsidian plugin that helps novelists
+set writing goals and see detailed statistics for those goals and for the novel
+as a whole (word counts, progress toward goals, repeated words, and more). It is
+the second plugin in the **"Scribe of Lagash"** series — a set of independent,
+single-concern Obsidian plugins for planning and writing novels. The series
+shares one per-note frontmatter vocabulary, `scribe-note-*` (date, characters,
+places, status, …), so a note's metadata means the same thing to every plugin
+and is written once; this plugin's key list is centralized in
+[`src/types.ts`](src/types.ts).
+
+Rules:
+
+- The plugin **never edits chapter/scene notes** — body or frontmatter. It only
+  *reads* prose to measure it, and stores its own goal/stat data separately
+  (plugin data, or its own files).
+
+## Architecture
+
+> The implementation is being built fresh. This project reuses the **structure
+> and conventions** of the first series plugin (Scribe of Lagash -
+> Visualization) — the same build/test/release tooling, the shared
+> `scribe-note-*` frontmatter, and the title/book-folder recognition approach —
+> but is **not bound** to its module layout where a different shape fits a
+> goals-and-stats plugin better. Update this section as the code lands.
+
+Intended shape:
+
+- Entry point: [`src/main.ts`](src/main.ts) → `ScribeGoalsStatsPlugin` — onload
+  wiring only (ribbon icon, commands, a stats/goals view, settings tab); owns
+  any index as a child `Component`.
+- [`src/types.ts`](src/types.ts) — `FRONTMATTER_KEYS` (**single source of
+  truth** for key names) plus the plugin's own data types (goals, snapshots,
+  stat results).
+- [`src/data/`](src/data/) — **pure modules, no Obsidian imports**: title
+  parsing, tokenizing / word & sentence counting, stop-word filtering,
+  repeated-word tallying, and goal pace / projection math. Everything
+  unit-testable lives here.
+- [`src/views/`](src/views/) — DOM-only rendering of stats and goal progress.
+  Any non-trivial computation is a pure function in `src/data/` that the view
+  calls; the view does not do math inline.
+- [`src/settings/`](src/settings/) — the settings tab.
+- [`styles.css`](styles.css) — Obsidian CSS variables only (`var(--...)`); no
+  hardcoded colours. Plugin classes are prefixed `.scribe-`.
+
+## Conventions (enforced — don't violate)
+
+### Obsidian plugin guidelines — check before every code change
+
+Before adding or changing any code, verify it against the official
+[Obsidian plugin guidelines](https://docs.obsidian.md/Plugins/Releasing/Plugin+guidelines).
+Obsidian's automated review enforces these and rejects releases that break them.
+The rules that bite most often here:
+
+- **Use `this.app`**, never a global `app`.
+- **Resource cleanup:** register listeners/intervals with `registerEvent()`,
+  `registerDomEvent()`, `registerInterval()`, or `addCommand()` so they're torn
+  down automatically. **Do not** `detachLeavesOfType()` in `onunload()` — Obsidian
+  removes the plugin's views itself, and detaching also loses the leaf's position.
+- **No hardcoded inline styles.** Put styling in [`styles.css`](styles.css) with
+  Obsidian CSS variables; from code, toggle classes, or use
+  `setCssStyles()` / `el.style.setProperty()` only for values computed at runtime.
+- **DOM, not HTML strings.** Build nodes with `createEl()` / `createDiv()` /
+  `createSpan()`; never `innerHTML` / `outerHTML` / `insertAdjacentHTML`.
+- **Settings tab:** no top-level heading, no word "settings" in section names,
+  sentence case, and section headers via `new Setting(el).setName(...).setHeading()`
+  — not `<h1>`/`<h2>`.
+- **Vault access:** look notes up with `getFileByPath()` / `getAbstractFileByPath()`
+  — don't scan every file to match a path (a full scan is only OK for discovery,
+  e.g. finding every note under a book folder). `normalizePath()` every
+  user-supplied path. Edit the plugin's own files with `Vault.process()` /
+  `FileManager.processFrontMatter()`; never `Vault.modify()` a note the user is
+  editing — and this plugin does not write to the user's notes at all.
+- **Commands:** no default hotkeys; `callback` for unconditional, `checkCallback`
+  for conditional, `editorCallback` when it needs the active editor.
+- **Workspace:** don't touch `workspace.activeLeaf` or cache view instances — use
+  `getActiveViewOfType()` / `getActiveLeavesOfType()`.
+- **Async:** `async`/`await` over `.then()` chains; a floating promise gets an
+  explicit `void`. `console` output is errors only.
+- **Mobile-safe:** no Node/Electron APIs, no regex lookbehind (`isDesktopOnly`
+  is `false` in `manifest.json`).
+
+`npm run lint` runs ESLint with `@typescript-eslint`'s **type-checked** rules on
+`src/` (the same set Obsidian's review uses); keep it green.
+
+### Other conventions
+
+- **Don't run `git` write commands.** Never run `git add`, `git commit`, or
+  `git push` — the maintainer stages, commits, and pushes by hand. Leave your
+  changes in the working tree. When asked to supply a commit message, give the
+  message text only and do **not** append a `Co-Authored-By:` trailer or any
+  other attribution line.
+- **Commit messages follow [Conventional Commits
+  1.0.0](https://www.conventionalcommits.org/en/v1.0.0-beta.2/):**
+  `<type>[optional scope]: <description>`, e.g. `feat: …`, `fix: …`,
+  `chore: …`, `docs: …`, `refactor: …`, `test: …`; a breaking change adds `!`
+  before the colon or a `BREAKING CHANGE:` footer. This is what the release
+  tooling and CHANGELOG expect.
+- **Branch names reuse the same type as a prefix:** `<type>/<short-kebab-slug>`,
+  e.g. `fix/word-count-off-by-one`, `feat/repeated-words-view`,
+  `docs/readme-goals-section`.
+- **Never hardcode a frontmatter key string literal.** Reference
+  `FRONTMATTER_KEYS` from [`src/types.ts`](src/types.ts).
+- **Never modify a chapter/scene note — body or frontmatter.** The plugin only
+  reads prose to measure it. Its own goal/stat data is persisted separately
+  (plugin data, or its own files); editing prose the user wrote is off-limits.
+- **TypeScript with `strictNullChecks`.** Avoid `any` where a real type exists.
+- **Comments explain *why*, not *what*.** Match the existing sparse style.
+- **Keep diffs focused** — no drive-by formatting or refactoring mixed into a
+  feature/fix.
+- Every source file starts with the SPDX `MIT` header + copyright line.
+- **License is MIT** — don't add dependencies under a copyleft (GPL/LGPL/…) or
+  otherwise MIT-incompatible license.
+
+### Supply-chain rules
+
+- All deps pinned to **exact** versions — no `^`, `~`, `latest`
+  (`.npmrc` → `save-exact=true`).
+- `.npmrc` → `ignore-scripts=true`. Don't rely on dependency lifecycle scripts.
+  `esbuild`'s postinstall is opted back in only via `npm run rebuild:esbuild`.
+- **Prefer a small amount of first-party code over adding a dependency.**
+
+## Commands
+
+```bash
+npm install
+npm run prepare  # activate Husky hooks — needed once, since ignore-scripts=true
+                 # keeps `npm install` from running `prepare` itself
+npm run dev      # esbuild watch → main.js (inline sourcemap)
+npm run build    # tsc --noEmit type-check + minified production bundle → main.js
+npm test         # esbuild-compile tests/**/*.test.ts → .test-build, run node --test
+npm run lint     # eslint src tests — ESLint 9 flat config; src/ gets
+                 # @typescript-eslint type-checked rules (needs the TS project)
+npm run validate # typecheck + test + lint — what the pre-commit hook runs
+```
+
+A Husky pre-commit hook ([`.husky/pre-commit`](.husky/pre-commit)) runs
+`npm run validate` before every commit. `.husky/_/` is generated by
+`npm run prepare` and git-ignored.
+
+CI ([`.github/workflows/ci.yml`](.github/workflows/ci.yml)) runs `npm run build`,
+`npm test`, and eslint on push/PR to `main`, on **Node 24** (matching
+`@types/node`). All must pass before a PR.
+
+Tests use Node's built-in `node:test` — **no test framework dependency**. They
+live under [`tests/`](tests/), which mirrors `src/`: the spec for a module at
+`src/data/<name>.ts` is `tests/data/<name>.test.ts` and imports its subject
+from `../../src/data/<name>`. [`esbuild.test.mjs`](esbuild.test.mjs) transpiles
+the `tests/**/*.test.ts` files (obsidian and Node builtins left external) into
+`.test-build/`. Only pure modules with no Obsidian imports are unit-tested; keep
+such logic (tokenizing, counting, stop-word filtering, pace/projection math) in
+its own file so it can be imported without pulling in `obsidian`.
+
+## Testing changes in a real vault
+
+Copy or symlink `manifest.json`, `main.js`, and `styles.css` into
+`<vault>/.obsidian/plugins/scribe-of-lagash-goals-stats/`, enable in Community
+Plugins, and reload after each rebuild. This repo itself lives inside a test
+vault's plugin folder, so `npm run dev` already writes `main.js` in place.
+
+## Releasing
+
+Maintainer-only, from a clean `main`; feature PRs never bump the version. Make
+sure `CHANGELOG.md`'s `## [Unreleased]` section is complete, then
+`npm run version-minor` (or `-patch` / `-major`), then `git push --follow-tags`.
+Each wrapper is `npm version <type> --ignore-scripts=false` — the flag is
+required, since `.npmrc`'s `ignore-scripts=true` otherwise skips the hooks. The
+`version` hook runs [`version-changelog.mjs`](version-changelog.mjs) (promotes
+`## [Unreleased]` to `## [<version>] - <date>`) then
+[`version-bump.mjs`](version-bump.mjs) (syncs `manifest.json` / `versions.json`);
+the `postversion` hook runs [`version-tag.mjs`](version-tag.mjs) (writes that
+CHANGELOG section into the tag message). The release workflow then puts the same
+CHANGELOG section (via [`release-notes.mjs`](release-notes.mjs)) at the top of
+the GitHub Release body, above the auto-generated "What's Changed" notes. Full
+steps in [CONTRIBUTING.md](CONTRIBUTING.md).
+
+## Docs to keep in sync
+
+When behavior or schema changes, update: `README.md`, `CHANGELOG.md`
+("Unreleased"), the relevant plan doc under
+[`docs/feature-plans/`](docs/feature-plans/) (one file per feature), and
+`CONTRIBUTING.md` if conventions change.
