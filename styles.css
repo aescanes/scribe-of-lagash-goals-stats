@@ -88,12 +88,211 @@ body {
 	color: var(--text-normal);
 }
 
-/* ---- Goals & Stats view ---- */
+/* ---- Goal widget: sidebar container ---- */
 
-/* Container for the stats / goal-progress view. Real layout rules land here as
-   the view is built — Obsidian CSS variables only, no hardcoded colours. */
 .scribe-goals-view {
 	padding: var(--size-4-4);
 	height: 100%;
 	overflow: auto;
+}
+
+/* ---- Goal widget: card ---- */
+
+.scribe-goal-card {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	border: 1px solid var(--background-modifier-border);
+	border-radius: var(--radius-m);
+	background: var(--background-primary);
+	padding: var(--size-4-4) var(--size-4-4) var(--size-4-5);
+	margin-bottom: var(--size-4-6);
+}
+
+.scribe-goal-card-title {
+	align-self: flex-start;
+	margin-bottom: var(--size-4-3);
+	color: var(--text-muted);
+	font-size: var(--font-ui-small);
+}
+
+/* ---- Goal widget: today ring ----
+   Uses the plugin's brand accent, same as the file-explorer badges and ribbon
+   icon, so the whole plugin reads as one identity: a pale filled disc with a
+   progress arc drawn over it, becoming a full glowing ring once the goal is
+   reached. */
+
+.scribe-goal-ring-wrap {
+	position: relative;
+	width: 100%;
+	max-width: 10rem;
+	aspect-ratio: 1;
+}
+
+.scribe-goal-ring {
+	width: 100%;
+	height: 100%;
+	/* Start the fill at 12 o'clock instead of SVG's default 3 o'clock. */
+	transform: rotate(-90deg);
+}
+
+.scribe-goal-ring-track {
+	fill: color-mix(in srgb, var(--scribe-accent) 12%, var(--background-primary));
+	stroke: none;
+}
+
+.scribe-goal-ring-fill {
+	fill: none;
+	stroke: var(--scribe-accent);
+	/* Matches ARC_STROKE_WIDTH in goalWidgetView.ts — the arc's radius is
+	   computed from this so it sits flush on the disc's rim; keep them in sync. */
+	stroke-width: 10;
+	stroke-linecap: round;
+	transition: stroke-dashoffset 0.3s ease;
+}
+
+/* Goal reached: a fuller ring with a soft glow, instead of a thin partial arc. */
+.scribe-goal-ring-wrap.mod-reached .scribe-goal-ring-fill {
+	filter: drop-shadow(0 0 6px color-mix(in oklch, var(--scribe-accent), transparent 55%));
+}
+
+.scribe-goal-ring-center {
+	position: absolute;
+	inset: 0;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	gap: 2px;
+	text-align: center;
+}
+
+.scribe-goal-ring-label {
+	color: var(--text-muted);
+	font-size: var(--font-ui-small);
+}
+
+.scribe-goal-ring-wrap.mod-reached .scribe-goal-ring-label {
+	color: var(--text-normal);
+	font-weight: var(--font-weight-bold);
+}
+
+.scribe-goal-ring-value {
+	font-size: var(--font-ui-larger);
+	font-weight: var(--font-weight-bold);
+	font-variant-numeric: tabular-nums;
+}
+
+.scribe-goal-ring-unit {
+	color: var(--text-muted);
+	font-size: var(--font-ui-smaller);
+}
+
+.scribe-goal-ring-caption {
+	margin-top: var(--size-4-4);
+	color: var(--text-muted);
+	font-size: var(--font-ui-small);
+	text-align: center;
+}
+
+/* ---- Goal widget: week/month summary ---- */
+
+.scribe-goal-summary {
+	flex-direction: row;
+	justify-content: space-around;
+}
+
+.scribe-goal-summary-item {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: 2px;
+}
+
+.scribe-goal-summary-value {
+	font-size: var(--font-ui-larger);
+	font-weight: var(--font-weight-bold);
+	font-variant-numeric: tabular-nums;
+}
+
+.scribe-goal-summary-label {
+	color: var(--text-muted);
+	font-size: var(--font-ui-smaller);
+}
+
+.scribe-goal-summary-divider {
+	align-self: stretch;
+	width: 1px;
+	background-color: var(--background-modifier-border);
+}
+
+/* ---- Goal widget: month calendar ---- */
+
+.scribe-goal-calendar-nav {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	width: 100%;
+	margin-bottom: var(--size-4-2);
+}
+
+.scribe-goal-calendar-title {
+	font-size: var(--font-ui-small);
+	font-weight: var(--font-weight-bold);
+}
+
+.scribe-goal-calendar-grid {
+	display: grid;
+	grid-template-columns: repeat(7, 1fr);
+	gap: 1px;
+	width: 100%;
+	max-width: 11rem;
+	margin: 0 auto;
+	text-align: center;
+}
+
+.scribe-goal-calendar-weekday {
+	padding-block: 2px;
+	color: var(--text-faint);
+	font-size: var(--font-ui-smaller);
+}
+
+.scribe-goal-calendar-day {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	aspect-ratio: 1;
+	/* A fixed percentage, not an Obsidian size token — always a true circle
+	   regardless of the cell's actual pixel size. */
+	border-radius: 50%;
+	color: var(--text-normal);
+	font-size: var(--font-ui-smaller);
+	font-variant-numeric: tabular-nums;
+}
+
+.scribe-goal-calendar-day.mod-out-of-month {
+	color: var(--text-faint);
+}
+
+/* A full ring around the cell (not just a bottom underline), so "today" reads
+   as a circle like the met/partial cells, never as a squared-off mark. */
+.scribe-goal-calendar-day.mod-today {
+	box-shadow: inset 0 0 0 2px var(--interactive-accent);
+	color: var(--interactive-accent);
+	font-weight: var(--font-weight-bold);
+}
+
+/* "none" (nothing written) is deliberately unfilled — the base rule above sets
+   no background-color, so it just shows the plain text on the page background. */
+
+/* Fell short of the goal: the softer accent — a lighter mark than a met day. */
+.scribe-goal-calendar-day.mod-partial {
+	background-color: var(--scribe-accent-soft);
+	color: var(--text-on-accent);
+}
+
+/* Met the goal: the stronger accent — a bolder mark than a partial day. */
+.scribe-goal-calendar-day.mod-met {
+	background-color: var(--scribe-accent);
+	color: var(--text-on-accent);
 }

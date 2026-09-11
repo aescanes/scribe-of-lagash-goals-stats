@@ -5,6 +5,20 @@ is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+### Added
+
+- Writing-goal widget: open it from the ribbon icon or the "Open writing goal
+  widget" command. A ring shows today's progress toward the daily goal, a
+  summary card below it totals the current week and month, and a month
+  calendar further down colours each day by whether it met, partly met, or
+  missed the goal (navigate with the arrows either side of the month name).
+  Progress is tracked in `"(SL) Goals History.json"`, a plugin-managed file
+  inside the story folder (or the vault root, when none is set) — a real vault
+  file, so history survives a plugin uninstall/reinstall and travels with the
+  vault through whatever the author already syncs it with. Each day's "amount
+  written" is live in both directions against a start-of-day baseline, so
+  deleting text lowers it same as any other writing-progress tracker.
+
 ### Changed
 
 - File-explorer counts now show a small leading icon marking the row type — a

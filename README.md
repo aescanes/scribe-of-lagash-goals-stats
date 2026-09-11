@@ -12,6 +12,13 @@ independent, focused tools for planning and writing stories in Obsidian.
 
 Working now:
 
+- **Writing-goal widget** — a right-sidebar view (ribbon icon or the "Open
+  writing goal widget" command) with a ring for today's progress toward the
+  daily goal, a week/month summary, and a month calendar colouring each day by
+  whether it met, partly met, or missed the goal. History is kept in a
+  plugin-managed file in the vault, so it survives a plugin uninstall/reinstall
+  and travels with the vault through whatever the author already syncs it
+  with.
 - **File-explorer counts** — every note inside the story folder shows its word
   (or character) count next to its name in the file explorer, and every folder
   shows the total of the notes beneath it. Counts update as you write.
@@ -22,11 +29,9 @@ Working now:
 
 Planned:
 
-- **Writing goals** — set targets (total word count, words per day/session, a
-  deadline, per-chapter or per-scene length) and track progress toward them
-  over time.
-- **Goal stats** — daily/weekly writing streaks, words added per session,
-  projected completion date, and how each day compares to the target pace.
+- **Goal targets** — total word count and a deadline, per-chapter or per-scene
+  length targets, and a projected completion date.
+- **Goal stats** — writing streaks and how each day compares to the target pace.
 - **Story stats** — total and per-chapter/scene word, sentence, and paragraph
   counts; average scene and chapter length; reading-time estimate.
 - **Repeated-word analysis** — most-frequent words and phrases across the

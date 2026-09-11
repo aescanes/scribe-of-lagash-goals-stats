@@ -2,17 +2,13 @@
 // Copyright (C) 2026 aescanes
 
 import { App, Component, debounce, setIcon, WorkspaceLeaf } from "obsidian";
-import { measure } from "../data/textMetrics";
 import { folderTotals } from "../data/countTree";
 import { formatCount } from "../data/countFormat";
-import { isExcluded } from "../data/exclusion";
-import { inStoryFolder } from "../data/scope";
 import type { GoalMetric } from "../settings/settings";
+import type { ScopeScanner } from "./scopeScanner";
 
 /** The settings slice the decorator needs, read lazily so it always sees current values. */
 export interface ExplorerDecoratorConfig {
-	storyFolder: string;
-	excludedPaths: string[];
 	metric: GoalMetric;
 }
 
@@ -38,21 +34,21 @@ const TYPE_ICON = { folder: "folder", note: "file-text" } as const;
 /**
  * Shows a word (or character) count next to every note and folder in the file
  * explorer that is inside the story folder: a note shows its own count, a folder
- * the sum of the notes beneath it. Excluded paths and Scribe-generated files are
- * skipped. Counts are cached and recomputed on vault and metadata changes.
+ * the sum of the notes beneath it. Counts come from a shared `ScopeScanner`
+ * (which already applies the story-folder scope and exclusions), re-picked in
+ * the active metric whenever the scanner rescans.
  */
 export class ExplorerDecorator extends Component {
 	private fileCounts = new Map<string, number>();
 	private folderCounts = new Map<string, number>();
 	private observer: MutationObserver | null = null;
 
-	/** Coalesces bursts of vault/metadata events into one rescan. */
-	private scheduleRefresh = debounce(() => void this.refresh(), 300, true);
 	/** Coalesces explorer DOM mutations (folder expand, rebuild) into one repaint. */
 	private schedulePaint = debounce(() => this.paint(), 50, true);
 
 	constructor(
 		private app: App,
+		private scanner: ScopeScanner,
 		private getConfig: () => ExplorerDecoratorConfig,
 	) {
 		super();
@@ -60,15 +56,11 @@ export class ExplorerDecorator extends Component {
 
 	onload(): void {
 		this.app.workspace.onLayoutReady(() => {
-			void this.refresh();
+			this.recomputeFromScanner();
 			this.observeExplorer();
 		});
 
-		this.registerEvent(this.app.metadataCache.on("resolved", () => this.scheduleRefresh()));
-		this.registerEvent(this.app.vault.on("modify", () => this.scheduleRefresh()));
-		this.registerEvent(this.app.vault.on("create", () => this.scheduleRefresh()));
-		this.registerEvent(this.app.vault.on("delete", () => this.scheduleRefresh()));
-		this.registerEvent(this.app.vault.on("rename", () => this.scheduleRefresh()));
+		this.register(this.scanner.onChange(() => this.recomputeFromScanner()));
 
 		// The explorer leaf can be recreated (layout restore, moving the sidebar);
 		// re-attach the observer and repaint when the workspace layout changes.
@@ -82,21 +74,13 @@ export class ExplorerDecorator extends Component {
 		this.register(() => this.teardown());
 	}
 
-	/** Rescans in-scope notes, recomputes folder totals, and repaints. */
-	async refresh(): Promise<void> {
-		const { storyFolder, excludedPaths, metric } = this.getConfig();
-
-		const files = this.app.vault
-			.getMarkdownFiles()
-			.filter((file) => inStoryFolder(file.path, storyFolder) && !isExcluded(file.path, excludedPaths));
-
+	/** Re-picks this metric's counts from the scanner's latest scan, then repaints. */
+	recomputeFromScanner(): void {
+		const metric = this.getConfig().metric;
 		const counts: Record<string, number> = {};
-		await Promise.all(
-			files.map(async (file) => {
-				const content = await this.app.vault.cachedRead(file);
-				counts[file.path] = measure(content, metric);
-			}),
-		);
+		for (const [path, metrics] of this.scanner.getPerFile()) {
+			counts[path] = metric === "characters" ? metrics.characters : metrics.words;
+		}
 
 		this.fileCounts = new Map(Object.entries(counts));
 		this.folderCounts = new Map(Object.entries(folderTotals(counts)));

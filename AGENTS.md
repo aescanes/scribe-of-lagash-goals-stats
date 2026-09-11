@@ -32,9 +32,10 @@ Rules:
 Shape so far (grows as features land):
 
 - Entry point: [`src/main.ts`](src/main.ts) → `ScribeGoalsStatsPlugin` — onload
-  wiring only (settings tab, and child `Component`s such as the explorer
-  decorator; ribbon icon / commands / a stats view later). `saveSettings()`
-  pokes the decorator to re-render.
+  wiring only: settings tab, the ribbon icon / command that open the goal
+  widget, and child `Component`s (`ScopeScanner`, `ExplorerDecorator`,
+  `GoalHistoryStore`). `saveSettings()` pokes the scanner to rescan, which
+  cascades to the other two via `onChange`.
 - `src/types.ts` — *not created yet*. When frontmatter or shared domain types
   are needed, this holds `FRONTMATTER_KEYS` (**single source of truth** for key
   names) plus the plugin's own data types (goals, snapshots, stat results).
@@ -42,13 +43,28 @@ Shape so far (grows as features land):
   type-only symbol from `src/settings/` is fine). Everything unit-testable
   lives here: `goalMath` (weekly/monthly targets), `exclusion` (`isExcluded`
   plus the always-on `(SL) ` rule), `scope` (`inStoryFolder`), `textMetrics`
-  (`countWords` / `countCharacters` / `stripFrontmatter` / `measure`),
-  `countTree` (`folderTotals`), `countFormat` (`formatCount`). Later:
-  tokenizing, sentence counting, stop-word filtering, repeated-word tallying,
-  pace / projection.
-- [`src/views/`](src/views/) — Obsidian-facing rendering. `explorerDecorator.ts`
-  paints counts into the file explorer. Any non-trivial computation is a pure
-  function in `src/data/` that the view calls; the view does not do math inline.
+  (`countWords` / `countCharacters` / `stripFrontmatter` / `measure` /
+  `measureBoth`), `countTree` (`folderTotals`), `countFormat` (`formatCount`),
+  `goalHistory` (the history-file model: `parseHistory`, `serializeHistory`,
+  `deltaForDate`, …), `calendarGrid` (`monthGrid`, `buildCalendar`,
+  `dayStatus`). Later: tokenizing, sentence counting, stop-word filtering,
+  repeated-word tallying, pace / projection.
+- [`src/views/`](src/views/) — Obsidian-facing, not necessarily DOM: any
+  non-trivial computation is a pure function in `src/data/` that these call,
+  they don't do math inline.
+  - `scopeScanner.ts` — the one place that scans and reads every in-scope
+    note (both metrics, from a single `cachedRead` per file); everything else
+    that needs "how much has been written" subscribes to it instead of
+    scanning the vault itself.
+  - `explorerDecorator.ts` — paints counts into the file explorer, re-picking
+    the active metric from the scanner's scan.
+  - `goalHistoryStore.ts` — records each day's totals (both metrics) from the
+    scanner into a plugin-managed vault file, `"(SL) Goals History.json"`
+    inside the story folder (or the vault root). A real vault file, not
+    plugin data under `.obsidian/`, so it survives an uninstall/reinstall and
+    travels with however the vault is already synced.
+  - `goalWidgetView.ts` — the right-sidebar `ItemView` (today's ring + month
+    calendar), reading `plugin.goalHistoryStore` and `plugin.settings`.
 - [`src/settings/`](src/settings/) — `settings.ts` (interface, defaults,
   `normalizeSettings`) and `settingsTab.ts` (the tab; imperative `display()`).
 - [`styles.css`](styles.css) — prefer Obsidian's own CSS variables

@@ -27,8 +27,9 @@ the notes beneath it.
 - **Exclusions** — `isExcluded` is applied, so `(SL) ` files/folders and the
   user's excluded paths are neither counted nor shown. A folder's total does
   not include excluded notes.
-- **Live** — recomputes (debounced) on `vault` create/modify/delete/rename and
-  on `metadataCache` "resolved", and on `saveSettings()`.
+- **Live** — the shared scanner recomputes (debounced) on `vault`
+  create/modify/delete/rename and on `metadataCache` "resolved", and on
+  `saveSettings()`; the explorer repaints on every scan.
 - **Always on** — no toggle.
 
 ## Modules
@@ -44,9 +45,15 @@ the notes beneath it.
   the badge string (e.g. `1,234 words`). Pure, unit-tested.
 - [`src/data/scope.ts`](../../src/data/scope.ts) — `inStoryFolder`. Pure,
   unit-tested.
+- [`src/views/scopeScanner.ts`](../../src/views/scopeScanner.ts) — scans
+  in-scope, non-excluded notes and measures both metrics per file from one
+  `cachedRead`; shared with the writing-goal history (see
+  [goal-widget-plan.md](goal-widget-plan.md)) so neither reads the vault
+  twice. `ExplorerDecorator` re-picks the active metric from its scan on every
+  `onChange` rather than scanning itself.
 - [`src/views/explorerDecorator.ts`](../../src/views/explorerDecorator.ts) — the
-  Obsidian glue: a `Component` that caches counts, subscribes to vault/metadata
-  events, and paints a `.scribe-explorer-count` span just after the name in each
+  Obsidian glue: a `Component` that caches counts and paints a
+  `.scribe-explorer-count` span just after the name in each
   explorer row (`fileItems[path].selfEl` → its `.tree-item-inner`). A
   `MutationObserver` on `.nav-files-container`
   (disconnected during each paint to avoid a feedback loop) repaints when

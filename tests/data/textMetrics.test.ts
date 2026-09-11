@@ -3,7 +3,7 @@
 
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import { countCharacters, countWords, measure, stripFrontmatter } from "../../src/data/textMetrics";
+import { countCharacters, countWords, measure, measureBoth, stripFrontmatter } from "../../src/data/textMetrics";
 
 test("stripFrontmatter removes a leading YAML block only", () => {
 	assert.equal(stripFrontmatter("---\ntitle: x\n---\nHello world"), "Hello world");
@@ -33,4 +33,9 @@ test("countCharacters counts body characters including inner spaces", () => {
 test("measure dispatches on the metric", () => {
 	assert.equal(measure("one two three", "words"), 3);
 	assert.equal(measure("one two three", "characters"), 13);
+});
+
+test("measureBoth returns both counts from one pass, frontmatter excluded", () => {
+	assert.deepEqual(measureBoth("---\ntitle: x\n---\none two three"), { words: 3, characters: 13 });
+	assert.deepEqual(measureBoth(""), { words: 0, characters: 0 });
 });

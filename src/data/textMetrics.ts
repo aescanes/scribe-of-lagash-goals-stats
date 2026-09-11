@@ -38,3 +38,14 @@ export function countCharacters(content: string): number {
 export function measure(content: string, metric: GoalMetric): number {
 	return metric === "characters" ? countCharacters(content) : countWords(content);
 }
+
+/**
+ * Both counts at once, from a single frontmatter-stripped pass. The writing-goal
+ * history stores both regardless of the active metric, so switching the metric
+ * setting later doesn't strand or misinterpret past history.
+ */
+export function measureBoth(content: string): { words: number; characters: number } {
+	const body = stripFrontmatter(content);
+	const words = body.match(/\S+/g);
+	return { words: words ? words.length : 0, characters: body.trim().length };
+}
