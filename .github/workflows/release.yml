@@ -39,7 +39,13 @@ jobs:
       # identity, so `gh attestation verify <file> --repo <this repo>` passes.
       # GitHub's automatic release attestation (from Immutable Releases) uses a
       # different signer identity and does not satisfy that check on its own.
+      #
+      # Artifact attestations aren't available for a private repo owned by a
+      # personal account (GitHub returns "Feature not available for
+      # user-owned private repositories" regardless of plan), so this step is
+      # skipped until the repo is made public — no `if:` to remove once it is.
       - name: Attest build provenance
+        if: ${{ !github.event.repository.private }}
         uses: actions/attest-build-provenance@v2
         with:
           subject-path: |
