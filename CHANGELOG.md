@@ -5,6 +5,8 @@ is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+## [0.1.0](https://github.com/aescanes/scribe-of-lagash-goals-stats/releases/tag/0.1.0) - 2026-09-11
+
 ### Added
 
 - Word/character counts in the file explorer. Every note inside the story
