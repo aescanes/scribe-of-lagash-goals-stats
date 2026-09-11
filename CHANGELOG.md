@@ -5,6 +5,12 @@ is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+### Changed
+
+- File-explorer counts now show a small leading icon marking the row type — a
+  document icon for a note's own count, a folder icon for a folder's rolled-up
+  total — instead of a word/character metric icon.
+
 ## [0.1.2](https://github.com/aescanes/scribe-of-lagash-goals-stats/releases/tag/0.1.2) - 2026-09-11
 
 ### Changed

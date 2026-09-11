@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 // Copyright (C) 2026 aescanes
 
-import { App, Component, debounce, WorkspaceLeaf } from "obsidian";
+import { App, Component, debounce, setIcon, WorkspaceLeaf } from "obsidian";
 import { measure } from "../data/textMetrics";
 import { folderTotals } from "../data/countTree";
 import { formatCount } from "../data/countFormat";
@@ -31,6 +31,9 @@ interface FileExplorerView {
 
 const FILE_EXPLORER_TYPE = "file-explorer";
 const COUNT_CLASS = "scribe-explorer-count";
+
+/** Lucide icon marking which kind of row the badge is on. */
+const TYPE_ICON = { folder: "folder", note: "file-text" } as const;
 
 /**
  * Shows a word (or character) count next to every note and folder in the file
@@ -142,7 +145,14 @@ export class ExplorerDecorator extends Component {
 			return;
 		}
 		if (!badge) {
+			// isFolder never changes for a given path, so the icon is fixed for the
+			// badge's whole lifetime: build it once, then only refresh the text.
 			badge = createSpan({ cls: COUNT_CLASS });
+			setIcon(
+				badge.createSpan({ cls: "scribe-explorer-count-icon" }),
+				isFolder ? TYPE_ICON.folder : TYPE_ICON.note,
+			);
+			badge.createSpan({ cls: "scribe-explorer-count-text" });
 			// Sit right after the name text, not at the far end of the row.
 			const name = row.querySelector<HTMLElement>(":scope > .tree-item-inner");
 			if (name) name.insertAdjacentElement("afterend", badge);
@@ -150,7 +160,9 @@ export class ExplorerDecorator extends Component {
 		}
 		badge.toggleClass("mod-folder", isFolder);
 		badge.toggleClass("mod-note", !isFolder);
-		badge.setText(formatCount(count, metric, isFolder));
+
+		const text = badge.querySelector<HTMLElement>(":scope > .scribe-explorer-count-text");
+		text?.setText(formatCount(count, metric, isFolder));
 	}
 
 	private observeExplorer(): void {

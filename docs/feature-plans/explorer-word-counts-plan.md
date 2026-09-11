@@ -12,13 +12,18 @@ the notes beneath it.
 
 - **Scope** — notes inside the story folder. When the story folder is empty the
   whole vault is counted (matching the plugin's "empty = whole vault" rule).
-- **Unit** — follows the General → Metric setting, spelled out with the number
-  singular below two. No tooltip.
+- **Unit** — follows the General → Metric setting: `word`/`words` or
+  `char`/`chars`, singular below two. No tooltip. The text itself no longer
+  distinguishes folder from note (`formatCount`'s `isFolder` is currently
+  unused) — that distinction is carried entirely by placement/style below.
 - **Placement / style** — the span is inserted after the name element
-  (`.tree-item-inner`); CSS then places it. A note's own count sits just after
-  the title, lighter, in parentheses — `(1,234 words)`, `.mod-note`. A folder's
-  rolled-up total is pushed to the right edge of the row (`margin-left: auto`),
-  darker, in brackets — `[1,234 words]`, `.mod-folder`.
+  (`.tree-item-inner`); CSS then places it. Both are a small pill (tinted
+  background, rounded corners) sized via `--font-ui-small`, with a leading type
+  icon — `file-text` for a note, `folder` for a folder. A note's own count sits
+  just after the title, coloured with the softer `--scribe-accent-soft`
+  (`.mod-note`). A folder's rolled-up total is pushed to the right edge of the
+  row (`margin-left: auto`) and coloured with the stronger `--scribe-accent`
+  (`.mod-folder`).
 - **Exclusions** — `isExcluded` is applied, so `(SL) ` files/folders and the
   user's excluded paths are neither counted nor shown. A folder's total does
   not include excluded notes.
@@ -36,7 +41,7 @@ the notes beneath it.
 - [`src/data/countTree.ts`](../../src/data/countTree.ts) — `folderTotals`: rolls
   per-file counts up into every ancestor folder. Pure, unit-tested.
 - [`src/data/countFormat.ts`](../../src/data/countFormat.ts) — `formatCount`:
-  the badge string, `[…]` for folders and `(…)` for notes. Pure, unit-tested.
+  the badge string (e.g. `1,234 words`). Pure, unit-tested.
 - [`src/data/scope.ts`](../../src/data/scope.ts) — `inStoryFolder`. Pure,
   unit-tested.
 - [`src/views/explorerDecorator.ts`](../../src/views/explorerDecorator.ts) — the

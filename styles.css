@@ -49,21 +49,37 @@ body {
 /* ---- File explorer: word/character count badge ---- */
 
 .scribe-explorer-count {
+	display: inline-flex;
+	align-items: center;
+	gap: var(--size-4-1);
 	flex-shrink: 0;
-	font-size: var(--font-ui-smaller);
+	font-size: var(--font-ui-small);
 	font-variant-numeric: tabular-nums;
+	padding: 1px var(--size-4-1);
+	background-color: color-mix(in srgb, var(--scribe-accent) 14%, transparent);
+	border-radius: var(--radius-s);
+	margin-left: auto;
+}
+
+/* Count-badge icon — folder or note, marking which kind of row it's on. Sized
+   down and coloured via currentColor so it always matches the badge's text. */
+.scribe-explorer-count-icon {
+	display: inline-flex;
+}
+
+.scribe-explorer-count-icon svg {
+	width: var(--icon-xs);
+	height: var(--icon-xs);
 }
 
 /* A note's own count: sits just after the name, softer so the name stays dominant. */
 .scribe-explorer-count.mod-note {
-	margin-left: var(--size-4-2);
 	color: var(--scribe-accent-soft);
 }
 
-/* A folder's rolled-up total: pushed to the right edge of the row, stronger. */
+/* A folder's rolled-up total: pushed to the right edge of the row as a small
+   pill, so it reads as a stronger, more "total"-like figure than a note's. */
 .scribe-explorer-count.mod-folder {
-	margin-left: auto;
-	padding-left: var(--size-4-2);
 	color: var(--scribe-accent);
 }
 
