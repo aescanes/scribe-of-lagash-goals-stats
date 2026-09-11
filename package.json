@@ -1,6 +1,6 @@
 {
 	"name": "scribe-of-lagash-goals-stats",
-	"version": "0.1.2",
+	"version": "0.2.0",
 	"description": "Set writing goals for your story and track detailed statistics: word counts, progress toward goals, repeated words, and more.",
 	"main": "main.js",
 	"scripts": {
