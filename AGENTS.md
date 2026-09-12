@@ -32,10 +32,12 @@ Rules:
 Shape so far (grows as features land):
 
 - Entry point: [`src/main.ts`](src/main.ts) → `ScribeGoalsStatsPlugin` — onload
-  wiring only: settings tab, the ribbon icon / command that open the goal
-  widget, and child `Component`s (`ScopeScanner`, `ExplorerDecorator`,
-  `GoalHistoryStore`). `saveSettings()` pokes the scanner to rescan, which
-  cascades to the other two via `onChange`.
+  wiring only: settings tab, the ribbon icons / commands that open the two
+  views — the goal widget (right sidebar) and the Goals & Stats tab (main
+  area) — via a shared `activateView(viewType, placement)`, and child
+  `Component`s (`ScopeScanner`, `ExplorerDecorator`, `GoalHistoryStore`).
+  `saveSettings()` pokes the scanner to rescan, which cascades to the other
+  two via `onChange`.
 - `src/types.ts` — *not created yet*. When frontmatter or shared domain types
   are needed, this holds `FRONTMATTER_KEYS` (**single source of truth** for key
   names) plus the plugin's own data types (goals, snapshots, stat results).
@@ -46,9 +48,9 @@ Shape so far (grows as features land):
   (`countWords` / `countCharacters` / `stripFrontmatter` / `measure` /
   `measureBoth`), `countTree` (`folderTotals`), `countFormat` (`formatCount`),
   `goalHistory` (the history-file model: `parseHistory`, `serializeHistory`,
-  `deltaForDate`, …), `calendarGrid` (`monthGrid`, `buildCalendar`,
-  `dayStatus`). Later: tokenizing, sentence counting, stop-word filtering,
-  repeated-word tallying, pace / projection.
+  `writtenFor`, `writtenBetween`, …), `calendarGrid` (`monthGrid`,
+  `buildCalendar`, `dayStatus`). Later: tokenizing, sentence counting,
+  stop-word filtering, repeated-word tallying, pace / projection.
 - [`src/views/`](src/views/) — Obsidian-facing, not necessarily DOM: any
   non-trivial computation is a pure function in `src/data/` that these call,
   they don't do math inline.
@@ -63,8 +65,20 @@ Shape so far (grows as features land):
     inside the story folder (or the vault root). A real vault file, not
     plugin data under `.obsidian/`, so it survives an uninstall/reinstall and
     travels with however the vault is already synced.
-  - `goalWidgetView.ts` — the right-sidebar `ItemView` (today's ring + month
-    calendar), reading `plugin.goalHistoryStore` and `plugin.settings`.
+  - `calendarWidget.ts` — `renderCalendarWidget`: the month-calendar nav +
+    grid DOM, shared by `goalWidgetView.ts` and `goalsStatsTabView.ts` so both
+    stay identical without duplicating the DOM building. A day with data gets
+    an `aria-label` tooltip (its total, via `formatCount`) and, if `onDayClick`
+    is passed, is clickable — a day with none has neither.
+  - `goalWidgetView.ts` — the right-sidebar `ItemView` (today's ring, a
+    week/month summary, and the month calendar), reading
+    `plugin.goalHistoryStore` and `plugin.settings`.
+  - `goalsStatsTabView.ts` — a main-area tab `ItemView` (opened via
+    `workspace.getLeaf("tab")`, like the Visualization plugin's StoryLines,
+    not a sidebar). Two sections: "Writing goal history" (today/week/month as
+    plain circles — no progress arc, this is a record not a live goal — plus
+    the calendar, clickable per day to show that day's total) and "Story
+    Stats" (placeholder, not built yet).
 - [`src/settings/`](src/settings/) — `settings.ts` (interface, defaults,
   `normalizeSettings`) and `settingsTab.ts` (the tab; imperative `display()`).
 - [`styles.css`](styles.css) — prefer Obsidian's own CSS variables

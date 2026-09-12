@@ -19,6 +19,10 @@ Working now:
   plugin-managed file in the vault, so it survives a plugin uninstall/reinstall
   and travels with the vault through whatever the author already syncs it
   with.
+- **Goals & Stats tab** — a main-area tab (ribbon icon or the "Open Goals &
+  Stats" command) with a "Writing goal history" section: today/week/month
+  totals, and the same month calendar as the sidebar widget, with each day
+  that has data clickable to see its total.
 - **File-explorer counts** — every note inside the story folder shows its word
   (or character) count next to its name in the file explorer, and every folder
   shows the total of the notes beneath it. Counts update as you write.
@@ -33,7 +37,9 @@ Planned:
   length targets, and a projected completion date.
 - **Goal stats** — writing streaks and how each day compares to the target pace.
 - **Story stats** — total and per-chapter/scene word, sentence, and paragraph
-  counts; average scene and chapter length; reading-time estimate.
+  counts; average scene and chapter length; reading-time estimate. Will live
+  in the Goals & Stats tab's "Story Stats" section (already there as an empty
+  placeholder).
 - **Repeated-word analysis** — most-frequent words and phrases across the
   whole story or a single chapter, with common stop-words filtered out, to
   surface overused crutch words.

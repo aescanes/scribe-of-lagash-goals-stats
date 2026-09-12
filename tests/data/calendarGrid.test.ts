@@ -57,6 +57,11 @@ test("buildCalendar marks in-month, today, and status per cell", () => {
 	assert.equal(sep10?.status, "partial");
 	assert.equal(sep10?.isToday, true);
 	assert.equal(sep9?.isToday, false);
+	assert.equal(sep9?.written, 1667);
+	assert.equal(sep10?.written, 500);
+
+	const noEntry = flat.find((c) => c.iso === "2026-09-08");
+	assert.equal(noEntry?.written, 0);
 
 	const outOfMonth = flat.find((c) => !c.inMonth);
 	assert.ok(outOfMonth, "expected at least one filler day from an adjacent month");

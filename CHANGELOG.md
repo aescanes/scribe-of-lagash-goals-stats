@@ -5,6 +5,18 @@ is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+### Added
+
+- Main-area "Goals & Stats" tab (ribbon icon or the "Open Goals & Stats"
+  command). Opens as a tab (like the Visualization plugin's StoryLines) rather
+  than a sidebar, since this is meant to be worked in rather than glanced at.
+  Two sections:
+  - **Writing goal history** — today/week/month totals as plain circles (no
+    progress arc, unlike the right-sidebar ring — this is a record, not a
+    goal being tracked live), and the same month calendar as the right-sidebar
+    widget, plus clicking any day with data to see that day's total.
+  - **Story Stats** — a placeholder; not built yet.
+
 ## [0.2.0](https://github.com/aescanes/scribe-of-lagash-goals-stats/releases/tag/0.2.0) - 2026-09-11
 
 ### Added

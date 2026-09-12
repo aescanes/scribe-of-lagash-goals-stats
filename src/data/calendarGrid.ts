@@ -16,6 +16,8 @@ export interface CalendarCell {
 	inMonth: boolean;
 	isToday: boolean;
 	status: DayStatus;
+	/** The raw amount written that day (0 for a day with no entry) — e.g. for a tooltip. */
+	written: number;
 }
 
 /** "met" at or past the goal, "partial" for any lesser amount written, "none" for nothing. */
@@ -62,12 +64,14 @@ export function buildCalendar(
 	return monthGrid(year, month).map((week) =>
 		week.map((date) => {
 			const iso = dateKey(date);
+			const written = writtenForDate(iso);
 			return {
 				date,
 				iso,
 				inMonth: date.getMonth() === month,
 				isToday: iso === todayIso,
-				status: dayStatus(writtenForDate(iso), dailyGoal),
+				status: dayStatus(written, dailyGoal),
+				written,
 			};
 		}),
 	);

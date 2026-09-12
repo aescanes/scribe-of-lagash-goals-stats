@@ -17,10 +17,20 @@ body {
 
 /* ---- Ribbon icon ---- */
 
-/* The view icon follows the theme everywhere (currentColor); only the ribbon
-   button gets the brand accent. */
 .scribe-ribbon-icon,
 .scribe-ribbon-icon:hover {
+	color: var(--scribe-accent);
+}
+
+/* ---- View tab-header icon ----
+   Obsidian renders each view's own tab-header icon (shown when the view is
+   open, in the sidebar's tab strip or the main tab bar) itself, separately
+   from the ribbon button above — it never picks up .scribe-ribbon-icon, so
+   without this it stays the theme's plain icon colour while the ribbon is
+   branded. Obsidian tags the tab header with the view's type via `data-type`,
+   so this is scoped to only this plugin's own views. */
+.workspace-tab-header[data-type="scribe-goal-widget"] svg,
+.workspace-tab-header[data-type="scribe-goals-stats-tab"] svg {
 	color: var(--scribe-accent);
 }
 
@@ -88,12 +98,25 @@ body {
 	color: var(--text-normal);
 }
 
-/* ---- Goal widget: sidebar container ---- */
+/* ---- Sidebar / tab view container ----
+   Shared by every view this plugin adds (the right-sidebar goal widget, the
+   main-area Goals & Stats tab, …), not tied to any one of them. */
 
 .scribe-goals-view {
 	padding: var(--size-4-4);
 	height: 100%;
 	overflow: auto;
+}
+
+.scribe-goal-card-title {
+	align-self: flex-start;
+	margin-bottom: var(--size-4-3);
+	color: var(--text-muted);
+	font-size: var(--font-ui-small);
+}
+
+.scribe-stats-placeholder {
+	color: var(--text-muted);
 }
 
 /* ---- Goal widget: card ---- */
@@ -107,13 +130,6 @@ body {
 	background: var(--background-primary);
 	padding: var(--size-4-4) var(--size-4-4) var(--size-4-5);
 	margin-bottom: var(--size-4-6);
-}
-
-.scribe-goal-card-title {
-	align-self: flex-start;
-	margin-bottom: var(--size-4-3);
-	color: var(--text-muted);
-	font-size: var(--font-ui-small);
 }
 
 /* ---- Goal widget: today ring ----
@@ -237,8 +253,11 @@ body {
 }
 
 .scribe-goal-calendar-title {
+	overflow: hidden;
 	font-size: var(--font-ui-small);
 	font-weight: var(--font-weight-bold);
+	white-space: nowrap;
+	text-overflow: ellipsis;
 }
 
 .scribe-goal-calendar-grid {
@@ -295,4 +314,105 @@ body {
 .scribe-goal-calendar-day.mod-met {
 	background-color: var(--scribe-accent);
 	color: var(--text-on-accent);
+}
+
+/* A day with data, in a calendar that supports clicking a day to see its total. */
+.scribe-goal-calendar-day.mod-clickable {
+	cursor: pointer;
+}
+
+.scribe-goal-calendar-day.mod-clickable:hover {
+	box-shadow: inset 0 0 0 2px var(--text-on-accent);
+}
+
+/* ---- Goals & Stats tab ---- */
+
+.scribe-stats-section-title {
+	display: flex;
+	align-items: center;
+	gap: var(--size-4-2);
+	margin-block: 0 var(--size-4-4);
+}
+
+.scribe-stats-section-icon {
+	display: inline-flex;
+	color: var(--scribe-accent);
+}
+
+.scribe-stats-section-icon svg {
+	width: var(--icon-m);
+	height: var(--icon-m);
+}
+
+/* Separates the two top-level sections; margin does the rest of the spacing
+   the old heading-only gap used to (see the divider rule below). */
+.scribe-stats-divider {
+	margin: var(--size-4-6) 0;
+	border: none;
+	border-top: 1px solid var(--background-modifier-border);
+}
+
+/* The three totals, inside their own bordered card. */
+.scribe-stat-circle-row {
+	display: flex;
+	flex-wrap: wrap;
+	justify-content: center;
+	gap: var(--size-4-4);
+}
+
+.scribe-stat-circle {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	gap: 2px;
+	width: 8rem;
+	aspect-ratio: 1;
+	border-radius: 50%;
+	background-color: color-mix(in srgb, var(--scribe-accent) 12%, var(--background-primary));
+	text-align: center;
+}
+
+/* The two cards of the "Writing goal history" section, stacked: totals on
+   top, the calendar (+ detail circle) below. */
+.scribe-goal-history-stack {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: var(--size-4-4);
+}
+
+/* Fixed width so the calendar card's footprint never changes — neither a
+   longer month name (e.g. "September" vs "May") nor the detail circle
+   appearing/disappearing should resize it. Wide enough for the calendar
+   (11rem) and the detail circle (8rem) side by side, plus the card's own
+   padding and the gap between them. */
+.scribe-goal-card.mod-calendar {
+	width: 22rem;
+}
+
+/* The plain wrapper around the calendar's nav+grid (inside .mod-calendar):
+   without an explicit width of its own, it sizes to whatever its content
+   needs — and a longer month name's nav row could need more than the grid's
+   11rem, widening this wrapper (and visibly, the card) for that month only.
+   Pinning it to the grid's own width closes that off; a month name too long
+   to fit just wraps instead of resizing anything. */
+.scribe-goal-calendar-block {
+	width: 11rem;
+}
+
+/* The tab has room to breathe that the sidebar widget doesn't — a bit more
+   space between the day-number cells than the widget's tighter packing. */
+.scribe-goal-card.mod-calendar .scribe-goal-calendar-grid {
+	gap: var(--size-4-1);
+}
+
+/* Inside the calendar card: the calendar itself, and (when a day is selected)
+   its detail circle beside it — flex items each sizing to its own content. */
+.scribe-goal-history-row {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	justify-content: center;
+	gap: var(--size-4-4);
 }

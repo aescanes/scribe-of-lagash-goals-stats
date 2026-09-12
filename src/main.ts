@@ -1,13 +1,22 @@
 // SPDX-License-Identifier: MIT
 // Copyright (C) 2026 aescanes
 
-import { Plugin, WorkspaceLeaf } from "obsidian";
+import { addIcon, Plugin, WorkspaceLeaf } from "obsidian";
 import { DEFAULT_SETTINGS, normalizeSettings, ScribeGoalsStatsSettings } from "./settings/settings";
 import { ScribeGoalsStatsSettingTab } from "./settings/settingsTab";
 import { ExplorerDecorator } from "./views/explorerDecorator";
 import { ScopeScanner } from "./views/scopeScanner";
 import { GoalHistoryStore } from "./views/goalHistoryStore";
 import { GOAL_WIDGET_ICON, GoalWidgetView, VIEW_TYPE_GOAL_WIDGET } from "./views/goalWidgetView";
+import {
+	GOALS_STATS_TAB_ICON_ID,
+	GOALS_STATS_TAB_ICON_SVG,
+	GoalsStatsTabView,
+	VIEW_TYPE_GOALS_STATS_TAB,
+} from "./views/goalsStatsTabView";
+
+/** Where `activateView` opens a view: the right sidebar, or a tab in the main area. */
+type ViewPlacement = "right" | "tab";
 
 export default class ScribeGoalsStatsPlugin extends Plugin {
 	settings: ScribeGoalsStatsSettings = { ...DEFAULT_SETTINGS };
@@ -36,16 +45,32 @@ export default class ScribeGoalsStatsPlugin extends Plugin {
 			})),
 		);
 
-		this.registerView(VIEW_TYPE_GOAL_WIDGET, (leaf) => new GoalWidgetView(leaf, this));
+		addIcon(GOALS_STATS_TAB_ICON_ID, GOALS_STATS_TAB_ICON_SVG);
 
-		this.addRibbonIcon(GOAL_WIDGET_ICON, "Open writing goal", () => {
-			void this.activateGoalWidget();
-		});
+		this.registerView(VIEW_TYPE_GOAL_WIDGET, (leaf) => new GoalWidgetView(leaf, this));
+		this.registerView(VIEW_TYPE_GOALS_STATS_TAB, (leaf) => new GoalsStatsTabView(leaf, this));
+
+		// Right sidebar: today's goal (ring, week/month summary, calendar).
+		this.addRibbonIcon(GOAL_WIDGET_ICON, "(SL) G & S: Open Writing Goal", () => {
+			void this.activateView(VIEW_TYPE_GOAL_WIDGET, "right");
+		}).addClass("scribe-ribbon-icon");
+
+		// Main-area tab: the full picture — every stat and the complete goal
+		// history, in more detail than the sidebar widget (not built yet).
+		this.addRibbonIcon(GOALS_STATS_TAB_ICON_ID, "(SL) G & S: Open Goals & Stats", () => {
+			void this.activateView(VIEW_TYPE_GOALS_STATS_TAB, "tab");
+		}).addClass("scribe-ribbon-icon");
 
 		this.addCommand({
 			id: "open-writing-goal-widget",
 			name: "Open writing goal widget",
-			callback: () => void this.activateGoalWidget(),
+			callback: () => void this.activateView(VIEW_TYPE_GOAL_WIDGET, "right"),
+		});
+
+		this.addCommand({
+			id: "open-goals-stats-tab",
+			name: "Open Goals & Stats",
+			callback: () => void this.activateView(VIEW_TYPE_GOALS_STATS_TAB, "tab"),
 		});
 
 		this.addSettingTab(new ScribeGoalsStatsSettingTab(this.app, this));
@@ -62,14 +87,15 @@ export default class ScribeGoalsStatsPlugin extends Plugin {
 		void this.scanner.refresh();
 	}
 
-	private async activateGoalWidget(): Promise<void> {
+	/** Reveals an existing leaf of `viewType`, or opens one at the given placement. */
+	private async activateView(viewType: string, placement: ViewPlacement): Promise<void> {
 		const { workspace } = this.app;
 
-		let leaf: WorkspaceLeaf | null = workspace.getLeavesOfType(VIEW_TYPE_GOAL_WIDGET)[0] ?? null;
+		let leaf: WorkspaceLeaf | null = workspace.getLeavesOfType(viewType)[0] ?? null;
 		if (!leaf) {
-			leaf = workspace.getRightLeaf(false);
+			leaf = placement === "right" ? workspace.getRightLeaf(false) : workspace.getLeaf("tab");
 			if (!leaf) return;
-			await leaf.setViewState({ type: VIEW_TYPE_GOAL_WIDGET, active: true });
+			await leaf.setViewState({ type: viewType, active: true });
 		}
 
 		await workspace.revealLeaf(leaf);

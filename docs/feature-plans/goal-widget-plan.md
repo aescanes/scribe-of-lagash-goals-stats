@@ -1,11 +1,15 @@
 # Writing-goal widget
 
-Status: initial version landed.
+Status: initial version landed, in two places — the right-sidebar
+`GoalWidgetView` and the "Writing goal history" section of the main-area
+`GoalsStatsTabView`, which share their calendar rendering and both read the
+same history.
 
 ## Goal
 
-A right-sidebar view showing whether today's writing is on pace, and how the
-last month has gone — without opening a separate stats page.
+Show whether today's writing is on pace, and how recent days have gone,
+without opening a separate stats page — a quick glance in the sidebar, or a
+fuller record (with per-day totals and click-through) in the main tab.
 
 ## Storage decision: a vault file, not plugin data
 
@@ -77,11 +81,19 @@ leaves the device. A real vault file is the only option that satisfies both.
   not fatal), `writtenFor` (a direct lookup), `writtenBetween` (sums `written`
   over an inclusive date range, for the week/month summary).
 - [`src/data/calendarGrid.ts`](../../src/data/calendarGrid.ts) — pure,
-  unit-tested: `monthGrid` (always 6 Sunday-first weeks, so the widget's
+  unit-tested: `monthGrid` (always 6 Sunday-first weeks, so the calendar's
   height doesn't jump between months), `dayStatus` (met / partial / none),
-  `buildCalendar` (the grid enriched with each cell's status via a
-  caller-supplied `writtenForDate`, so this module doesn't depend on
-  `goalHistory`'s shape).
+  `buildCalendar` (the grid enriched with each cell's status *and* its raw
+  `written` amount, via a caller-supplied `writtenForDate`, so this module
+  doesn't depend on `goalHistory`'s shape).
+- [`src/views/calendarWidget.ts`](../../src/views/calendarWidget.ts) —
+  `renderCalendarWidget`: the nav (prev/next + month title) and the day-cell
+  grid, as one DOM-building function shared by `goalWidgetView.ts` and
+  `goalsStatsTabView.ts` so both stay identical without duplicating it. Every
+  day with data gets an `aria-label` tooltip (`formatCount(cell.written,
+  metric, false)`, reusing the same formatting as the file-explorer badges)
+  and, when the caller passes `onDayClick`, is clickable — a day with nothing
+  written has neither, there's nothing to show.
 - [`src/views/goalHistoryStore.ts`](../../src/views/goalHistoryStore.ts) —
   the vault-file I/O: resolves the file's path from the current story-folder
   setting, loads it (reloading if the resolved path changes, discarding its
@@ -92,8 +104,8 @@ leaves the device. A real vault file is the only option that satisfies both.
   `Vault.process()`/`Vault.create()` — debounced, and skipped if the
   serialized content hasn't actually changed.
 - [`src/views/goalWidgetView.ts`](../../src/views/goalWidgetView.ts) — the
-  `ItemView`: three bordered cards (`.scribe-goal-card`), same background and
-  border on all so they read as one family.
+  right-sidebar `ItemView`: three bordered cards (`.scribe-goal-card`), same
+  background and border on all so they read as one family.
   1. Today's ring (progress clamped at 100%; a pale filled disc with a
      progress arc, becoming a full glowing ring and swapping its label to
      "Goal reached!" once the goal is hit — modelled on Keep the Rhythm's own
@@ -101,10 +113,42 @@ leaves the device. A real vault file is the only option that satisfies both.
   2. A two-up summary — `writtenBetween` summed from the start of the week
      (Sunday, matching the calendar below) and the start of the month, through
      today, each inclusive.
-  3. The month calendar (prev/next nav, Sunday-first, coloured cells).
+  3. The month calendar, via `renderCalendarWidget` (no `onDayClick` here —
+     that interaction lives only in the tab, see below).
 
   Pure display; `contentEl.empty()` + rebuild on every change rather than
   incremental DOM patching — the view is small enough that this stays simple.
+- [`src/views/goalsStatsTabView.ts`](../../src/views/goalsStatsTabView.ts) —
+  the main-area tab, its two top-level sections separated by an `<hr>`
+  (`.scribe-stats-divider`). Each section heading carries its own icon
+  (`.scribe-stats-section-icon`, via `setIcon`) — "Writing goal history" uses
+  `GOAL_WIDGET_ICON` (the same one as the sidebar widget's ribbon/tab icon),
+  "Story Stats" uses this view's own `GOALS_STATS_TAB_ICON_ID`. "Writing goal
+  history" is two bordered cards stacked (`.scribe-goal-history-stack`),
+  matching the sidebar widget's own card-per-thing styling:
+  - **Top** — today/week/month as plain circles (`.scribe-stat-circle` — a
+    flat tinted disc, no SVG, no progress arc, since these are records rather
+    than a live goal), in one card.
+  - **Bottom** — the same calendar as the sidebar widget via
+    `renderCalendarWidget`, in a second card with a fixed width
+    (`.scribe-goal-card.mod-calendar`, 22rem) so it never resizes — neither a
+    longer month name nor the detail circle appearing/disappearing changes
+    its footprint. `.mod-calendar` also widens the gap between day cells a
+    little beyond the sidebar widget's tighter packing, since the tab has the
+    room to spare. The nav+grid wrapper itself is also pinned
+    (`.scribe-goal-calendar-block`, 11rem) — without that, the wrapper's own
+    width followed its content, and a longer month name's nav row could need
+    more room than the grid, widening the card for that month only; the title
+    also gets `text-overflow: ellipsis` as a last-resort guard. Inside that
+    card, a flex row (`.scribe-goal-history-row`)
+    holds the calendar and, once a day with data is clicked, a
+    `.scribe-stat-circle` with that day's total beside it (`selectedDay`;
+    short "Sep 9" label, full date as an `aria-label` tooltip). Selecting a
+    day is cleared on month navigation, so a stale selection from a different
+    month is never shown.
+
+  "Story Stats" section:
+  placeholder, not built yet.
 
 ## Colour
 
@@ -116,13 +160,13 @@ bolder mark for the bigger achievement); a day that fell short uses the
 softer `--scribe-accent-soft`. "Today" is still marked with a ring outline
 (`--interactive-accent`, an inset box-shadow all the way around the cell)
 rather than a fill, so it never gets confused with a graded day even when
-today is also met or partial — and a full ring
-rather than just an underline, so it reads as a circle like the graded cells
-instead of a squared-off mark.
+today is also met or partial — and a full ring rather than just an underline,
+so it reads as a circle like the graded cells instead of a squared-off mark.
 
 ## Not done yet
 
-- No per-day tooltip on the calendar (exact count, streak, etc.).
+- The sidebar widget's calendar still has no way to see a day's exact total —
+  only the tab's calendar is clickable. Could be added the same way if wanted.
 - No total/deadline goals yet, only the daily one.
 - No handling for the story folder moving/renaming (see the limitation above).
 - No migration from the single-running-total shape an earlier version wrote —

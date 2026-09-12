@@ -1,10 +1,10 @@
 // SPDX-License-Identifier: MIT
 // Copyright (C) 2026 aescanes
 
-import { ItemView, setIcon, WorkspaceLeaf } from "obsidian";
+import { ItemView, WorkspaceLeaf } from "obsidian";
 import type ScribeGoalsStatsPlugin from "../main";
-import { buildCalendar, CalendarCell } from "../data/calendarGrid";
 import { dateKey, writtenBetween, writtenFor } from "../data/goalHistory";
+import { renderCalendarWidget } from "./calendarWidget";
 
 export const VIEW_TYPE_GOAL_WIDGET = "scribe-goal-widget";
 export const GOAL_WIDGET_ICON = "target";
@@ -17,7 +17,6 @@ const DISC_RADIUS = 52;
 const ARC_STROKE_WIDTH = 10;
 const ARC_RADIUS = DISC_RADIUS - ARC_STROKE_WIDTH / 2;
 const RING_CIRCUMFERENCE = 2 * Math.PI * ARC_RADIUS;
-const WEEKDAY_LABELS = ["S", "M", "T", "W", "T", "F", "S"];
 
 /**
  * Right-sidebar widget: a ring for today's progress toward the daily goal,
@@ -40,7 +39,7 @@ export class GoalWidgetView extends ItemView {
 	}
 
 	getDisplayText(): string {
-		return "Writing goal";
+		return "(SL) G & S: Writing goal";
 	}
 
 	getIcon(): string {
@@ -135,49 +134,17 @@ export class GoalWidgetView extends ItemView {
 	private renderCalendar(containerEl: HTMLElement): void {
 		const { dailyGoal, metric } = this.plugin.settings;
 		const history = this.plugin.goalHistoryStore.getHistory();
-		const year = this.cursor.getFullYear();
-		const month = this.cursor.getMonth();
 
 		const card = containerEl.createDiv({ cls: "scribe-goal-card" });
-
-		const nav = card.createDiv({ cls: "scribe-goal-calendar-nav" });
-		const prev = nav.createEl("button", { cls: "clickable-icon" });
-		setIcon(prev, "chevron-left");
-		prev.addEventListener("click", () => {
-			this.cursor = new Date(year, month - 1, 1);
-			this.render();
+		renderCalendarWidget(card, {
+			cursor: this.cursor,
+			dailyGoal,
+			metric,
+			writtenForDate: (iso) => writtenFor(history, iso, metric),
+			onNavigate: (next) => {
+				this.cursor = next;
+				this.render();
+			},
 		});
-
-		nav.createSpan({
-			cls: "scribe-goal-calendar-title",
-			text: this.cursor.toLocaleDateString(undefined, { month: "long", year: "numeric" }),
-		});
-
-		const next = nav.createEl("button", { cls: "clickable-icon" });
-		setIcon(next, "chevron-right");
-		next.addEventListener("click", () => {
-			this.cursor = new Date(year, month + 1, 1);
-			this.render();
-		});
-
-		const grid = card.createDiv({ cls: "scribe-goal-calendar-grid" });
-		for (const label of WEEKDAY_LABELS) {
-			grid.createDiv({ cls: "scribe-goal-calendar-weekday", text: label });
-		}
-
-		const weeks = buildCalendar(year, month, new Date(), dailyGoal, (iso) =>
-			writtenFor(history, iso, metric),
-		);
-		for (const week of weeks) {
-			for (const cell of week) this.renderDayCell(grid, cell);
-		}
-	}
-
-	private renderDayCell(grid: HTMLElement, cell: CalendarCell): void {
-		const el = grid.createDiv({ cls: "scribe-goal-calendar-day" });
-		el.toggleClass("mod-out-of-month", !cell.inMonth);
-		el.toggleClass("mod-today", cell.isToday);
-		if (cell.status !== "none") el.addClass(`mod-${cell.status}`);
-		el.setText(String(cell.date.getDate()));
 	}
 }
