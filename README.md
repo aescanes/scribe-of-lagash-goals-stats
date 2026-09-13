@@ -20,9 +20,10 @@ Working now:
   and travels with the vault through whatever the author already syncs it
   with.
 - **Goals & Stats tab** — a main-area tab (ribbon icon or the "Open Goals &
-  Stats" command) with a "Writing goal history" section: today/week/month
-  totals, and the same month calendar as the sidebar widget, with each day
-  that has data clickable to see its total.
+  Stats" command) with a "Writing goal history" section: week/month and
+  rolling 7-/30-day totals with daily averages, beside the same month
+  calendar as the sidebar widget with today's total and, when clicked, any
+  other day's total shown next to it.
 - **File-explorer counts** — every note inside the story folder shows its word
   (or character) count next to its name in the file explorer, and every folder
   shows the total of the notes beneath it. Counts update as you write.

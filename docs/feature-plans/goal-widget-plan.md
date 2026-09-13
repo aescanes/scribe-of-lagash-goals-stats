@@ -124,28 +124,40 @@ leaves the device. A real vault file is the only option that satisfies both.
   (`.scribe-stats-section-icon`, via `setIcon`) — "Writing goal history" uses
   `GOAL_WIDGET_ICON` (the same one as the sidebar widget's ribbon/tab icon),
   "Story Stats" uses this view's own `GOALS_STATS_TAB_ICON_ID`. "Writing goal
-  history" is two bordered cards stacked (`.scribe-goal-history-stack`),
-  matching the sidebar widget's own card-per-thing styling:
-  - **Top** — today/week/month as plain circles (`.scribe-stat-circle` — a
-    flat tinted disc, no SVG, no progress arc, since these are records rather
-    than a live goal), in one card.
-  - **Bottom** — the same calendar as the sidebar widget via
-    `renderCalendarWidget`, in a second card with a fixed width
-    (`.scribe-goal-card.mod-calendar`, 22rem) so it never resizes — neither a
-    longer month name nor the detail circle appearing/disappearing changes
-    its footprint. `.mod-calendar` also widens the gap between day cells a
-    little beyond the sidebar widget's tighter packing, since the tab has the
-    room to spare. The nav+grid wrapper itself is also pinned
-    (`.scribe-goal-calendar-block`, 11rem) — without that, the wrapper's own
-    width followed its content, and a longer month name's nav row could need
-    more room than the grid, widening the card for that month only; the title
-    also gets `text-overflow: ellipsis` as a last-resort guard. Inside that
-    card, a flex row (`.scribe-goal-history-row`)
-    holds the calendar and, once a day with data is clicked, a
-    `.scribe-stat-circle` with that day's total beside it (`selectedDay`;
-    short "Sep 9" label, full date as an `aria-label` tooltip). Selecting a
-    day is cleared on month navigation, so a stale selection from a different
-    month is never shown.
+  history" is two bordered cards side by side (`.scribe-goal-history-columns`,
+  wrapping to stacked when the pane is too narrow for both), matching the
+  sidebar widget's own card-per-thing styling:
+  - **Left** — plain (no circle, no background) value+label stats via
+    `.scribe-stat-plain`, grouped into rows (`.scribe-stat-row`, a thin
+    `border-left` between adjacent stats in the same row) separated by
+    `<hr class="scribe-stat-row-divider">` between rows, all in one card: This
+    week / This month, then Last 7 days / Last 30 days. Each stat also carries
+    a "(N per day)" average (`.scribe-stat-plain-average`, via
+    `renderStatRow`) — "This week"/"This month" average over the days elapsed
+    *so far* in that period, not its full length, so an in-progress week or
+    month doesn't read as an artificially slow pace. Deliberately simpler than
+    the ring/summary look and structured to grow — a future stat joins an
+    existing row or starts a new one, nothing else about this needs to change.
+  - **Right** — the same calendar as the sidebar widget via
+    `renderCalendarWidget`, plus a side panel top-aligned beside it
+    (`.scribe-goal-calendar-columns`/`.scribe-goal-calendar-side`): Today's
+    total, always shown (`renderStatCell`, no average — a single day has
+    nothing to average), and below it a reserved slot
+    (`.scribe-goal-calendar-day-detail`) that stays empty unless a day *other
+    than today* is clicked, in which case it shows that day's total in the
+    same style. The slot is *always* present, so filling it in on a click
+    never resizes the card or shifts "Story Stats" below it. Clicking today
+    itself is a no-op beyond clearing any other day's detail (today's own
+    total is already shown above); navigating months also clears the
+    selection, so a stale selection from a different month is never shown.
+    Both the calendar's nav+grid wrapper (`.scribe-goal-calendar-block`,
+    11rem) and the side panel (`.scribe-goal-calendar-side`, 6.5rem) are
+    pinned to a fixed width, and the card itself to `20.5rem`
+    (`.scribe-goal-card.mod-calendar`) — without that, a longer month name's
+    nav row, or a longer value landing in the reserved slot, could each
+    independently widen the wrapper they're in, and the card along with it;
+    the calendar title also gets `text-overflow: ellipsis` as a last-resort
+    guard.
 
   "Story Stats" section:
   placeholder, not built yet.

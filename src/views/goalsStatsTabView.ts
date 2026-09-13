@@ -4,7 +4,8 @@
 import { ItemView, setIcon, WorkspaceLeaf } from "obsidian";
 import type ScribeGoalsStatsPlugin from "../main";
 import type { CalendarCell } from "../data/calendarGrid";
-import { dateKey, writtenBetween, writtenFor } from "../data/goalHistory";
+import { formatCount } from "../data/countFormat";
+import { dateKey, GoalHistory, writtenBetween, writtenFor } from "../data/goalHistory";
 import type { GoalMetric } from "../settings/settings";
 import { renderCalendarWidget } from "./calendarWidget";
 import { GOAL_WIDGET_ICON } from "./goalWidgetView";
@@ -26,6 +27,13 @@ export const GOALS_STATS_TAB_ICON_SVG =
 	`<path d="M12.5 12.5v66.67a8.33 8.33 0 0 0 8.33 8.33h66.67"/>` +
 	`<path d="M79.17 37.5l-20.83 20.83-16.67-16.67-12.5 12.5"/></g>`;
 
+/** A period total plus how many days it spans, for the "(N per day)" line. */
+interface PeriodStat {
+	label: string;
+	total: number;
+	days: number;
+}
+
 /**
  * Main-area tab: the full "Goals & Stats" picture. Opens as a tab, like the
  * Visualization plugin's StoryLines, rather than a sidebar — this is meant to
@@ -33,19 +41,25 @@ export const GOALS_STATS_TAB_ICON_SVG =
  * separated by a divider:
  *
  * - "Writing goal history" (heading icon: `GOAL_WIDGET_ICON`, the same one as
- *   the sidebar widget's) — two bordered cards, stacked (same card styling as
- *   the sidebar widget). Top: today/week/month totals as plain circles (no
- *   progress arc — this is a record, not a goal being tracked live). Bottom:
- *   the same month calendar as the right-sidebar `GoalWidgetView`, plus a
- *   click-a-day-to-see-its-total interaction (a circle beside the calendar,
- *   inside the same card) the sidebar version doesn't have.
+ *   the sidebar widget's) — two bordered cards side by side.
+ *   - Left: plain (no circle) period stats (`.scribe-stat-plain`) — This
+ *     week / This month, then Last 7 days / Last 30 days — each showing its
+ *     total (`formatCount`) and, since these are multi-day windows, a
+ *     "(N per day)" average below it.
+ *   - Right: the same month calendar as the right-sidebar `GoalWidgetView`,
+ *     with a small side panel to its right, top-aligned with it: Today's
+ *     total always shown, and — when a day other than today is clicked — that
+ *     day's total below it, in the same plain style (no average; a single
+ *     day has no "per day" to average). That slot is always reserved, empty
+ *     or not, so filling it in never resizes the card or shifts "Story
+ *     Stats" below.
  * - "Story Stats" (heading icon: `GOALS_STATS_TAB_ICON_ID`, this view's own)
  *   — not built yet.
  */
 export class GoalsStatsTabView extends ItemView {
 	/** Which month is on screen; starts on the current month each time the view opens. */
 	private cursor = new Date();
-	/** The day last clicked in the calendar, or null if none has been (yet, or since navigating). */
+	/** The non-today day last clicked in the calendar, or null (none yet, cleared, or navigated away from). */
 	private selectedDay: CalendarCell | null = null;
 
 	constructor(
@@ -60,7 +74,7 @@ export class GoalsStatsTabView extends ItemView {
 	}
 
 	getDisplayText(): string {
-		return "(SL) G & S: Goals & Stats";
+		return "(SL) Goals & Stats";
 	}
 
 	getIcon(): string {
@@ -88,43 +102,95 @@ export class GoalsStatsTabView extends ItemView {
 
 		const { dailyGoal, metric } = this.plugin.settings;
 		const history = this.plugin.goalHistoryStore.getHistory();
+
+		const columns = containerEl.createDiv({ cls: "scribe-goal-history-columns" });
+		this.renderTotalsCard(columns, history, metric);
+		this.renderCalendarCard(columns, history, dailyGoal, metric);
+	}
+
+	/**
+	 * Left column: This week / This month, then Last 7 days / Last 30 days —
+	 * each with a "(N per day)" average, since these are multi-day windows.
+	 * "This week"/"This month" average over the days elapsed *so far* in that
+	 * period (not its full length), so an in-progress week or month doesn't
+	 * read as an artificially low pace.
+	 */
+	private renderTotalsCard(containerEl: HTMLElement, history: GoalHistory, metric: GoalMetric): void {
 		const today = new Date();
-		// Sunday-first, matching the calendar below.
-		const startOfWeek = new Date(today.getFullYear(), today.getMonth(), today.getDate() - today.getDay());
-		const startOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
+		const todayIso = dateKey(today);
+		// Sunday-first, matching the calendar; getDay() is 0 (Sun) to 6 (Sat).
+		const daysIntoWeek = today.getDay() + 1;
+		const daysIntoMonth = today.getDate();
+		const startOfWeek = dateKey(new Date(today.getFullYear(), today.getMonth(), today.getDate() - today.getDay()));
+		const startOfMonth = dateKey(new Date(today.getFullYear(), today.getMonth(), 1));
+		const last7Start = dateKey(new Date(today.getFullYear(), today.getMonth(), today.getDate() - 6));
+		const last30Start = dateKey(new Date(today.getFullYear(), today.getMonth(), today.getDate() - 29));
 
-		const stack = containerEl.createDiv({ cls: "scribe-goal-history-stack" });
+		const card = containerEl.createDiv({ cls: "scribe-goal-card" });
 
-		// Today/week/month, centred, in its own bordered card — same treatment
-		// as the sidebar widget's own summary card.
-		const totalsCard = stack.createDiv({ cls: "scribe-goal-card" });
-		const totals = totalsCard.createDiv({ cls: "scribe-stat-circle-row" });
-		this.renderStatCircle(totals, "Today", writtenFor(history, dateKey(today), metric), metric);
-		this.renderStatCircle(
-			totals,
-			"This week",
-			writtenBetween(history, dateKey(startOfWeek), dateKey(today), metric),
+		this.renderStatRow(
+			card,
+			[
+				{
+					label: "This week",
+					total: writtenBetween(history, startOfWeek, todayIso, metric),
+					days: daysIntoWeek,
+				},
+				{
+					label: "This month",
+					total: writtenBetween(history, startOfMonth, todayIso, metric),
+					days: daysIntoMonth,
+				},
+			],
 			metric,
 		);
-		this.renderStatCircle(
-			totals,
-			"This month",
-			writtenBetween(history, dateKey(startOfMonth), dateKey(today), metric),
+		card.createEl("hr", { cls: "scribe-stat-row-divider" });
+		this.renderStatRow(
+			card,
+			[
+				{ label: "Last 7 days", total: writtenBetween(history, last7Start, todayIso, metric), days: 7 },
+				{ label: "Last 30 days", total: writtenBetween(history, last30Start, todayIso, metric), days: 30 },
+			],
 			metric,
 		);
+	}
 
-		// The calendar, and — once a day is clicked — its detail circle beside
-		// it, together in one bordered card below the totals. `mod-calendar`
-		// fixes the card's width so it never resizes: neither a longer month
-		// name (e.g. "September" vs "May") nor the detail circle appearing or
-		// disappearing changes the card's footprint.
-		const calendarCard = stack.createDiv({ cls: "scribe-goal-card mod-calendar" });
-		const calendarRow = calendarCard.createDiv({ cls: "scribe-goal-history-row" });
+	private renderStatRow(containerEl: HTMLElement, items: PeriodStat[], metric: GoalMetric): void {
+		const row = containerEl.createDiv({ cls: "scribe-stat-row" });
+		for (const item of items) {
+			const cell = row.createDiv({ cls: "scribe-stat-plain" });
+			cell.createDiv({ cls: "scribe-stat-plain-value", text: formatCount(item.total, metric, false) });
+			const perDay = Math.round(item.total / item.days);
+			cell.createDiv({ cls: "scribe-stat-plain-average", text: `(${perDay.toLocaleString()} per day)` });
+			cell.createDiv({ cls: "scribe-stat-plain-label", text: item.label });
+		}
+	}
 
-		// A fixed width (not just the outer card's) — otherwise this wrapper's
-		// own size follows its content, and a longer month name's nav row can
-		// need more room than the grid, widening the card for that month only.
-		const calendarBlock = calendarRow.createDiv({ cls: "scribe-goal-calendar-block" });
+	/** Value above its label — no average line; used for period stats (via `renderStatRow`) and the day panel alike. */
+	private renderStatCell(containerEl: HTMLElement, label: string, valueText: string): HTMLElement {
+		const cell = containerEl.createDiv({ cls: "scribe-stat-plain" });
+		cell.createDiv({ cls: "scribe-stat-plain-value", text: valueText });
+		cell.createDiv({ cls: "scribe-stat-plain-label", text: label });
+		return cell;
+	}
+
+	/**
+	 * Right column: the calendar, with a side panel top-aligned beside it —
+	 * Today's total always shown, and a reserved slot below it for a clicked
+	 * day's total. That slot exists (empty or not) whether or not a day is
+	 * selected, so filling it in never resizes the card.
+	 */
+	private renderCalendarCard(
+		containerEl: HTMLElement,
+		history: GoalHistory,
+		dailyGoal: number,
+		metric: GoalMetric,
+	): void {
+		const todayIso = dateKey(new Date());
+		const card = containerEl.createDiv({ cls: "scribe-goal-card mod-calendar" });
+		const layout = card.createDiv({ cls: "scribe-goal-calendar-columns" });
+
+		const calendarBlock = layout.createDiv({ cls: "scribe-goal-calendar-block" });
 		renderCalendarWidget(calendarBlock, {
 			cursor: this.cursor,
 			dailyGoal,
@@ -136,16 +202,22 @@ export class GoalsStatsTabView extends ItemView {
 				this.render();
 			},
 			onDayClick: (cell) => {
-				this.selectedDay = cell;
+				// Today's own total is already shown permanently above; clicking
+				// it just clears any other day's detail rather than repeating it.
+				this.selectedDay = cell.iso === todayIso ? null : cell;
 				this.render();
 			},
 		});
 
+		const side = layout.createDiv({ cls: "scribe-goal-calendar-side" });
+		this.renderStatCell(side, "Today", formatCount(writtenFor(history, todayIso, metric), metric, false));
+
+		const detailSlot = side.createDiv({ cls: "scribe-goal-calendar-day-detail" });
 		if (this.selectedDay) {
 			const label = this.selectedDay.date.toLocaleDateString(undefined, { month: "short", day: "numeric" });
 			const total = writtenFor(history, this.selectedDay.iso, metric);
-			const circle = this.renderStatCircle(calendarRow, label, total, metric);
-			circle.setAttr(
+			const cell = this.renderStatCell(detailSlot, label, formatCount(total, metric, false));
+			cell.setAttr(
 				"aria-label",
 				this.selectedDay.date.toLocaleDateString(undefined, {
 					weekday: "long",
@@ -155,20 +227,6 @@ export class GoalsStatsTabView extends ItemView {
 				}),
 			);
 		}
-	}
-
-	/** A plain circle — no progress arc, this is a record of a total, not a goal in progress. */
-	private renderStatCircle(
-		containerEl: HTMLElement,
-		label: string,
-		value: number,
-		metric: GoalMetric,
-	): HTMLElement {
-		const circle = containerEl.createDiv({ cls: "scribe-stat-circle" });
-		circle.createDiv({ cls: "scribe-goal-ring-label", text: label });
-		circle.createDiv({ cls: "scribe-goal-ring-value", text: value.toLocaleString() });
-		circle.createDiv({ cls: "scribe-goal-ring-unit", text: metric });
-		return circle;
 	}
 
 	private renderStoryStatsSection(containerEl: HTMLElement): void {

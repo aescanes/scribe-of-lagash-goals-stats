@@ -352,67 +352,120 @@ body {
 	border-top: 1px solid var(--background-modifier-border);
 }
 
-/* The three totals, inside their own bordered card. */
-.scribe-stat-circle-row {
+/* The two cards of the "Writing goal history" section, side by side: totals
+   on the left, the calendar on the right. Wraps to stacked when the pane is
+   too narrow for both (a small window, or the tab pinned in a sidebar). */
+.scribe-goal-history-columns {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: flex-start;
+	justify-content: flex-start;
+	gap: var(--size-4-4);
+}
+
+/* Plain (no circle, no background) value+label stats, inside their own
+   bordered card, grouped into rows — simpler than the ring/summary look, and
+   meant to grow: a future stat just joins an existing row or starts a new
+   one, without any of this needing to change. */
+.scribe-stat-row {
 	display: flex;
 	flex-wrap: wrap;
 	justify-content: center;
-	gap: var(--size-4-4);
 }
 
-.scribe-stat-circle {
+.scribe-stat-plain {
 	display: flex;
 	flex-direction: column;
 	align-items: center;
-	justify-content: center;
 	gap: 2px;
-	width: 8rem;
-	aspect-ratio: 1;
-	border-radius: 50%;
-	background-color: color-mix(in srgb, var(--scribe-accent) 12%, var(--background-primary));
+	padding: 0 var(--size-4-4);
 	text-align: center;
 }
 
-/* The two cards of the "Writing goal history" section, stacked: totals on
-   top, the calendar (+ detail circle) below. */
-.scribe-goal-history-stack {
+/* A thin rule between adjacent stats in the same row, not around each one. */
+.scribe-stat-plain:not(:first-child) {
+	border-left: 1px solid var(--background-modifier-border);
+}
+
+.scribe-stat-plain-value {
+	font-size: var(--font-ui-larger);
+	font-weight: var(--font-weight-bold);
+	font-variant-numeric: tabular-nums;
+}
+
+.scribe-stat-plain-label {
+	color: var(--text-muted);
+	font-size: var(--font-ui-smaller);
+}
+
+/* The "(N per day)" line under a multi-day window's total — not shown for a
+   single day (Today, or a clicked calendar day), which has no average to give. */
+.scribe-stat-plain-average {
+	color: var(--text-faint);
+	font-size: var(--font-ui-smaller);
+}
+
+/* Separates one row of stats from the next, inside the same card. */
+.scribe-stat-row-divider {
+	margin: var(--size-4-3) 0;
+	border: none;
+	border-top: 1px solid var(--background-modifier-border);
+}
+
+/* Fixed width so the calendar card's footprint never changes with the month
+   name or with the side panel's content — the calendar (11rem) plus the side
+   panel (6.5rem) plus the gap between them plus the card's own padding. */
+.scribe-goal-card.mod-calendar {
+	width: 20.5rem;
+}
+
+/* Calendar (left) and its side panel (right), top-aligned with each other. */
+.scribe-goal-calendar-columns {
+	display: flex;
+	align-items: flex-start;
+	gap: var(--size-4-3);
+	width: 100%;
+}
+
+/* The plain wrapper around the calendar's nav+grid: without an explicit width
+   of its own, it sizes to whatever its content needs — and a longer month
+   name's nav row could need more than the grid's 11rem, widening this wrapper
+   (and visibly, the card) for that month only. Pinning it to the grid's own
+   width closes that off; a month name too long to fit just ellipses instead
+   of resizing anything. */
+.scribe-goal-calendar-block {
+	width: 11rem;
+}
+
+/* Today's total (always shown) and, below it, a clicked day's total. Fixed
+   width so a longer value in either slot never shifts the calendar beside it. */
+.scribe-goal-calendar-side {
 	display: flex;
 	flex-direction: column;
 	align-items: center;
-	gap: var(--size-4-4);
+	gap: var(--size-4-3);
+	width: 6.5rem;
 }
 
-/* Fixed width so the calendar card's footprint never changes — neither a
-   longer month name (e.g. "September" vs "May") nor the detail circle
-   appearing/disappearing should resize it. Wide enough for the calendar
-   (11rem) and the detail circle (8rem) side by side, plus the card's own
-   padding and the gap between them. */
-.scribe-goal-card.mod-calendar {
-	width: 22rem;
+/* Side-panel stats don't need the horizontal padding/dividers .scribe-stat-plain
+   is normally given for sitting in a .scribe-stat-row alongside others. */
+.scribe-goal-calendar-side .scribe-stat-plain {
+	padding: 0;
 }
 
-/* The plain wrapper around the calendar's nav+grid (inside .mod-calendar):
-   without an explicit width of its own, it sizes to whatever its content
-   needs — and a longer month name's nav row could need more than the grid's
-   11rem, widening this wrapper (and visibly, the card) for that month only.
-   Pinning it to the grid's own width closes that off; a month name too long
-   to fit just wraps instead of resizing anything. */
-.scribe-goal-calendar-block {
-	width: 11rem;
+/* A clicked day's total, reserved below "Today" in the side panel — present
+   (if empty) whether or not a day is selected, so filling it in never changes
+   the card's height. */
+.scribe-goal-calendar-day-detail {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: 2px;
+	min-height: 2.6rem;
 }
 
 /* The tab has room to breathe that the sidebar widget doesn't — a bit more
    space between the day-number cells than the widget's tighter packing. */
 .scribe-goal-card.mod-calendar .scribe-goal-calendar-grid {
 	gap: var(--size-4-1);
-}
-
-/* Inside the calendar card: the calendar itself, and (when a day is selected)
-   its detail circle beside it — flex items each sizing to its own content. */
-.scribe-goal-history-row {
-	display: flex;
-	flex-wrap: wrap;
-	align-items: center;
-	justify-content: center;
-	gap: var(--size-4-4);
 }

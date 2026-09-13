@@ -5,6 +5,17 @@ is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+### Changed
+
+- Reworked the "Writing goal history" section of the Goals & Stats tab into
+  two side-by-side cards:
+  - Left: This week / This month, then Last 7 days / Last 30 days, each as a
+    plain value-over-label pair with a "(N per day)" average below it.
+  - Right: the month calendar, with a side panel beside it (top-aligned) that
+    always shows Today's total, plus — when a day other than today is
+    clicked — that day's total in a slot reserved below it, so showing or
+    hiding it never resizes the card or shifts "Story Stats" below.
+
 ## [0.3.0](https://github.com/aescanes/scribe-of-lagash-goals-stats/releases/tag/0.3.0) - 2026-09-12
 
 ### Added
