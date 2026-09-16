@@ -3,7 +3,8 @@
 
 import { ItemView, WorkspaceLeaf } from "obsidian";
 import type ScribeGoalsStatsPlugin from "../main";
-import { dateKey, writtenBetween, writtenFor } from "../data/goalHistory";
+import { dayStatus } from "../data/calendarGrid";
+import { dateKey, resolveDayGoal, writtenBetween, writtenFor } from "../data/goalHistory";
 import { renderCalendarWidget } from "./calendarWidget";
 
 export const VIEW_TYPE_GOAL_WIDGET = "scribe-goal-widget";
@@ -138,9 +139,12 @@ export class GoalWidgetView extends ItemView {
 		const card = containerEl.createDiv({ cls: "scribe-goal-card" });
 		renderCalendarWidget(card, {
 			cursor: this.cursor,
-			dailyGoal,
 			metric,
 			writtenForDate: (iso) => writtenFor(history, iso, metric),
+			statusForDate: (iso) => {
+				const { written, dailyGoal: goal } = resolveDayGoal(history, iso, { dailyGoal, metric });
+				return dayStatus(written, goal);
+			},
 			onNavigate: (next) => {
 				this.cursor = next;
 				this.render();

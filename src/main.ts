@@ -6,6 +6,7 @@ import { DEFAULT_SETTINGS, normalizeSettings, ScribeGoalsStatsSettings } from ".
 import { ScribeGoalsStatsSettingTab } from "./settings/settingsTab";
 import { ExplorerDecorator } from "./views/explorerDecorator";
 import { ScopeScanner } from "./views/scopeScanner";
+import { GoalCelebration } from "./views/goalCelebration";
 import { GoalHistoryStore, TodayTextBaseline } from "./views/goalHistoryStore";
 import { GOAL_WIDGET_ICON, GoalWidgetView, VIEW_TYPE_GOAL_WIDGET } from "./views/goalWidgetView";
 import {
@@ -55,8 +56,20 @@ export default class ScribeGoalsStatsPlugin extends Plugin {
 			new GoalHistoryStore(
 				this.app,
 				this.scanner,
-				() => ({ storyFolder: this.settings.storyFolder }),
+				() => ({
+					storyFolder: this.settings.storyFolder,
+					dailyGoal: this.settings.dailyGoal,
+					metric: this.settings.metric,
+				}),
 				{ load: () => this.loadTodayTextBaseline(), save: (cache) => this.saveTodayTextBaseline(cache) },
+			),
+		);
+
+		this.addChild(
+			new GoalCelebration(
+				this.goalHistoryStore,
+				() => ({ dailyGoal: this.settings.dailyGoal, metric: this.settings.metric }),
+				this.addStatusBarItem(),
 			),
 		);
 

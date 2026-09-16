@@ -10,6 +10,12 @@ is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - The Goals & Stats tab's "Writing goal history" totals now also show This
   year and Last 365 days, next to the existing This month and Last 30 days,
   each with its own daily average.
+- Reaching the daily goal now shows a toast notification and lights up a
+  status-bar item, so it's visible even when the writing-goal widget isn't
+  open. The toast fires again each time the goal is freshly reached — dip
+  back under it and cross it again later the same day, and it celebrates
+  that too — but only for a crossing that happens while Obsidian is open and
+  you're writing, not for reopening Obsidian on a day the goal was already met.
 
 ### Changed
 
@@ -28,6 +34,12 @@ is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
   rendering at zero width and never actually showing, in every card that uses
   it — its flex container centers children by their own content width, which
   collapsed an empty `<hr>` down to nothing.
+- Changing the daily goal (or the words/characters metric) no longer
+  repaints past days' calendar colours to match. Each day's own goal and
+  metric are now recorded alongside its `written` total and judged against
+  those, not against today's live settings — previously the calendar
+  compared *every* day, including weeks-old ones, to whatever the goal
+  happens to be set to right now.
 
 ## [0.4.0](https://github.com/aescanes/scribe-of-lagash-goals-stats/releases/tag/0.4.0) - 2026-09-16
 

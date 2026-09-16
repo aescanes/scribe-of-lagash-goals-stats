@@ -8,6 +8,7 @@ import {
 	FileText,
 	GoalHistory,
 	parseHistory,
+	resolveDayGoal,
 	serializeHistory,
 	writtenAcrossFiles,
 	writtenBetween,
@@ -33,6 +34,21 @@ test("parseHistory keeps only well-formed date-keyed day records", () => {
 	});
 });
 
+test("parseHistory keeps dailyGoal/metric when well-formed, drops just that field (not the whole day) when malformed", () => {
+	const raw = JSON.stringify({
+		"2026-09-10": { written: { words: 100, characters: 500 }, dailyGoal: 500, metric: "words" },
+		"2026-09-11": { written: { words: 40, characters: 200 }, dailyGoal: "oops", metric: "sentences" },
+	});
+	const parsed = parseHistory(raw);
+	assert.deepEqual(parsed["2026-09-10"], {
+		written: { words: 100, characters: 500 },
+		dailyGoal: 500,
+		metric: "words",
+	});
+	// written survives even though dailyGoal/metric were malformed.
+	assert.deepEqual(parsed["2026-09-11"], { written: { words: 40, characters: 200 } });
+});
+
 test("parseHistory tolerates invalid JSON and non-object input", () => {
 	assert.deepEqual(parseHistory("{not json"), {});
 	assert.deepEqual(parseHistory("42"), {});
@@ -56,6 +72,40 @@ test("writtenFor reads the requested metric, 0 when the day is missing", () => {
 	assert.equal(writtenFor(history, "2026-09-10", "words"), 100);
 	assert.equal(writtenFor(history, "2026-09-10", "characters"), 550);
 	assert.equal(writtenFor(history, "2026-09-11", "words"), 0);
+});
+
+test("resolveDayGoal uses the day's own recorded goal and metric, not the live/fallback ones", () => {
+	const history: GoalHistory = {
+		// Recorded when the goal was 500 words — later changing the setting to
+		// 50 must not turn this into a "met" day.
+		"2026-09-10": { written: { words: 55, characters: 300 }, dailyGoal: 500, metric: "words" },
+	};
+	const result = resolveDayGoal(history, "2026-09-10", { dailyGoal: 50, metric: "words" });
+	assert.deepEqual(result, { written: 55, dailyGoal: 500 });
+});
+
+test("resolveDayGoal falls back to the given goal/metric for a day with no recorded one, or no entry at all", () => {
+	const history: GoalHistory = {
+		"2026-09-10": { written: { words: 55, characters: 300 } }, // recorded before this was tracked
+	};
+	assert.deepEqual(resolveDayGoal(history, "2026-09-10", { dailyGoal: 50, metric: "words" }), {
+		written: 55,
+		dailyGoal: 50,
+	});
+	assert.deepEqual(resolveDayGoal(history, "2026-09-11", { dailyGoal: 50, metric: "words" }), {
+		written: 0,
+		dailyGoal: 50,
+	});
+});
+
+test("resolveDayGoal reads the written amount in the day's own recorded metric", () => {
+	const history: GoalHistory = {
+		"2026-09-10": { written: { words: 55, characters: 300 }, dailyGoal: 250, metric: "characters" },
+	};
+	// Even though the fallback metric is "words", this day was tracked in
+	// characters, so its own metric wins for both the written amount and the goal.
+	const result = resolveDayGoal(history, "2026-09-10", { dailyGoal: 50, metric: "words" });
+	assert.deepEqual(result, { written: 300, dailyGoal: 250 });
 });
 
 test("writtenBetween sums written amounts over an inclusive date range", () => {

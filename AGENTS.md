@@ -50,7 +50,10 @@ Shape so far (grows as features land):
   `textDiff` (`insertedWords`: a word-level Myers diff, size-capped — see
   [goal-widget-plan.md](docs/feature-plans/goal-widget-plan.md)), `goalHistory`
   (the history-file model: `parseHistory`, `serializeHistory`,
-  `writtenAcrossFiles`, `writtenFor`, `writtenBetween`, …), `calendarGrid`
+  `writtenAcrossFiles`, `writtenFor`, `writtenBetween`, `resolveDayGoal` — a
+  day's own recorded `dailyGoal`/`metric`, not today's live settings, so
+  changing either later never repaints a past day's calendar colour),
+  `calendarGrid`
   (`monthGrid`, `buildCalendar`, `dayStatus`). Later: tokenizing, sentence
   counting, stop-word filtering, repeated-word tallying, pace / projection.
 - [`src/views/`](src/views/) — Obsidian-facing, not necessarily DOM: any
@@ -79,6 +82,12 @@ Shape so far (grows as features land):
   - `goalWidgetView.ts` — the right-sidebar `ItemView` (today's ring, a
     week/month summary, and the month calendar), reading
     `plugin.goalHistoryStore` and `plugin.settings`.
+  - `goalCelebration.ts` — announces the daily goal being reached even when
+    the widget above isn't open: a `Notice` toast each time it's freshly
+    crossed by an actual edit (a rising edge, so dipping under and back over
+    again the same day celebrates again — but reopening Obsidian on an
+    already-met day doesn't) plus a status-bar item (desktop only) that stays
+    lit while the goal currently reads met.
   - `goalsStatsTabView.ts` — a main-area tab `ItemView` (opened via
     `workspace.getLeaf("tab")`, like the Visualization plugin's StoryLines,
     not a sidebar). Two sections: "Writing goal history" (period totals with

@@ -27,9 +27,18 @@ export type FileText = Record<string, string>;
  * it — it was never part of the "inserted" set — while deleting part of what
  * was typed *today* correctly drops back out of it, the same distinction
  * `git diff` draws between untouched, removed, and inserted lines.
+ *
+ * `dailyGoal`/`metric` are the goal settings actually in effect *that day* —
+ * recorded once as part of the day's entry, not read live from settings at
+ * display time, so changing the daily goal (or the words/characters metric)
+ * later never repaints a past day's calendar colour. Optional because a day
+ * recorded before this was tracked has neither; see `resolveDayGoal` for how
+ * that's handled.
  */
 export interface DayRecord {
 	written: DayTotals;
+	dailyGoal?: number;
+	metric?: GoalMetric;
 }
 
 /** History keyed by local date, "YYYY-MM-DD". Keys sort chronologically as strings. */
@@ -49,10 +58,11 @@ function isDayTotals(value: unknown): value is DayTotals {
 	return typeof words === "number" && typeof characters === "number";
 }
 
-function isDayRecord(value: unknown): value is DayRecord {
+/** Only `written` is required for a day record to be usable at all — see the
+ *  per-field tolerance for `dailyGoal`/`metric` in `parseHistory` below. */
+function hasValidWritten(value: unknown): value is { written: DayTotals } {
 	if (typeof value !== "object" || value === null) return false;
-	const { written } = value as Record<string, unknown>;
-	return isDayTotals(written);
+	return isDayTotals((value as Record<string, unknown>).written);
 }
 
 /**
@@ -71,9 +81,13 @@ export function parseHistory(raw: string): GoalHistory {
 
 	const history: GoalHistory = {};
 	for (const [key, value] of Object.entries(parsed as Record<string, unknown>)) {
-		if (/^\d{4}-\d{2}-\d{2}$/.test(key) && isDayRecord(value)) {
-			history[key] = { written: { ...value.written } };
-		}
+		if (!/^\d{4}-\d{2}-\d{2}$/.test(key) || !hasValidWritten(value)) continue;
+		const { dailyGoal, metric } = value as Record<string, unknown>;
+		history[key] = {
+			written: { ...value.written },
+			...(typeof dailyGoal === "number" ? { dailyGoal } : {}),
+			...(metric === "words" || metric === "characters" ? { metric } : {}),
+		};
 	}
 	return history;
 }
@@ -124,6 +138,28 @@ export function writtenFor(history: GoalHistory, date: string, metric: GoalMetri
 	const day = history[date];
 	if (!day) return 0;
 	return metric === "characters" ? day.written.characters : day.written.words;
+}
+
+/**
+ * What to compare against `dayStatus` for `date`'s calendar colour: the
+ * amount written and the daily goal actually recorded for that day, in
+ * whichever metric was active *then* — not `fallback`'s live, current
+ * values, and not necessarily today's metric either, so a day's status
+ * always reflects what genuinely happened that day regardless of any later
+ * change to the goal number or the words/characters setting. `fallback` only
+ * applies to a day recorded before this was tracked (or with no entry at
+ * all), which has nothing of its own to use instead.
+ */
+export function resolveDayGoal(
+	history: GoalHistory,
+	date: string,
+	fallback: { dailyGoal: number; metric: GoalMetric },
+): { written: number; dailyGoal: number } {
+	const day = history[date];
+	const metric = day?.metric ?? fallback.metric;
+	const dailyGoal = day?.dailyGoal ?? fallback.dailyGoal;
+	const written = day ? (metric === "characters" ? day.written.characters : day.written.words) : 0;
+	return { written, dailyGoal };
 }
 
 /**

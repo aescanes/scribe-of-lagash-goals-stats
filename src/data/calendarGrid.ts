@@ -49,29 +49,32 @@ export function monthGrid(year: number, month: number): Date[][] {
 }
 
 /**
- * `monthGrid` enriched with each cell's status, via `writtenForDate` (the
- * caller supplies this — typically `deltaForDate` closed over the loaded
- * history — so this module stays independent of the history file's shape).
+ * `monthGrid` enriched with each cell's status and raw amount written, via
+ * caller-supplied lookups (typically closed over the loaded history — so
+ * this module stays independent of the history file's shape). `statusForDate`
+ * is a separate lookup from `writtenForDate`, not just `dayStatus(written,
+ * someDailyGoal)` applied uniformly here, so the caller can compare each day
+ * against whatever goal actually applied *that day* rather than one goal
+ * value for the whole grid.
  */
 export function buildCalendar(
 	year: number,
 	month: number,
 	today: Date,
-	dailyGoal: number,
 	writtenForDate: (iso: string) => number,
+	statusForDate: (iso: string) => DayStatus,
 ): CalendarCell[][] {
 	const todayIso = dateKey(today);
 	return monthGrid(year, month).map((week) =>
 		week.map((date) => {
 			const iso = dateKey(date);
-			const written = writtenForDate(iso);
 			return {
 				date,
 				iso,
 				inMonth: date.getMonth() === month,
 				isToday: iso === todayIso,
-				status: dayStatus(written, dailyGoal),
-				written,
+				status: statusForDate(iso),
+				written: writtenForDate(iso),
 			};
 		}),
 	);

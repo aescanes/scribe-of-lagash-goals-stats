@@ -2,7 +2,7 @@
 // Copyright (C) 2026 aescanes
 
 import { setIcon } from "obsidian";
-import { buildCalendar, CalendarCell } from "../data/calendarGrid";
+import { buildCalendar, CalendarCell, DayStatus } from "../data/calendarGrid";
 import { formatCount } from "../data/countFormat";
 import type { GoalMetric } from "../settings/settings";
 
@@ -11,9 +11,11 @@ const WEEKDAY_LABELS = ["S", "M", "T", "W", "T", "F", "S"];
 export interface CalendarWidgetOptions {
 	/** Which month to show; only its year/month matter. */
 	cursor: Date;
-	dailyGoal: number;
 	metric: GoalMetric;
 	writtenForDate: (iso: string) => number;
+	/** A day's goal status — the caller resolves this against whatever goal
+	 *  actually applied that day (see `resolveDayGoal`), not just today's. */
+	statusForDate: (iso: string) => DayStatus;
 	/** Prev/next nav clicked; the caller owns `cursor` and re-renders. */
 	onNavigate: (next: Date) => void;
 	/** Called when a day *with data* is clicked. Days with nothing written aren't clickable. */
@@ -27,7 +29,7 @@ export interface CalendarWidgetOptions {
  * visually and behaviourally identical without duplicating the DOM building.
  */
 export function renderCalendarWidget(containerEl: HTMLElement, options: CalendarWidgetOptions): void {
-	const { cursor, dailyGoal, metric, writtenForDate, onNavigate, onDayClick } = options;
+	const { cursor, metric, writtenForDate, statusForDate, onNavigate, onDayClick } = options;
 	const year = cursor.getFullYear();
 	const month = cursor.getMonth();
 
@@ -51,7 +53,7 @@ export function renderCalendarWidget(containerEl: HTMLElement, options: Calendar
 		grid.createDiv({ cls: "scribe-goal-calendar-weekday", text: label });
 	}
 
-	const weeks = buildCalendar(year, month, new Date(), dailyGoal, writtenForDate);
+	const weeks = buildCalendar(year, month, new Date(), writtenForDate, statusForDate);
 	for (const week of weeks) {
 		for (const cell of week) renderDayCell(grid, cell, metric, onDayClick);
 	}

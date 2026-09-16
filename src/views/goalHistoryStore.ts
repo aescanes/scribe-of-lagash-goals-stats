@@ -3,11 +3,16 @@
 
 import { App, Component, debounce, normalizePath, TFile, TFolder } from "obsidian";
 import { dateKey, FileText, GoalHistory, parseHistory, serializeHistory, writtenAcrossFiles } from "../data/goalHistory";
+import type { GoalMetric } from "../settings/settings";
 import type { ScopeScanner } from "./scopeScanner";
 
 /** The settings slice the store needs, read lazily so it always sees current values. */
 export interface GoalHistoryStoreConfig {
 	storyFolder: string;
+	/** Recorded into each day's own entry — see `DayRecord.dailyGoal`/`.metric`
+	 *  — so a later change to either never repaints a past day's calendar colour. */
+	dailyGoal: number;
+	metric: GoalMetric;
 }
 
 /** Every in-scope file's text at the moment a given day started. */
@@ -152,8 +157,9 @@ export class GoalHistoryStore extends Component {
 		// the block above hasn't run yet — sound either way, never just a cast.
 		const baselineText = this.dayStartText ?? currentText;
 		const written = writtenAcrossFiles(baselineText, currentText);
+		const { dailyGoal, metric } = this.getConfig();
 
-		this.history = { ...this.history, [today]: { written } };
+		this.history = { ...this.history, [today]: { written, dailyGoal, metric } };
 
 		for (const listener of this.listeners) listener();
 		this.scheduleSave();

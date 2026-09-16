@@ -30,10 +30,12 @@ leaves the device. A real vault file is the only option that satisfies both.
   outside the counting/explorer-badge logic without needing the `(SL) ` rule.
 - **Shape**: one entry per local calendar day, in both metrics regardless of
   which is active (so switching the words/characters setting later doesn't
-  strand or misinterpret past history) — with one field per day:
+  strand or misinterpret past history) — with these fields per day:
   ```json
   { "2026-09-10": {
-      "written": { "words": 340, "characters": 1820 }
+      "written":   { "words": 340, "characters": 1820 },
+      "dailyGoal": 500,
+      "metric":    "words"
   } }
   ```
   `written` is what the ring/calendar show, and it's a real word-level diff
@@ -49,6 +51,18 @@ leaves the device. A real vault file is the only option that satisfies both.
   after a restart; once that recovery moved to the text-baseline cache below,
   `total` had nothing left reading it, so it was dropped rather than carried
   along as unused weight in a file meant to travel with the vault.
+
+  `dailyGoal`/`metric` are the goal actually in effect *that day* — recorded
+  once, alongside `written`, rather than read live from settings whenever the
+  calendar renders. Fixes a real bug: previously the calendar judged every
+  day — including ones from weeks ago — against *today's* live daily goal and
+  metric, so raising or lowering the goal (or switching between words and
+  characters) silently repainted every past day's colour to match, even ones
+  recorded under a completely different goal. A day recorded before this was
+  tracked has neither field; `resolveDayGoal` falls back to the live settings
+  only for that one case (see [`src/data/goalHistory.ts`](../../src/data/goalHistory.ts)
+  below), same graceful degradation as everywhere else a field was added
+  after some history already existed.
 
   The day's *starting text* itself — one snapshot per in-scope file, needed
   live for the rest of that day — is **not** stored in this file. It lives in
@@ -135,13 +149,22 @@ leaves the device. A real vault file is the only option that satisfies both.
   baseline text and current text via `insertedWords`, falling back to a plain
   floored word-count difference for a file `insertedWords` returned `null`
   for), `writtenFor` (a direct lookup), `writtenBetween` (sums `written` over
-  an inclusive date range, for the week/month summary).
+  an inclusive date range, for the week/month summary), `resolveDayGoal` (the
+  written amount and daily goal to judge a specific day by, using that day's
+  own recorded `dailyGoal`/`metric` — falling back to the live settings only
+  for a day recorded before those were tracked; see the storage section above
+  for the bug this fixes).
 - [`src/data/calendarGrid.ts`](../../src/data/calendarGrid.ts) — pure,
   unit-tested: `monthGrid` (always 6 Sunday-first weeks, so the calendar's
-  height doesn't jump between months), `dayStatus` (met / partial / none),
-  `buildCalendar` (the grid enriched with each cell's status *and* its raw
-  `written` amount, via a caller-supplied `writtenForDate`, so this module
-  doesn't depend on `goalHistory`'s shape).
+  height doesn't jump between months), `dayStatus` (met / partial / none, from
+  a written amount and a goal — a plain classifier the caller applies, not
+  something this module fetches itself), `buildCalendar` (the grid enriched
+  with each cell's status *and* its raw `written` amount, via two
+  caller-supplied lookups, `writtenForDate` and `statusForDate` — a *separate*
+  lookup for status rather than one `dailyGoal` applied to the whole grid, so
+  the caller can judge each day against whatever goal actually applied to it;
+  this module still doesn't depend on `goalHistory`'s shape, since it just
+  calls back for both, never reading `goalHistory` itself).
 - [`src/views/calendarWidget.ts`](../../src/views/calendarWidget.ts) —
   `renderCalendarWidget`: the nav (prev/next + month title) and the day-cell
   grid, as one DOM-building function shared by `goalWidgetView.ts` and
@@ -184,6 +207,32 @@ leaves the device. A real vault file is the only option that satisfies both.
 
   Pure display; `contentEl.empty()` + rebuild on every change rather than
   incremental DOM patching — the view is small enough that this stays simple.
+- [`src/views/goalCelebration.ts`](../../src/views/goalCelebration.ts) —
+  announces the goal being reached even when the widget above isn't open: a
+  `Notice` toast each time `dayStatus` (from `calendarGrid.ts`) newly turns
+  "met" — tracked as a rising edge (`wasMet`, in memory), so dipping back
+  under the goal (e.g. a same-day edit that deletes more than it adds) and
+  crossing it again later fires a fresh toast rather than staying silent for
+  the rest of the day — plus a status-bar item (desktop only — mobile has no
+  status bar) that stays lit for as long as the goal currently reads "met".
+  Both driven by `goalHistoryStore.onChange()`, so "reached" is always the
+  same figure the ring and calendar already show, never computed a second
+  way. A second flag, `hasRun`, keeps the very first `update()` call from
+  counting as a rising edge on its own — it just records whatever `met`
+  already is as `wasMet`'s starting point, silently; the toast should only
+  ever follow an actual edit crossing the goal, not merely opening the app on
+  an already-met day. Getting that first call to actually carry real data
+  mattered more than it looks: `update()` is *only* ever triggered from
+  `goalHistoryStore.onChange()`, never also called directly from `onload()`
+  the way an earlier version of this file did — `GoalHistoryStore` hasn't
+  necessarily recorded today's data yet at the moment `onload()` runs (its
+  own first `recordToday()` is itself deferred to the scanner's first real
+  scan completing), so calling `update()` synchronously there would read an
+  empty history and set `hasRun`/`wasMet`'s baseline against "nothing written
+  yet" — then the real first update, once actual data arrived, would find
+  `hasRun` already `true` and fire the toast for a goal that was met before
+  Obsidian even opened. The same class of race `GoalHistoryStore` itself
+  already had to avoid (see its own `onload()`).
 - [`src/views/goalsStatsTabView.ts`](../../src/views/goalsStatsTabView.ts) —
   the main-area tab, its two top-level sections separated by an `<hr>`
   (`.scribe-stats-divider`). Each section heading carries its own icon

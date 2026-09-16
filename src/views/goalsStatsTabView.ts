@@ -3,9 +3,9 @@
 
 import { ItemView, setIcon, WorkspaceLeaf } from "obsidian";
 import type ScribeGoalsStatsPlugin from "../main";
-import type { CalendarCell } from "../data/calendarGrid";
+import { CalendarCell, dayStatus } from "../data/calendarGrid";
 import { formatCount } from "../data/countFormat";
-import { dateKey, GoalHistory, writtenBetween, writtenFor } from "../data/goalHistory";
+import { dateKey, GoalHistory, resolveDayGoal, writtenBetween, writtenFor } from "../data/goalHistory";
 import type { GoalMetric } from "../settings/settings";
 import { renderCalendarWidget } from "./calendarWidget";
 import { GOAL_WIDGET_ICON } from "./goalWidgetView";
@@ -204,9 +204,12 @@ export class GoalsStatsTabView extends ItemView {
 		const calendarBlock = layout.createDiv({ cls: "scribe-goal-calendar-block" });
 		renderCalendarWidget(calendarBlock, {
 			cursor: this.cursor,
-			dailyGoal,
 			metric,
 			writtenForDate: (iso) => writtenFor(history, iso, metric),
+			statusForDate: (iso) => {
+				const { written, dailyGoal: goal } = resolveDayGoal(history, iso, { dailyGoal, metric });
+				return dayStatus(written, goal);
+			},
 			onNavigate: (next) => {
 				this.cursor = next;
 				this.selectedDay = null;

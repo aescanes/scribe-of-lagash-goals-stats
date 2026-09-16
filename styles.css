@@ -34,6 +34,17 @@ body {
 	color: var(--scribe-accent);
 }
 
+/* ---- Daily-goal celebration: status bar item ---- */
+
+.scribe-goal-status-bar {
+	color: var(--scribe-accent);
+	font-weight: var(--font-weight-bold);
+}
+
+.scribe-goal-status-bar.mod-hidden {
+	display: none;
+}
+
 /* ---- Settings: writing-days picker ---- */
 
 .scribe-weekday-picker {

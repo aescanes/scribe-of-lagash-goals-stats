@@ -48,7 +48,8 @@ test("buildCalendar marks in-month, today, and status per cell", () => {
 		["2026-09-09", 1667],
 		["2026-09-10", 500],
 	]);
-	const weeks = buildCalendar(2026, 8, today, 1667, (iso) => written.get(iso) ?? 0);
+	const writtenForDate = (iso: string) => written.get(iso) ?? 0;
+	const weeks = buildCalendar(2026, 8, today, writtenForDate, (iso) => dayStatus(writtenForDate(iso), 1667));
 	const flat = weeks.flat();
 
 	const sep9 = flat.find((c) => c.iso === "2026-09-09");
@@ -65,4 +66,21 @@ test("buildCalendar marks in-month, today, and status per cell", () => {
 
 	const outOfMonth = flat.find((c) => !c.inMonth);
 	assert.ok(outOfMonth, "expected at least one filler day from an adjacent month");
+});
+
+test("buildCalendar asks the caller for each cell's status independently — not one goal for the whole grid", () => {
+	// A day's status can depend on more than just its own written amount (e.g.
+	// a goal that changed over time); buildCalendar itself stays agnostic to
+	// that and just calls back per cell.
+	const today = new Date(2026, 8, 10);
+	const weeks = buildCalendar(
+		2026,
+		8,
+		today,
+		() => 100,
+		(iso) => (iso === "2026-09-09" ? "met" : "partial"),
+	);
+	const flat = weeks.flat();
+	assert.equal(flat.find((c) => c.iso === "2026-09-09")?.status, "met");
+	assert.equal(flat.find((c) => c.iso === "2026-09-10")?.status, "partial");
 });
