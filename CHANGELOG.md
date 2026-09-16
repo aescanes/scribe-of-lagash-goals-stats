@@ -15,6 +15,19 @@ is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
     always shows Today's total, plus — when a day other than today is
     clicked — that day's total in a slot reserved below it, so showing or
     hiding it never resizes the card or shifts "Story Stats" below.
+- "Written today" (and the history built from it) is now a real word-level
+  diff between each file's text right now and its own text at the moment the
+  day started, instead of a plain word-count comparison: deleting old,
+  already-existing text — anywhere, even elsewhere in the same note — never
+  counts against today, while deleting part of what was typed *today* still
+  correctly lowers it. The day's starting text is cached in plugin data so it
+  survives an Obsidian restart mid-day; a note whose same-day changes are
+  unusually large or extensive falls back to the previous word-count-based
+  measure for just that one file, for the rest of that day.
+- The goal-history JSON no longer stores each day's raw `total` word/character
+  count alongside `written` — it was only ever used internally to recover the
+  day's starting point after a restart, a job the new text-baseline cache now
+  does directly, so it had nothing left reading it.
 
 ## [0.3.0](https://github.com/aescanes/scribe-of-lagash-goals-stats/releases/tag/0.3.0) - 2026-09-12
 

@@ -47,24 +47,30 @@ Shape so far (grows as features land):
   plus the always-on `(SL) ` rule), `scope` (`inStoryFolder`), `textMetrics`
   (`countWords` / `countCharacters` / `stripFrontmatter` / `measure` /
   `measureBoth`), `countTree` (`folderTotals`), `countFormat` (`formatCount`),
-  `goalHistory` (the history-file model: `parseHistory`, `serializeHistory`,
-  `writtenFor`, `writtenBetween`, …), `calendarGrid` (`monthGrid`,
-  `buildCalendar`, `dayStatus`). Later: tokenizing, sentence counting,
-  stop-word filtering, repeated-word tallying, pace / projection.
+  `textDiff` (`insertedWords`: a word-level Myers diff, size-capped — see
+  [goal-widget-plan.md](docs/feature-plans/goal-widget-plan.md)), `goalHistory`
+  (the history-file model: `parseHistory`, `serializeHistory`,
+  `writtenAcrossFiles`, `writtenFor`, `writtenBetween`, …), `calendarGrid`
+  (`monthGrid`, `buildCalendar`, `dayStatus`). Later: tokenizing, sentence
+  counting, stop-word filtering, repeated-word tallying, pace / projection.
 - [`src/views/`](src/views/) — Obsidian-facing, not necessarily DOM: any
   non-trivial computation is a pure function in `src/data/` that these call,
   they don't do math inline.
   - `scopeScanner.ts` — the one place that scans and reads every in-scope
-    note (both metrics, from a single `cachedRead` per file); everything else
-    that needs "how much has been written" subscribes to it instead of
-    scanning the vault itself.
+    note (both metrics plus the raw text, from a single `cachedRead` per
+    file); everything else that needs "how much has been written" subscribes
+    to it instead of scanning the vault itself.
   - `explorerDecorator.ts` — paints counts into the file explorer, re-picking
     the active metric from the scanner's scan.
   - `goalHistoryStore.ts` — records each day's totals (both metrics) from the
     scanner into a plugin-managed vault file, `"(SL) Goals History.json"`
     inside the story folder (or the vault root). A real vault file, not
     plugin data under `.obsidian/`, so it survives an uninstall/reinstall and
-    travels with however the vault is already synced.
+    travels with however the vault is already synced. Today's per-file text
+    baseline that `writtenAcrossFiles` diffs against *is* kept in plugin data
+    (injected as `TodayTextBaselineCache`, backed by `main.ts`'s
+    `saveData()`/`loadData()`) — it only matters for the day still in
+    progress, so losing it on an uninstall is fine.
   - `calendarWidget.ts` — `renderCalendarWidget`: the month-calendar nav +
     grid DOM, shared by `goalWidgetView.ts` and `goalsStatsTabView.ts` so both
     stay identical without duplicating the DOM building. A day with data gets
@@ -75,10 +81,10 @@ Shape so far (grows as features land):
     `plugin.goalHistoryStore` and `plugin.settings`.
   - `goalsStatsTabView.ts` — a main-area tab `ItemView` (opened via
     `workspace.getLeaf("tab")`, like the Visualization plugin's StoryLines,
-    not a sidebar). Two sections: "Writing goal history" (today/week/month as
-    plain circles — no progress arc, this is a record not a live goal — plus
-    the calendar, clickable per day to show that day's total) and "Story
-    Stats" (placeholder, not built yet).
+    not a sidebar). Two sections: "Writing goal history" (period totals with
+    daily averages beside the calendar, which shows Today's total plus, when a
+    different day is clicked, that day's) and "Story Stats" (placeholder, not
+    built yet).
 - [`src/settings/`](src/settings/) — `settings.ts` (interface, defaults,
   `normalizeSettings`) and `settingsTab.ts` (the tab; imperative `display()`).
 - [`styles.css`](styles.css) — prefer Obsidian's own CSS variables

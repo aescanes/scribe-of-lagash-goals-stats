@@ -32,6 +32,26 @@ Working now:
   targets are worked out from those. Plus a list of notes and folders to
   exclude from everything the plugin measures.
 
+### How "written today" is counted
+
+Today's count isn't just "how much longer is the note now" — it's genuinely
+new writing, worked out by comparing what each note says right now to what it
+said at the start of the day and counting only the words that weren't there
+before. That has one nice effect: cleaning up old work doesn't punish you.
+
+- **Deleting something you wrote on an earlier day never lowers today's
+  count.** Cut a whole tired paragraph from last week, reorganize a chapter,
+  trim an old scene down to nothing — none of it counts against you, because
+  none of it was written today.
+- **Deleting something you wrote *today* does lower today's count**, same as
+  any ordinary word counter. Write a new sentence, then cut a couple of words
+  from it before you're done for the day, and the count reflects what's
+  actually on the page.
+
+So the number always answers "how many new words are sitting in my story
+right now," not "how many keys did I press today" — a big cleanup of old
+material can never accidentally erase a day's progress.
+
 Planned:
 
 - **Goal targets** — total word count and a deadline, per-chapter or per-scene

@@ -27,6 +27,10 @@ export interface FileMetrics {
  */
 export class ScopeScanner extends Component {
 	private perFile = new Map<string, FileMetrics>();
+	/** Each in-scope file's raw text, from the same read `perFile` was measured
+	 *  from — kept for `GoalHistoryStore`'s word-level diff, so it doesn't have
+	 *  to read the vault a second time itself. */
+	private perFileContent = new Map<string, string>();
 	private listeners: Array<() => void> = [];
 
 	/** Coalesces bursts of vault/metadata events into one rescan. */
@@ -61,6 +65,11 @@ export class ScopeScanner extends Component {
 		return this.perFile;
 	}
 
+	/** Each in-scope file's raw text, from the most recent scan. */
+	getPerFileContent(): ReadonlyMap<string, string> {
+		return this.perFileContent;
+	}
+
 	/** Both metrics summed across every in-scope file. */
 	getTotals(): FileMetrics {
 		let words = 0;
@@ -81,14 +90,17 @@ export class ScopeScanner extends Component {
 			.filter((file) => inStoryFolder(file.path, storyFolder) && !isExcluded(file.path, excludedPaths));
 
 		const perFile = new Map<string, FileMetrics>();
+		const perFileContent = new Map<string, string>();
 		await Promise.all(
 			files.map(async (file) => {
 				const content = await this.app.vault.cachedRead(file);
 				perFile.set(file.path, measureBoth(content));
+				perFileContent.set(file.path, content);
 			}),
 		);
 
 		this.perFile = perFile;
+		this.perFileContent = perFileContent;
 		for (const listener of this.listeners) listener();
 	}
 }

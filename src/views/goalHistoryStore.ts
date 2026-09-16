@@ -2,12 +2,32 @@
 // Copyright (C) 2026 aescanes
 
 import { App, Component, debounce, normalizePath, TFile, TFolder } from "obsidian";
-import { DayTotals, dateKey, GoalHistory, parseHistory, serializeHistory } from "../data/goalHistory";
+import { dateKey, FileText, GoalHistory, parseHistory, serializeHistory, writtenAcrossFiles } from "../data/goalHistory";
 import type { ScopeScanner } from "./scopeScanner";
 
 /** The settings slice the store needs, read lazily so it always sees current values. */
 export interface GoalHistoryStoreConfig {
 	storyFolder: string;
+}
+
+/** Every in-scope file's text at the moment a given day started. */
+export interface TodayTextBaseline {
+	date: string;
+	perFile: FileText;
+}
+
+/**
+ * Reads and writes the day's start-of-day text snapshot. Backed by plugin
+ * data (`saveData()`/`loadData()`), not the vault-synced history file — it's
+ * only ever needed for *today*, to survive an Obsidian restart mid-day, so it
+ * doesn't need to travel with the vault or outlive an uninstall the way the
+ * actual history does. Losing it (a fresh install, a cleared plugin folder)
+ * just means the next `recordToday()` re-establishes the baseline from
+ * wherever the scope stands right now, same as any other first day.
+ */
+export interface TodayTextBaselineCache {
+	load: () => Promise<TodayTextBaseline | null>;
+	save: (cache: TodayTextBaseline) => Promise<void>;
 }
 
 /**
@@ -29,10 +49,10 @@ export class GoalHistoryStore extends Component {
 	private history: GoalHistory = {};
 	private loadedPath: string | null = null;
 	private lastSavedContent: string | null = null;
-	/** The scope's total at the moment the current day started — fixed for the
-	 *  rest of that day; "written" is always the live total minus this. */
-	private dayStartTotal: DayTotals | null = null;
-	/** Which date `dayStartTotal` belongs to, so a day rollover is detected. */
+	/** Every in-scope file's own text at the moment the current day started —
+	 *  fixed for the rest of that day; "written" is always a diff against this. */
+	private dayStartText: FileText | null = null;
+	/** Which date `dayStartText` belongs to, so a day rollover is detected. */
 	private dayStartDate: string | null = null;
 	private listeners: Array<() => void> = [];
 
@@ -43,15 +63,23 @@ export class GoalHistoryStore extends Component {
 		private app: App,
 		private scanner: ScopeScanner,
 		private getConfig: () => GoalHistoryStoreConfig,
+		private textCache: TodayTextBaselineCache,
 	) {
 		super();
 	}
 
 	onload(): void {
-		this.app.workspace.onLayoutReady(() => void this.recordToday());
+		// Deliberately not also triggered from `workspace.onLayoutReady()`: the
+		// scanner's own `onLayoutReady` callback (registered when it was added as
+		// a child, before this store) always ends its first `refresh()` by
+		// notifying listeners — including this one, registered just below —
+		// before that promise resolves. Triggering `recordToday()` here too could
+		// win the race and run against an empty, not-yet-scanned scope, wrongly
+		// treating today's baseline as "nothing exists yet" and crediting the
+		// entire scope as "written today" the moment the real scan lands.
 		this.register(this.scanner.onChange(() => void this.recordToday()));
 		// Nothing else fires exactly at midnight; a coarse poll catches the day
-		// rolling over during a long-running Obsidian session with no edits.
+		// rolling over during a long-running session with no edits.
 		this.registerInterval(window.setInterval(() => void this.recordToday(), 5 * 60 * 1000));
 	}
 
@@ -84,51 +112,48 @@ export class GoalHistoryStore extends Component {
 		this.history = file instanceof TFile ? parseHistory(await this.app.vault.cachedRead(file)) : {};
 		this.loadedPath = path;
 		this.lastSavedContent = null;
-		// A different file means a different diff baseline; recompute it fresh
-		// the next time recordToday() runs, rather than reusing one from the
-		// previous file.
+		// A different file means a different scope, and possibly a different
+		// today baseline; recompute it fresh the next time recordToday() runs.
 		this.dayStartDate = null;
-		this.dayStartTotal = null;
+		this.dayStartText = null;
 	}
 
 	/**
-	 * "Written today" is always the scope's current total minus its total at
-	 * the moment today started — live, in both directions, like any ordinary
-	 * word-count tracker (deleting text lowers it same as any other edit).
-	 * That start-of-day baseline is fixed once per calendar day: for a day
-	 * with no record yet (including the very first day ever tracked) it's
-	 * wherever the scope stands right now, so a fresh day starts at 0 rather
-	 * than crediting an already-existing manuscript; for a day already
-	 * partway recorded (e.g. resuming after a restart) it's recovered from
-	 * what's already stored (`total − written`), so progress made earlier
-	 * today before the restart isn't lost.
+	 * "Written today" is a real word-level diff (`writtenAcrossFiles`) between
+	 * every in-scope file's text right now and its own text at the moment today
+	 * started — so an old paragraph disappearing never counts against today,
+	 * while deleting part of what was typed *today* correctly drops back out of
+	 * it. That start-of-day snapshot is fixed once per calendar day: for a day
+	 * with no snapshot yet (including the very first day ever tracked) it's
+	 * wherever the scope's text stands right now, so a fresh day starts at 0
+	 * rather than crediting an already-existing manuscript; for a day already
+	 * partway through (e.g. resuming after a restart) it's recovered from
+	 * `textCache`, so progress made earlier today before the restart isn't
+	 * lost. A day recorded before this text-diff tracking shipped, or one
+	 * resumed after `textCache`'s own storage was cleared, has no snapshot to
+	 * recover — that one day falls back to "today started right now", same as
+	 * a brand-new day.
 	 */
 	async recordToday(): Promise<void> {
 		await this.ensureLoaded();
 
-		const current = this.scanner.getTotals();
+		const currentText: FileText = {};
+		for (const [path, content] of this.scanner.getPerFileContent()) currentText[path] = content;
 		const today = dateKey(new Date());
 
 		if (this.dayStartDate !== today) {
-			const recorded = this.history[today];
-			this.dayStartTotal = recorded
-				? {
-						words: recorded.total.words - recorded.written.words,
-						characters: recorded.total.characters - recorded.written.characters,
-					}
-				: current;
+			const cached = await this.textCache.load();
+			this.dayStartText = cached && cached.date === today ? cached.perFile : currentText;
 			this.dayStartDate = today;
+			if (!cached || cached.date !== today) await this.textCache.save({ date: today, perFile: this.dayStartText });
 		}
 
 		// Falls back to "today started right now" in the unreachable case where
 		// the block above hasn't run yet — sound either way, never just a cast.
-		const baseline = this.dayStartTotal ?? current;
-		const written: DayTotals = {
-			words: Math.max(0, current.words - baseline.words),
-			characters: Math.max(0, current.characters - baseline.characters),
-		};
+		const baselineText = this.dayStartText ?? currentText;
+		const written = writtenAcrossFiles(baselineText, currentText);
 
-		this.history = { ...this.history, [today]: { total: current, written } };
+		this.history = { ...this.history, [today]: { written } };
 
 		for (const listener of this.listeners) listener();
 		this.scheduleSave();

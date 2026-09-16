@@ -6,7 +6,7 @@ import { DEFAULT_SETTINGS, normalizeSettings, ScribeGoalsStatsSettings } from ".
 import { ScribeGoalsStatsSettingTab } from "./settings/settingsTab";
 import { ExplorerDecorator } from "./views/explorerDecorator";
 import { ScopeScanner } from "./views/scopeScanner";
-import { GoalHistoryStore } from "./views/goalHistoryStore";
+import { GoalHistoryStore, TodayTextBaseline } from "./views/goalHistoryStore";
 import { GOAL_WIDGET_ICON, GoalWidgetView, VIEW_TYPE_GOAL_WIDGET } from "./views/goalWidgetView";
 import {
 	GOALS_STATS_TAB_ICON_ID,
@@ -17,6 +17,18 @@ import {
 
 /** Where `activateView` opens a view: the right sidebar, or a tab in the main area. */
 type ViewPlacement = "right" | "tab";
+
+/**
+ * The plugin's whole `data.json` shape: settings plus, alongside them, today's
+ * text-baseline cache (see `TodayTextBaseline`) — kept here rather than in a
+ * second file since both are the same kind of thing (small, device-local,
+ * fine to lose on uninstall), just under their own key so neither's shape
+ * collides with the other's.
+ */
+interface PluginData {
+	settings?: Partial<ScribeGoalsStatsSettings>;
+	todayTextBaseline?: TodayTextBaseline;
+}
 
 export default class ScribeGoalsStatsPlugin extends Plugin {
 	settings: ScribeGoalsStatsSettings = { ...DEFAULT_SETTINGS };
@@ -40,9 +52,12 @@ export default class ScribeGoalsStatsPlugin extends Plugin {
 		);
 
 		this.goalHistoryStore = this.addChild(
-			new GoalHistoryStore(this.app, this.scanner, () => ({
-				storyFolder: this.settings.storyFolder,
-			})),
+			new GoalHistoryStore(
+				this.app,
+				this.scanner,
+				() => ({ storyFolder: this.settings.storyFolder }),
+				{ load: () => this.loadTodayTextBaseline(), save: (cache) => this.saveTodayTextBaseline(cache) },
+			),
 		);
 
 		addIcon(GOALS_STATS_TAB_ICON_ID, GOALS_STATS_TAB_ICON_SVG);
@@ -77,14 +92,29 @@ export default class ScribeGoalsStatsPlugin extends Plugin {
 	}
 
 	async loadSettings(): Promise<void> {
-		this.settings = normalizeSettings(
-			(await this.loadData()) as Partial<ScribeGoalsStatsSettings> | null,
-		);
+		const data = (await this.loadData()) as PluginData | null;
+		this.settings = normalizeSettings(data?.settings ?? null);
 	}
 
 	async saveSettings(): Promise<void> {
-		await this.saveData(this.settings);
+		await this.savePluginData({ settings: this.settings });
 		void this.scanner.refresh();
+	}
+
+	private async loadTodayTextBaseline(): Promise<TodayTextBaseline | null> {
+		const data = (await this.loadData()) as PluginData | null;
+		return data?.todayTextBaseline ?? null;
+	}
+
+	private async saveTodayTextBaseline(cache: TodayTextBaseline): Promise<void> {
+		await this.savePluginData({ todayTextBaseline: cache });
+	}
+
+	/** Merges `patch` into the on-disk plugin data rather than replacing it, so
+	 *  settings and today's text-baseline cache never clobber one another. */
+	private async savePluginData(patch: Partial<PluginData>): Promise<void> {
+		const data = ((await this.loadData()) as PluginData | null) ?? {};
+		await this.saveData({ ...data, ...patch });
 	}
 
 	/** Reveals an existing leaf of `viewType`, or opens one at the given placement. */

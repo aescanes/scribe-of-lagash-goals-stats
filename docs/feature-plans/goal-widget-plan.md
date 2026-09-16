@@ -30,23 +30,42 @@ leaves the device. A real vault file is the only option that satisfies both.
   outside the counting/explorer-badge logic without needing the `(SL) ` rule.
 - **Shape**: one entry per local calendar day, in both metrics regardless of
   which is active (so switching the words/characters setting later doesn't
-  strand or misinterpret past history) — with two fields per day:
+  strand or misinterpret past history) — with one field per day:
   ```json
   { "2026-09-10": {
-      "total":   { "words": 43821, "characters": 231400 },
-      "written": { "words": 340,   "characters": 1820 }
+      "written": { "words": 340, "characters": 1820 }
   } }
   ```
-  `written` is what the ring/calendar show: the net change that day — the
-  scope's total right now minus its total at the moment the day started —
-  clamped at 0, live in both directions, same as any ordinary word-count
-  tracker (deleting text lowers it same as any other edit). `total` is the
-  scope's raw word/character count as of the last scan that day; it's internal
-  bookkeeping, not shown anywhere — its only purpose is letting
-  `GoalHistoryStore` recover today's start-of-day baseline (`total − written`)
-  after a restart, without losing progress already made earlier that day.
+  `written` is what the ring/calendar show, and it's a real word-level diff
+  (see `writtenAcrossFiles` and `src/data/textDiff.ts`) between every in-scope
+  file's text right now and its own text at the moment the day started: only
+  words genuinely new since then count. An old paragraph disappearing is
+  invisible to it — those words were never part of the "inserted" set, in that
+  file or any other — while deleting part of what was typed *today* correctly
+  drops back out of it. The same distinction `git diff` draws between
+  untouched, removed, and inserted lines, drawn at the word level instead.
+  An earlier revision also stored a `total` field (the scope's raw
+  word/character count as of the last scan) for recovering the day's baseline
+  after a restart; once that recovery moved to the text-baseline cache below,
+  `total` had nothing left reading it, so it was dropped rather than carried
+  along as unused weight in a file meant to travel with the vault.
 
-  Two earlier, more elaborate designs were tried and dropped:
+  The day's *starting text* itself — one snapshot per in-scope file, needed
+  live for the rest of that day — is **not** stored in this file. It lives in
+  plugin data instead (`saveData()`/`loadData()`, under its own
+  `todayTextBaseline` key alongside settings — see `TodayTextBaseline` in
+  `goalHistoryStore.ts`), which the history file deliberately avoids for
+  everything else (see below): duplicating the day's prose into a vault file
+  that then gets synced right alongside the actual notes has no upside, and
+  the snapshot is only ever needed for *today* — once a day is over, its
+  `written` is frozen and the snapshot is worthless. Losing it (an
+  uninstall/reinstall, a cleared plugin folder, a fresh device that hasn't
+  synced `data.json`) just means the next scan re-establishes the baseline
+  from wherever the scope's text stands right now, same as any brand-new day —
+  the identical graceful-degradation the numeric version already relied on
+  for the same restart case.
+
+  Four earlier, progressively less naive designs were tried and dropped:
   1. A single running total per day, with "written" derived by diffing
      against the *previous day* at display time. Broken two ways: a first run
      against an existing manuscript credited the whole thing as "written
@@ -58,28 +77,65 @@ leaves the device. A real vault file is the only option that satisfies both.
      every other writing-progress tool works — deleting text is expected to
      lower today's count, not leave it untouched — and real-world testing
      quickly confirmed that mismatch felt like a bug rather than a feature.
-
-  The current design (a fixed start-of-day baseline, diffed live) is simpler
-  than either: no accumulation, no need to reach for "the previous day"
-  specifically, and it matches the standard mental model for this kind of
-  tracker.
+  3. A single start-of-day *word-count* baseline for the whole scope, diffed
+     live. Matched the standard mental model for one file at a time, but broke
+     with more than one note in play: deleting old text in one note quietly
+     ate into new words typed in another, since only the scope-wide net (which
+     can go negative before the floor-at-0 clamp applies) was ever compared.
+  4. The same start/floor idea moved to a *per-file* word-count baseline —
+     fixed the cross-file cancellation in (3), but a word count alone still
+     couldn't tell "deleted an old paragraph in this file" from "deleted part
+     of what was typed in this file today": both just lowered that one file's
+     count. Since the whole point was to protect against exactly the first of
+     those, a real text diff (the current design) was the only way to actually
+     get there, not just narrow the blast radius of getting it wrong.
 - **Known limitation**: if the story folder is moved or renamed, the history
   file doesn't follow — a new one starts empty at the new location. Not
-  solved yet.
+  solved yet. Renaming a *note* (not the whole folder) looks the same way to
+  the day's text baseline — the old path drops out (contributing nothing, same
+  as a deletion) and the new path has no baseline text of its own, so the
+  note's entire content counts as "written" under its new name for the rest of
+  that day.
+- **Known limitation**: the diff only runs when a file's combined
+  baseline+current word count and its actual edit distance both stay under a
+  size limit (`DIFF_WORD_LIMIT` / `MAX_EDIT_DISTANCE` in `textDiff.ts`) —
+  Myers' algorithm's memory is proportional to both, and an unbounded worst
+  case (a large note rewritten almost entirely) could otherwise spike to
+  hundreds of megabytes, a real risk given this plugin also has to run on
+  mobile. A file past either limit that day falls back to a plain floored
+  word-count difference for just that one file (the same fallback design (4)
+  above used everywhere), for the rest of that day.
 
 ## Modules
 
 - [`src/views/scopeScanner.ts`](../../src/views/scopeScanner.ts) — scans
   in-scope, non-excluded notes once per change and measures both metrics per
-  file from a single `cachedRead`. Both the file-explorer badges and the goal
+  file from a single `cachedRead`, keeping each file's raw text alongside its
+  counts (`getPerFileContent()`) so the goal history's word-level diff doesn't
+  need a second read of its own. Both the file-explorer badges and the goal
   history subscribe to this instead of each scanning the vault themselves.
   (`ExplorerDecorator` was refactored to consume it rather than scan on its
   own — see [explorer-word-counts-plan.md](explorer-word-counts-plan.md).)
+- [`src/data/textDiff.ts`](../../src/data/textDiff.ts) — pure, unit-tested:
+  `insertedWords(baseline, current)`, a word-level diff (Myers' algorithm —
+  the same one behind `diff`/`git diff`) returning just the words in `current`
+  genuinely new since `baseline`. Diffs at word granularity, not character
+  granularity, both because that's what "written" actually measures and
+  because it keeps the token count — and so the cost — down. Returns `null`
+  instead of running the diff past `DIFF_WORD_LIMIT` (combined word count) or
+  `MAX_EDIT_DISTANCE` (how different the two texts actually are) — Myers'
+  backtracking keeps one snapshot per edit-distance step, so both its time and
+  memory are quadratic in the worst case (a note replaced almost entirely);
+  these caps bound that to a momentary, garbage-collected spike rather than
+  risking an out-of-memory crash, on mobile in particular.
 - [`src/data/goalHistory.ts`](../../src/data/goalHistory.ts) — pure,
   unit-tested: `dateKey`, `parseHistory`/`serializeHistory` (tolerant of a
   hand-edited or partially-synced file — malformed day records are dropped,
-  not fatal), `writtenFor` (a direct lookup), `writtenBetween` (sums `written`
-  over an inclusive date range, for the week/month summary).
+  not fatal), `writtenAcrossFiles` (today's `written`, from every file's
+  baseline text and current text via `insertedWords`, falling back to a plain
+  floored word-count difference for a file `insertedWords` returned `null`
+  for), `writtenFor` (a direct lookup), `writtenBetween` (sums `written` over
+  an inclusive date range, for the week/month summary).
 - [`src/data/calendarGrid.ts`](../../src/data/calendarGrid.ts) — pure,
   unit-tested: `monthGrid` (always 6 Sunday-first weeks, so the calendar's
   height doesn't jump between months), `dayStatus` (met / partial / none),
@@ -97,12 +153,22 @@ leaves the device. A real vault file is the only option that satisfies both.
 - [`src/views/goalHistoryStore.ts`](../../src/views/goalHistoryStore.ts) —
   the vault-file I/O: resolves the file's path from the current story-folder
   setting, loads it (reloading if the resolved path changes, discarding its
-  start-of-day baseline so the new file's day is re-established fresh),
-  recomputes today's `written` from the scanner's latest total against that
-  baseline on every scanner change plus a 5-minute poll (to catch the day
-  rolling over during a long-running session with no edits), and writes with
-  `Vault.process()`/`Vault.create()` — debounced, and skipped if the
-  serialized content hasn't actually changed.
+  start-of-day text baseline so the new file's day is re-established fresh),
+  recomputes today's `written` via `writtenAcrossFiles` from the scanner's
+  latest per-file text against that baseline on every scanner change plus a
+  5-minute poll (to catch the day rolling over during a long-running session
+  with no edits), and writes with `Vault.process()`/`Vault.create()` —
+  debounced, and skipped if the serialized content hasn't actually changed.
+  The day's text baseline itself is read from/written to `TodayTextBaselineCache`
+  (backed by plugin data, injected from `main.ts`), established once per day
+  and recovered as-is after a restart rather than reconstructed. Only ever
+  triggered from `scanner.onChange()` (plus the 5-minute poll), deliberately
+  *not* also from `workspace.onLayoutReady()` directly — the scanner's own
+  first `refresh()` always finishes and notifies this listener before that
+  promise resolves, so triggering `recordToday()` a second, earlier way here
+  could win the race and run against an empty, not-yet-scanned scope, wrongly
+  treating "nothing exists yet" as today's baseline and then crediting the
+  entire scope as "written today" the moment the real scan lands.
 - [`src/views/goalWidgetView.ts`](../../src/views/goalWidgetView.ts) — the
   right-sidebar `ItemView`: three bordered cards (`.scribe-goal-card`), same
   background and border on all so they read as one family.
@@ -180,8 +246,15 @@ so it reads as a circle like the graded cells instead of a squared-off mark.
 - The sidebar widget's calendar still has no way to see a day's exact total —
   only the tab's calendar is clickable. Could be added the same way if wanted.
 - No total/deadline goals yet, only the daily one.
-- No handling for the story folder moving/renaming (see the limitation above).
-- No migration from the single-running-total shape an earlier version wrote —
+- No handling for the story folder moving/renaming, or an individual note
+  being renamed mid-day (see the limitations above).
+- A note whose same-day changes exceed `DIFF_WORD_LIMIT`/`MAX_EDIT_DISTANCE`
+  falls back to the older, plain floored word-count difference for that one
+  file for the rest of the day — precise everywhere else, but that one file
+  goes back to not being able to tell an old-text deletion from a new-text
+  deletion until the next day starts (see the limitation above).
+- No migration from either of the two earlier storage shapes (the single
+  running-total version, or the brief per-file-numeric-baseline version) —
   `parseHistory` just drops those old-shape entries as malformed, same as any
-  other corruption. Nothing shipped to real users before the shape changed, so
-  this only affects hand-typed test data from before this revision.
+  other corruption. Nothing shipped to real users before either shape changed,
+  so this only affects hand-typed test data from before this revision.

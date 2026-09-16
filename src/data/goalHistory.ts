@@ -5,6 +5,8 @@
 // vault file (see `GoalHistoryStore`) so it survives a plugin uninstall/reinstall
 // and travels with the vault through whatever the author already syncs it with.
 
+import { insertedWords } from "./textDiff";
+import { measureBoth } from "./textMetrics";
 import type { GoalMetric } from "../settings/settings";
 
 /** A count in each metric, regardless of which is active in settings — so
@@ -14,19 +16,19 @@ export interface DayTotals {
 	characters: number;
 }
 
+/** Each in-scope file's full text, keyed by vault path. */
+export type FileText = Record<string, string>;
+
 /**
- * One day's record. `written` — what the ring and calendar show — is the net
- * change that day: the scope's total right now minus its total at the moment
- * the day started, clamped at 0 (a net deletion below where the day started
- * reads as "nothing written", not a negative goal). It moves in both
- * directions live, same as the ring — deleting text lowers it, same as any
- * other writing-progress tracker. `total` is the scope's raw word/character
- * count as of the last scan that day; it isn't shown anywhere, it exists only
- * so `GoalHistoryStore` can recover today's start-of-day baseline after a
- * restart (`total − written`).
+ * One day's record. `written` — what the ring and calendar show — is a real
+ * word-level diff (see `writtenAcrossFiles`) between each file's text right
+ * now and its own text at the moment the day started: only words genuinely
+ * new since then count. Deleting old, already-existing text is invisible to
+ * it — it was never part of the "inserted" set — while deleting part of what
+ * was typed *today* correctly drops back out of it, the same distinction
+ * `git diff` draws between untouched, removed, and inserted lines.
  */
 export interface DayRecord {
-	total: DayTotals;
 	written: DayTotals;
 }
 
@@ -49,8 +51,8 @@ function isDayTotals(value: unknown): value is DayTotals {
 
 function isDayRecord(value: unknown): value is DayRecord {
 	if (typeof value !== "object" || value === null) return false;
-	const { total, written } = value as Record<string, unknown>;
-	return isDayTotals(total) && isDayTotals(written);
+	const { written } = value as Record<string, unknown>;
+	return isDayTotals(written);
 }
 
 /**
@@ -70,7 +72,7 @@ export function parseHistory(raw: string): GoalHistory {
 	const history: GoalHistory = {};
 	for (const [key, value] of Object.entries(parsed as Record<string, unknown>)) {
 		if (/^\d{4}-\d{2}-\d{2}$/.test(key) && isDayRecord(value)) {
-			history[key] = { total: { ...value.total }, written: { ...value.written } };
+			history[key] = { written: { ...value.written } };
 		}
 	}
 	return history;
@@ -81,6 +83,40 @@ export function serializeHistory(history: GoalHistory): string {
 	const sorted: GoalHistory = {};
 	for (const key of Object.keys(history).sort()) sorted[key] = history[key];
 	return JSON.stringify(sorted, null, "\t");
+}
+
+/**
+ * Today's `written`: for every file in `current`, the words genuinely new
+ * since its entry in `baselineText` (see `insertedWords` — a missing entry
+ * means the whole file is new today, since it didn't exist at the start of
+ * the day), summed across every file with both metrics measured from that
+ * same inserted text. A file present in `baselineText` but missing from
+ * `current` (deleted, or moved out of scope) simply drops out — it
+ * contributes 0, not a negative number that would eat into some other file's
+ * total. When a file's diff is too large or too different to compute cheaply
+ * (`insertedWords` returns `null` — see its size limits), that one file falls
+ * back to a plain word-count difference floored at 0, still immune to a
+ * *different* file's deletions cancelling it out, just not immune to old and
+ * new text mixing together within that one large file.
+ */
+export function writtenAcrossFiles(baselineText: FileText, current: FileText): DayTotals {
+	let words = 0;
+	let characters = 0;
+	for (const [path, currentText] of Object.entries(current)) {
+		const baseline = baselineText[path] ?? "";
+		const inserted = insertedWords(baseline, currentText);
+		if (inserted) {
+			const measured = measureBoth(inserted.join(" "));
+			words += measured.words;
+			characters += measured.characters;
+		} else {
+			const currentTotals = measureBoth(currentText);
+			const baselineTotals = measureBoth(baseline);
+			words += Math.max(0, currentTotals.words - baselineTotals.words);
+			characters += Math.max(0, currentTotals.characters - baselineTotals.characters);
+		}
+	}
+	return { words, characters };
 }
 
 /** How much was written on `date`, in the given metric; 0 when the day has no entry. */
