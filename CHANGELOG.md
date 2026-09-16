@@ -5,6 +5,8 @@ is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+## [0.5.0](https://github.com/aescanes/scribe-of-lagash-goals-stats/releases/tag/0.5.0) - 2026-09-16
+
 ### Added
 
 - The Goals & Stats tab's "Writing goal history" totals now also show This
