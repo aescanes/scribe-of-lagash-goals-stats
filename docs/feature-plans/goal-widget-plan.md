@@ -193,29 +193,22 @@ leaves the device. A real vault file is the only option that satisfies both.
   history" is two bordered cards side by side (`.scribe-goal-history-columns`,
   wrapping to stacked when the pane is too narrow for both), matching the
   sidebar widget's own card-per-thing styling:
-  - **Left** — plain (no circle, no background) value+label stats via
-    `.scribe-stat-plain`, grouped into rows (`.scribe-stat-row`, a thin
-    `border-left` between adjacent stats in the same row) separated by
-    `<hr class="scribe-stat-row-divider">` between rows, all in one card: This
-    week / This month, then Last 7 days / Last 30 days. Each stat also carries
-    a "(N per day)" average (`.scribe-stat-plain-average`, via
-    `renderStatRow`) — "This week"/"This month" average over the days elapsed
-    *so far* in that period, not its full length, so an in-progress week or
-    month doesn't read as an artificially slow pace. Deliberately simpler than
-    the ring/summary look and structured to grow — a future stat joins an
-    existing row or starts a new one, nothing else about this needs to change.
-  - **Right** — the same calendar as the sidebar widget via
+  - **Left** — the same calendar as the sidebar widget via
     `renderCalendarWidget`, plus a side panel top-aligned beside it
     (`.scribe-goal-calendar-columns`/`.scribe-goal-calendar-side`): Today's
     total, always shown (`renderStatCell`, no average — a single day has
-    nothing to average), and below it a reserved slot
-    (`.scribe-goal-calendar-day-detail`) that stays empty unless a day *other
-    than today* is clicked, in which case it shows that day's total in the
-    same style. The slot is *always* present, so filling it in on a click
-    never resizes the card or shifts "Story Stats" below it. Clicking today
-    itself is a no-op beyond clearing any other day's detail (today's own
-    total is already shown above); navigating months also clears the
-    selection, so a stale selection from a different month is never shown.
+    nothing to average), and below it a reserved slot that stays empty unless
+    a day *other than today* is clicked, in which case it shows that day's
+    total in the same style. Both sit in their own small rounded-corner box
+    (`.scribe-goal-calendar-side-box`, one border/radius step down from the
+    main card's own) rather than as bare text, and share a fixed
+    `min-height` so the two boxes match whether or not a day is selected — a
+    filled box and an empty one still read as a matching pair, and selecting
+    or deselecting a day never resizes either box or shifts "Story Stats"
+    below. Clicking today itself is a no-op beyond clearing any other day's
+    detail (today's own total is already shown above); navigating months
+    also clears the selection, so a stale selection from a different month
+    is never shown.
     Both the calendar's nav+grid wrapper (`.scribe-goal-calendar-block`,
     11rem) and the side panel (`.scribe-goal-calendar-side`, 6.5rem) are
     pinned to a fixed width, and the card itself to `20.5rem`
@@ -224,6 +217,18 @@ leaves the device. A real vault file is the only option that satisfies both.
     independently widen the wrapper they're in, and the card along with it;
     the calendar title also gets `text-overflow: ellipsis` as a last-resort
     guard.
+  - **Right** — plain (no circle, no background) value+label stats via
+    `.scribe-stat-plain`, grouped into rows (`.scribe-stat-row`, a thin
+    `border-left` between adjacent stats in the same row) separated by
+    `<hr class="scribe-stat-row-divider">` between rows, all in one card: This
+    week / This month / This year, then Last 7 days / Last 30 days / Last
+    365 days. Each stat also carries a "(N per day)" average
+    (`.scribe-stat-plain-average`, via `renderStatRow`) — "This
+    week"/"This month"/"This year" average over the days elapsed *so far* in
+    that period, not its full length, so an in-progress week, month, or year
+    doesn't read as an artificially slow pace. Deliberately simpler than
+    the ring/summary look and structured to grow — a future stat joins an
+    existing row or starts a new one, nothing else about this needs to change.
 
   "Story Stats" section:
   placeholder, not built yet.
@@ -239,7 +244,10 @@ softer `--scribe-accent-soft`. "Today" is still marked with a ring outline
 (`--interactive-accent`, an inset box-shadow all the way around the cell)
 rather than a fill, so it never gets confused with a graded day even when
 today is also met or partial — and a full ring rather than just an underline,
-so it reads as a circle like the graded cells instead of a squared-off mark.
+so it reads as the same rounded-square shape as the graded cells instead of a
+different mark. Cells are rounded squares (`--radius-s`), not circles — a
+squarer shape than the sidebar/tab's other rounded elements, chosen simply
+because it reads better at this size.
 
 ## Not done yet
 

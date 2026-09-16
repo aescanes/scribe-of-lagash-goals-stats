@@ -5,6 +5,30 @@ is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+### Added
+
+- The Goals & Stats tab's "Writing goal history" totals now also show This
+  year and Last 365 days, next to the existing This month and Last 30 days,
+  each with its own daily average.
+
+### Changed
+
+- Calendar day cells (sidebar widget and Goals & Stats tab alike) are now
+  rounded squares instead of circles.
+- The Goals & Stats tab's calendar card: Today's total and the clicked-day
+  total each sit in their own small rounded-corner box instead of as plain
+  text with a divider between them; the clicked-day box stays invisible
+  (rather than showing an empty outline) until a day other than today is
+  clicked, though its space is still reserved so nothing shifts when it
+  appears.
+
+### Fixed
+
+- A divider line between two rows of stats (`.scribe-stat-row-divider`) was
+  rendering at zero width and never actually showing, in every card that uses
+  it — its flex container centers children by their own content width, which
+  collapsed an empty `<hr>` down to nothing.
+
 ## [0.4.0](https://github.com/aescanes/scribe-of-lagash-goals-stats/releases/tag/0.4.0) - 2026-09-16
 
 ### Changed

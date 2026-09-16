@@ -281,9 +281,7 @@ body {
 	align-items: center;
 	justify-content: center;
 	aspect-ratio: 1;
-	/* A fixed percentage, not an Obsidian size token — always a true circle
-	   regardless of the cell's actual pixel size. */
-	border-radius: 50%;
+	border-radius: var(--radius-s);
 	color: var(--text-normal);
 	font-size: var(--font-ui-smaller);
 	font-variant-numeric: tabular-nums;
@@ -294,7 +292,7 @@ body {
 }
 
 /* A full ring around the cell (not just a bottom underline), so "today" reads
-   as a circle like the met/partial cells, never as a squared-off mark. */
+   as one shape with the met/partial cells rather than a different mark. */
 .scribe-goal-calendar-day.mod-today {
 	box-shadow: inset 0 0 0 2px var(--interactive-accent);
 	color: var(--interactive-accent);
@@ -405,8 +403,12 @@ body {
 	font-size: var(--font-ui-smaller);
 }
 
-/* Separates one row of stats from the next, inside the same card. */
+/* Separates one row of stats from the next, inside the same card. Its
+   container centers children by their own content width (`align-items:
+   center`), which would otherwise size an empty <hr> down to nothing —
+   `align-self: stretch` opts this one child back into filling the full width. */
 .scribe-stat-row-divider {
+	align-self: stretch;
 	margin: var(--size-4-3) 0;
 	border: none;
 	border-top: 1px solid var(--background-modifier-border);
@@ -453,15 +455,30 @@ body {
 	padding: 0;
 }
 
-/* A clicked day's total, reserved below "Today" in the side panel — present
-   (if empty) whether or not a day is selected, so filling it in never changes
-   the card's height. */
-.scribe-goal-calendar-day-detail {
+/* Today's total and the clicked-day total each sit in their own small
+   rounded-corner box, echoing the main card's own border/radius language at a
+   smaller scale rather than floating as bare text. Both share a fixed
+   min-height so the two stay the same size whether or not a day is
+   selected — selecting/deselecting a day never resizes either box or shifts
+   "Today" to meet it. */
+.scribe-goal-calendar-side-box {
 	display: flex;
 	flex-direction: column;
 	align-items: center;
+	justify-content: center;
 	gap: 2px;
-	min-height: 2.6rem;
+	width: 100%;
+	min-height: 4rem;
+	border: 1px solid var(--background-modifier-border);
+	border-radius: var(--radius-m);
+	padding: var(--size-4-2) var(--size-4-1);
+}
+
+/* The day-detail box before any day (other than today) has been clicked —
+   its reserved space (and thus the layout) stays exactly as it would once
+   filled in, but the box itself, border included, is invisible until then. */
+.scribe-goal-calendar-side-box.mod-empty {
+	visibility: hidden;
 }
 
 /* The tab has room to breathe that the sidebar widget doesn't — a bit more
