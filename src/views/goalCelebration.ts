@@ -6,6 +6,7 @@ import { dayStatus } from "../data/calendarGrid";
 import { formatCount } from "../data/countFormat";
 import { dateKey, writtenFor } from "../data/goalHistory";
 import type { GoalMetric } from "../settings/settings";
+import { playConfettiBurst } from "./confetti";
 import type { GoalHistoryStore } from "./goalHistoryStore";
 
 /** The settings slice the celebration needs, read lazily so it always sees current values. */
@@ -17,13 +18,13 @@ export interface GoalCelebrationConfig {
 /**
  * Announces the daily goal being reached even when the goal widget isn't
  * open, so reaching it isn't only visible to whoever happens to have the
- * right sidebar open at the time: a toast (`Notice`) each time it's freshly
- * crossed — including a second time the same day, if it's dipped back under
- * and climbed over again — and a status-bar item (desktop only — mobile has
- * no status bar, so this half is a no-op there) that stays lit whenever the
- * goal currently stands met. Both read `GoalHistoryStore`, so "reached"
- * always agrees with the ring and calendar rather than being computed a
- * second way.
+ * right sidebar open at the time: a toast (`Notice`) plus a confetti burst
+ * each time it's freshly crossed — including a second time the same day, if
+ * it's dipped back under and climbed over again — and a status-bar item
+ * (desktop only — mobile has no status bar, so this half is a no-op there)
+ * that stays lit whenever the goal currently stands met. All three read
+ * `GoalHistoryStore`, so "reached" always agrees with the ring and calendar
+ * rather than being computed a second way.
  */
 export class GoalCelebration extends Component {
 	/** Whether the goal was met as of the last update — the toast fires again
@@ -73,6 +74,7 @@ export class GoalCelebration extends Component {
 
 		if (met && !this.wasMet && this.hasRun) {
 			new Notice(`🎉 Daily writing goal reached! You wrote ${formatCount(written, metric, false)} today.`);
+			playConfettiBurst();
 		}
 		this.wasMet = met;
 		this.hasRun = true;

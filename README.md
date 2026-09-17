@@ -8,9 +8,7 @@ goals** and see **detailed statistics** for those goals and for the story as a
 whole. It is the second plugin in the **Scribe of Lagash** series, a set of
 independent, focused tools for planning and writing stories in Obsidian.
 
-## Features
-
-Working now:
+## Current features
 
 - **Writing-goal widget** — a right-sidebar view (ribbon icon or the "Open
   writing goal widget" command) with a ring for today's progress toward the
@@ -25,8 +23,8 @@ Working now:
   month calendar as the sidebar widget with today's total and, when clicked,
   any other day's total shown next to it.
 - **Daily-goal celebration** — the moment you reach the daily goal, a toast
-  notification says so and a status-bar item lights up for as long as it
-  stays met, whether or not the writing-goal widget is open.
+  notification plus a confetti burst say so, and a status-bar item lights up
+  for as long as it stays met, whether or not the writing-goal widget is open.
 - **Writing session** — a plain countdown timer in the writing-goal widget,
   unrelated to the daily goal or any particular day: 15/30/60-minute presets
   or a custom length, with the same ring styling as the daily-goal progress

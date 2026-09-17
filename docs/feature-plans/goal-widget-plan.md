@@ -209,12 +209,14 @@ leaves the device. A real vault file is the only option that satisfies both.
   incremental DOM patching — the view is small enough that this stays simple.
 - [`src/views/goalCelebration.ts`](../../src/views/goalCelebration.ts) —
   announces the goal being reached even when the widget above isn't open: a
-  `Notice` toast each time `dayStatus` (from `calendarGrid.ts`) newly turns
-  "met" — tracked as a rising edge (`wasMet`, in memory), so dipping back
-  under the goal (e.g. a same-day edit that deletes more than it adds) and
-  crossing it again later fires a fresh toast rather than staying silent for
-  the rest of the day — plus a status-bar item (desktop only — mobile has no
-  status bar) that stays lit for as long as the goal currently reads "met".
+  `Notice` toast plus a confetti burst (`playConfettiBurst()`, see
+  `confetti.ts` below) each time `dayStatus` (from `calendarGrid.ts`) newly
+  turns "met" — tracked as a rising edge (`wasMet`, in memory), so dipping
+  back under the goal (e.g. a same-day edit that deletes more than it adds)
+  and crossing it again later fires a fresh celebration rather than staying
+  silent for the rest of the day — plus a status-bar item (desktop only —
+  mobile has no status bar) that stays lit for as long as the goal currently
+  reads "met".
   Both driven by `goalHistoryStore.onChange()`, so "reached" is always the
   same figure the ring and calendar already show, never computed a second
   way. A second flag, `hasRun`, keeps the very first `update()` call from
@@ -233,6 +235,29 @@ leaves the device. A real vault file is the only option that satisfies both.
   `hasRun` already `true` and fire the toast for a goal that was met before
   Obsidian even opened. The same class of race `GoalHistoryStore` itself
   already had to avoid (see its own `onload()`).
+- [`src/views/confetti.ts`](../../src/views/confetti.ts) — `playConfettiBurst()`:
+  a ~3-second fountain of tumbling, fading rectangles launched from the
+  bottom centre of the window, fanning up and out to either side
+  (`LAUNCH_SPREAD_RADIANS`, `MIN_LAUNCH_SPEED`/`MAX_LAUNCH_SPEED`) before
+  gravity brings each piece back down — not pieces already falling from
+  random points across the top. Drawn on a full-viewport `<canvas>` it
+  creates and removes itself (`.scribe-confetti-canvas`, `position: fixed`,
+  `pointer-events: none` so it never blocks clicking through it), animated
+  with `requestAnimationFrame` and simple constant-gravity physics.
+  First-party rather than a dependency —
+  a considered choice, not an oversight: a tiny (~5 KB), zero-dependency npm
+  package for exactly this exists, but this plugin already has two other
+  small celebration/completion effects done the same way (`bellSound.ts`'s
+  synthesized tone, the Myers diff in `textDiff.ts`), and
+  [AGENTS.md](../../AGENTS.md) states the preference explicitly. Skips
+  itself entirely when the OS is set to reduce motion
+  (`prefers-reduced-motion`), and fails silently on any other error (no
+  canvas support, …) — same reasoning as `bellSound.ts`: the toast and
+  status-bar item already announce the goal being reached, so a missing
+  effect isn't worth surfacing further. A `window.setTimeout` safety net
+  force-cleans the canvas even if `requestAnimationFrame` stalls (e.g. the
+  window loses focus mid-burst, which pauses rAF callbacks) rather than
+  leaving it sitting in the DOM until refocus.
 - [`src/views/goalsStatsTabView.ts`](../../src/views/goalsStatsTabView.ts) —
   the main-area tab, its two top-level sections separated by an `<hr>`
   (`.scribe-stats-divider`). Each section heading carries its own icon

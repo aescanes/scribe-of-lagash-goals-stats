@@ -108,11 +108,17 @@ Shape so far (grows as features land):
     Web Audio API (no bundled audio file), played alongside the completion
     `Notice`. Failures are swallowed silently.
   - `goalCelebration.ts` — announces the daily goal being reached even when
-    the widget above isn't open: a `Notice` toast each time it's freshly
-    crossed by an actual edit (a rising edge, so dipping under and back over
-    again the same day celebrates again — but reopening Obsidian on an
-    already-met day doesn't) plus a status-bar item (desktop only) that stays
-    lit while the goal currently reads met.
+    the widget above isn't open: a `Notice` toast plus a confetti burst
+    (`confetti.ts`) each time it's freshly crossed by an actual edit (a
+    rising edge, so dipping under and back over again the same day
+    celebrates again — but reopening Obsidian on an already-met day doesn't)
+    plus a status-bar item (desktop only) that stays lit while the goal
+    currently reads met.
+  - `confetti.ts` — `playConfettiBurst()`: a first-party, dependency-free
+    canvas confetti animation (see the "prefer first-party code" rule
+    above) — a considered choice over a small existing npm package, matching
+    `bellSound.ts`'s synthesized tone. Skips itself under
+    `prefers-reduced-motion`; failures are swallowed silently.
   - `goalsStatsTabView.ts` — a main-area tab `ItemView` (opened via
     `workspace.getLeaf("tab")`, like the Visualization plugin's StoryLines,
     not a sidebar). Two sections: "Writing goal history" (period totals with
