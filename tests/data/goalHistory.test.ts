@@ -129,14 +129,14 @@ test("writtenAcrossFiles: a deletion in one file never offsets a new count in an
 		"doc1.md": "a b c",
 		"doc2.md": "x y new1 new2",
 	};
-	assert.deepEqual(writtenAcrossFiles(baselineText, current), { words: 2, characters: 9 });
+	assert.deepEqual(writtenAcrossFiles(baselineText, current), { words: 2, characters: 8 });
 });
 
 test("writtenAcrossFiles: deleting an old paragraph never lowers today's count, even within the same file", () => {
 	const baselineText: FileText = { "doc.md": "old1 old2 old3 old4 old5" };
 	// The whole old paragraph is gone; two new words were typed in its place.
 	const current: FileText = { "doc.md": "new1 new2" };
-	assert.deepEqual(writtenAcrossFiles(baselineText, current), { words: 2, characters: 9 });
+	assert.deepEqual(writtenAcrossFiles(baselineText, current), { words: 2, characters: 8 });
 });
 
 test("writtenAcrossFiles: deleting part of what was typed today still lowers that file's own count", () => {
@@ -151,7 +151,7 @@ test("writtenAcrossFiles: a brand-new file counts in full; a deleted file contri
 	const current: FileText = { "new.md": "x y" };
 	// old.md dropped out of scope entirely (deleted or moved out) — no negative
 	// carry-over; new.md had no baseline, so all of it counts.
-	assert.deepEqual(writtenAcrossFiles(baselineText, current), { words: 2, characters: 3 });
+	assert.deepEqual(writtenAcrossFiles(baselineText, current), { words: 2, characters: 2 });
 });
 
 test("writtenAcrossFiles: falls back to a plain floored difference for a file too large/different to diff", () => {

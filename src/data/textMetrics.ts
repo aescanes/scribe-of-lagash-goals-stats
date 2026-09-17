@@ -26,12 +26,13 @@ export function countWords(content: string): number {
 }
 
 /**
- * Character count of a note's body, including the spaces between words
- * ("characters with spaces"), with only the leading/trailing whitespace of the
- * whole body trimmed off.
+ * Character count of a note's body, excluding whitespace (spaces, tabs, line
+ * breaks) — so two words separated by a space or a blank line don't inflate
+ * the count the way "characters with spaces" would.
  */
 export function countCharacters(content: string): number {
-	return stripFrontmatter(content).trim().length;
+	const matches = stripFrontmatter(content).match(/\S/g);
+	return matches ? matches.length : 0;
 }
 
 /** Measures a note's body in the unit the user picked for goals and stats. */
@@ -47,5 +48,6 @@ export function measure(content: string, metric: GoalMetric): number {
 export function measureBoth(content: string): { words: number; characters: number } {
 	const body = stripFrontmatter(content);
 	const words = body.match(/\S+/g);
-	return { words: words ? words.length : 0, characters: body.trim().length };
+	const characters = body.match(/\S/g);
+	return { words: words ? words.length : 0, characters: characters ? characters.length : 0 };
 }

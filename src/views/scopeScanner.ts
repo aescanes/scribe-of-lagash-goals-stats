@@ -34,7 +34,7 @@ export class ScopeScanner extends Component {
 	private listeners: Array<() => void> = [];
 
 	/** Coalesces bursts of vault/metadata events into one rescan. */
-	private scheduleRefresh = debounce(() => void this.refresh(), 300, true);
+	private scheduleRefresh = debounce(() => void this.refresh(), 100, true);
 
 	constructor(
 		private app: App,
