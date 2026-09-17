@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 // Copyright (C) 2026 aescanes
 
-import { App, Component, debounce } from "obsidian";
+import { App, Component, debounce, Editor, MarkdownFileInfo, MarkdownView, TFile } from "obsidian";
 import { measureBoth } from "../data/textMetrics";
 import { isExcluded } from "../data/exclusion";
 import { inStoryFolder } from "../data/scope";
@@ -33,8 +33,18 @@ export class ScopeScanner extends Component {
 	private perFileContent = new Map<string, string>();
 	private listeners: Array<() => void> = [];
 
-	/** Coalesces bursts of vault/metadata events into one rescan. */
+	/** Coalesces bursts of vault/metadata events into one disk-backed rescan. */
 	private scheduleRefresh = debounce(() => void this.refresh(), 100, true);
+	/**
+	 * Coalesces bursts of keystrokes in the active editor into one listener
+	 * notification. The live text itself is applied to `perFile`/`perFileContent`
+	 * synchronously on every keystroke (a cheap regex count), so the counters feel
+	 * instant, but notifying listeners can cascade into `GoalHistoryStore`'s
+	 * word-level diff against the day's baseline, which isn't cheap enough to
+	 * re-run on every single keystroke of a long note — so *that* is what gets a
+	 * short debounce of its own, separate from the disk-scan one above.
+	 */
+	private notifyLive = debounce(() => this.notify(), 150, true);
 
 	constructor(
 		private app: App,
@@ -50,6 +60,9 @@ export class ScopeScanner extends Component {
 		this.registerEvent(this.app.vault.on("create", () => this.scheduleRefresh()));
 		this.registerEvent(this.app.vault.on("delete", () => this.scheduleRefresh()));
 		this.registerEvent(this.app.vault.on("rename", () => this.scheduleRefresh()));
+		this.registerEvent(
+			this.app.workspace.on("editor-change", (editor, info) => this.onEditorChange(editor, info)),
+		);
 	}
 
 	/** Notified after every rescan completes. Returns an unsubscribe function. */
@@ -101,6 +114,36 @@ export class ScopeScanner extends Component {
 
 		this.perFile = perFile;
 		this.perFileContent = perFileContent;
+		this.notify();
+	}
+
+	private notify(): void {
 		for (const listener of this.listeners) listener();
+	}
+
+	/**
+	 * Applies the active editor's live, possibly-unsaved text to its file's entry
+	 * immediately — instead of waiting for `vault.on("modify")`, which only fires
+	 * once Obsidian actually writes the edit to disk. Every other in-scope file
+	 * keeps coming from the disk-backed `refresh()` above; this only ever touches
+	 * the one file currently being typed in, and a later disk-triggered `refresh()`
+	 * naturally reconciles it back to the saved truth once the edit lands.
+	 */
+	private onEditorChange(editor: Editor, info: MarkdownView | MarkdownFileInfo): void {
+		const file = info.file;
+		if (!(file instanceof TFile)) return;
+
+		const { storyFolder, excludedPaths } = this.getConfig();
+		if (!inStoryFolder(file.path, storyFolder) || isExcluded(file.path, excludedPaths)) return;
+
+		const content = editor.getValue();
+		const perFile = new Map(this.perFile);
+		const perFileContent = new Map(this.perFileContent);
+		perFile.set(file.path, measureBoth(content));
+		perFileContent.set(file.path, content);
+		this.perFile = perFile;
+		this.perFileContent = perFileContent;
+
+		this.notifyLive();
 	}
 }
