@@ -25,8 +25,14 @@ Working now:
   month calendar as the sidebar widget with today's total and, when clicked,
   any other day's total shown next to it.
 - **Daily-goal celebration** — the moment you reach the daily goal, a toast
-  notification says so and a status-bar item lights up for the rest of the
-  day, whether or not the writing-goal widget is open.
+  notification says so and a status-bar item lights up for as long as it
+  stays met, whether or not the writing-goal widget is open.
+- **Writing session** — a plain countdown timer in the writing-goal widget,
+  unrelated to the daily goal or any particular day: 15/30/60-minute presets
+  or a custom length, with the same ring styling as the daily-goal progress
+  ring, play/pause, reset, and a toast plus a short bell sound once time's
+  up. A session in progress survives closing Obsidian — reopening shows it
+  paused, ready to resume with a click.
 - **File-explorer counts** — every note inside the story folder shows its word
   (or character) count next to its name in the file explorer, and every folder
   shows the total of the notes beneath it. Counts update as you write.

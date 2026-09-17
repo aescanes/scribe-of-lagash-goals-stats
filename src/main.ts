@@ -9,6 +9,7 @@ import { ScopeScanner } from "./views/scopeScanner";
 import { GoalCelebration } from "./views/goalCelebration";
 import { GoalHistoryStore, TodayTextBaseline } from "./views/goalHistoryStore";
 import { GOAL_WIDGET_ICON, GoalWidgetView, VIEW_TYPE_GOAL_WIDGET } from "./views/goalWidgetView";
+import { PersistedWritingSession, WritingSessionTimer } from "./views/writingSessionTimer";
 import {
 	GOALS_STATS_TAB_ICON_ID,
 	GOALS_STATS_TAB_ICON_SVG,
@@ -31,9 +32,15 @@ interface PluginData {
 	todayTextBaseline?: TodayTextBaseline;
 }
 
+/** Key under which the in-progress writing session is kept in `App`'s
+ *  vault-scoped `localStorage` — see `WritingSessionPersistence`'s own doc
+ *  comment for why this bypasses `data.json` entirely. */
+const WRITING_SESSION_STORAGE_KEY = "scribe-goals-stats:writing-session";
+
 export default class ScribeGoalsStatsPlugin extends Plugin {
 	settings: ScribeGoalsStatsSettings = { ...DEFAULT_SETTINGS };
 	goalHistoryStore!: GoalHistoryStore;
+	writingSessionTimer!: WritingSessionTimer;
 	private scanner!: ScopeScanner;
 
 	async onload(): Promise<void> {
@@ -71,6 +78,13 @@ export default class ScribeGoalsStatsPlugin extends Plugin {
 				() => ({ dailyGoal: this.settings.dailyGoal, metric: this.settings.metric }),
 				this.addStatusBarItem(),
 			),
+		);
+
+		this.writingSessionTimer = this.addChild(
+			new WritingSessionTimer({
+				load: () => this.loadWritingSession(),
+				save: (session) => this.saveWritingSession(session),
+			}),
 		);
 
 		addIcon(GOALS_STATS_TAB_ICON_ID, GOALS_STATS_TAB_ICON_SVG);
@@ -121,6 +135,14 @@ export default class ScribeGoalsStatsPlugin extends Plugin {
 
 	private async saveTodayTextBaseline(cache: TodayTextBaseline): Promise<void> {
 		await this.savePluginData({ todayTextBaseline: cache });
+	}
+
+	private loadWritingSession(): PersistedWritingSession | null {
+		return (this.app.loadLocalStorage(WRITING_SESSION_STORAGE_KEY) as PersistedWritingSession | null) ?? null;
+	}
+
+	private saveWritingSession(session: PersistedWritingSession | null): void {
+		this.app.saveLocalStorage(WRITING_SESSION_STORAGE_KEY, session);
 	}
 
 	/** Merges `patch` into the on-disk plugin data rather than replacing it, so

@@ -5,6 +5,24 @@ is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+### Added
+
+- Writing session: a plain countdown timer in the writing-goal widget, below
+  the daily-goal ring/summary/calendar — 15-, 30-, or 60-minute presets, or a
+  custom length, with the same ring styling as the daily-goal progress ring
+  (filling as time elapses instead of as words accumulate), a toast
+  notification plus a short bell sound once time's up, a reset button, and a
+  single play/pause button that doubles as "start": typing a custom length
+  and pressing it always begins that
+  length fresh, no matter what the timer was already doing, and typing one
+  while a session is running pauses it immediately. Deliberately unrelated to
+  the daily goal or any particular calendar day — nothing about it is
+  recorded in the goal history. A session in progress does survive closing
+  Obsidian, restored as paused (never running — there's no accounting for
+  real time passed while closed) so a click resumes it exactly where it was
+  left. Keeps running if the sidebar is closed and reopened mid-session,
+  since it lives at the plugin level rather than inside the widget itself.
+
 ## [0.5.0](https://github.com/aescanes/scribe-of-lagash-goals-stats/releases/tag/0.5.0) - 2026-09-16
 
 ### Added

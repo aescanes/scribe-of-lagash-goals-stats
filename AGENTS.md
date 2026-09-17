@@ -54,8 +54,10 @@ Shape so far (grows as features land):
   day's own recorded `dailyGoal`/`metric`, not today's live settings, so
   changing either later never repaints a past day's calendar colour),
   `calendarGrid`
-  (`monthGrid`, `buildCalendar`, `dayStatus`). Later: tokenizing, sentence
-  counting, stop-word filtering, repeated-word tallying, pace / projection.
+  (`monthGrid`, `buildCalendar`, `dayStatus`), `writingSession`
+  (`formatDuration`, `sessionProgress` — a countdown's own math, unrelated to
+  the goal history). Later: tokenizing, sentence counting, stop-word
+  filtering, repeated-word tallying, pace / projection.
 - [`src/views/`](src/views/) — Obsidian-facing, not necessarily DOM: any
   non-trivial computation is a pure function in `src/data/` that these call,
   they don't do math inline.
@@ -79,9 +81,32 @@ Shape so far (grows as features land):
     stay identical without duplicating the DOM building. A day with data gets
     an `aria-label` tooltip (its total, via `formatCount`) and, if `onDayClick`
     is passed, is clickable — a day with none has neither.
+  - `progressRing.ts` — `renderProgressRing`: the disc-plus-arc SVG shared by
+    the daily-goal ring and the writing-session countdown, so both stay
+    visually identical without duplicating the SVG construction.
   - `goalWidgetView.ts` — the right-sidebar `ItemView` (today's ring, a
-    week/month summary, and the month calendar), reading
-    `plugin.goalHistoryStore` and `plugin.settings`.
+    week/month summary, the month calendar, and the writing-session card),
+    reading `plugin.goalHistoryStore`, `plugin.writingSessionTimer`, and
+    `plugin.settings`.
+  - `writingSessionTimer.ts` — `WritingSessionTimer`: an
+    idle/running/paused countdown, ticking once a second while running.
+    Lives at the plugin level (like `goalHistoryStore`), not inside the
+    view, so it keeps running if the sidebar is closed and reopened
+    mid-session — see
+    [writing-session-plan.md](docs/feature-plans/writing-session-plan.md).
+    Deliberately unrelated to the daily goal or any calendar day. A session
+    in progress *is* persisted — every state change, including each tick, via
+    `App.saveLocalStorage()` (synchronous, vault-scoped; deliberately not
+    `saveData()`/`loadData()`, which are async and share `data.json` with the
+    much larger text baseline) — so it survives closing Obsidian, always
+    restored as paused, never running, since there's no wall-clock accounting
+    for time passed while closed.
+  - `bellSound.ts` — `playBellSound()`: a single high-pitched strike (~2600 Hz)
+    like a small hotel reception bell — a slightly detuned fundamental pair
+    that audibly beats/shimmers as it rings, plus three inharmonic overtones
+    with much shorter decays for the initial "clang" — synthesized with the
+    Web Audio API (no bundled audio file), played alongside the completion
+    `Notice`. Failures are swallowed silently.
   - `goalCelebration.ts` — announces the daily goal being reached even when
     the widget above isn't open: a `Notice` toast each time it's freshly
     crossed by an actual edit (a rising edge, so dipping under and back over

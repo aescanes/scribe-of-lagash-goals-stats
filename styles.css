@@ -121,7 +121,7 @@ body {
 
 .scribe-goal-card-title {
 	align-self: flex-start;
-	margin-bottom: var(--size-4-3);
+	margin-bottom: var(--size-4-2);
 	color: var(--text-muted);
 	font-size: var(--font-ui-small);
 }
@@ -139,8 +139,8 @@ body {
 	border: 1px solid var(--background-modifier-border);
 	border-radius: var(--radius-m);
 	background: var(--background-primary);
-	padding: var(--size-4-4) var(--size-4-4) var(--size-4-5);
-	margin-bottom: var(--size-4-6);
+	padding: var(--size-4-3) var(--size-4-3) var(--size-4-4);
+	margin-bottom: var(--size-4-3);
 }
 
 /* ---- Goal widget: today ring ----
@@ -216,10 +216,54 @@ body {
 }
 
 .scribe-goal-ring-caption {
-	margin-top: var(--size-4-4);
+	margin-top: var(--size-4-2);
 	color: var(--text-muted);
 	font-size: var(--font-ui-small);
 	text-align: center;
+}
+
+/* ---- Goal widget: writing-session controls ----
+   Below the session's own ring (the ring itself reuses .scribe-goal-ring-*
+   above, unrelated to the daily goal or any calendar day). */
+
+.scribe-session-controls {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: var(--size-4-2);
+	width: 100%;
+	margin-top: var(--size-4-2);
+}
+
+.scribe-session-presets {
+	display: flex;
+	flex-wrap: wrap;
+	justify-content: center;
+	gap: var(--size-4-2);
+}
+
+/* Play/pause acts on whatever session is already running/paused; the custom
+   input starts a new one — kept in the same row since they're both "control
+   the timer right now" actions, just for different situations. */
+/* The custom-length input and the play/pause button that starts it — one
+   row, above the presets and below the ring. */
+.scribe-session-custom {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	gap: var(--size-4-2);
+}
+
+.scribe-session-custom-input {
+	width: 4.5rem;
+	/* Obsidian's default number-input width is wider than this small card
+	   comfortably fits alongside the play/pause and reset buttons. */
+	text-align: center;
+}
+
+.scribe-session-reset:disabled {
+	opacity: 0.4;
+	cursor: default;
 }
 
 /* ---- Goal widget: week/month summary ---- */
