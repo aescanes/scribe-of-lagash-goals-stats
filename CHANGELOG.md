@@ -5,6 +5,8 @@ is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+## [0.6.0](https://github.com/aescanes/scribe-of-lagash-goals-stats/releases/tag/0.6.0) - 2026-09-17
+
 ### Added
 
 - Writing session: a plain countdown timer in the writing-goal widget, below
