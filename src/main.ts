@@ -93,13 +93,13 @@ export default class ScribeGoalsStatsPlugin extends Plugin {
 		this.registerView(VIEW_TYPE_GOALS_STATS_TAB, (leaf) => new GoalsStatsTabView(leaf, this));
 
 		// Right sidebar: today's goal (ring, week/month summary, calendar).
-		this.addRibbonIcon(GOAL_WIDGET_ICON, "(SL) G & S: Open Writing Goal", () => {
+		this.addRibbonIcon(GOAL_WIDGET_ICON, "(SL) G & S: Open writing goal", () => {
 			void this.activateView(VIEW_TYPE_GOAL_WIDGET, "right");
 		}).addClass("scribe-ribbon-icon");
 
 		// Main-area tab: the full picture — every stat and the complete goal
 		// history, in more detail than the sidebar widget (not built yet).
-		this.addRibbonIcon(GOALS_STATS_TAB_ICON_ID, "(SL) G & S: Open Goals & Stats", () => {
+		this.addRibbonIcon(GOALS_STATS_TAB_ICON_ID, "(SL) G & S: Open goals & stats", () => {
 			void this.activateView(VIEW_TYPE_GOALS_STATS_TAB, "tab");
 		}).addClass("scribe-ribbon-icon");
 
@@ -111,7 +111,7 @@ export default class ScribeGoalsStatsPlugin extends Plugin {
 
 		this.addCommand({
 			id: "open-goals-stats-tab",
-			name: "Open Goals & Stats",
+			name: "Open goals & stats",
 			callback: () => void this.activateView(VIEW_TYPE_GOALS_STATS_TAB, "tab"),
 		});
 

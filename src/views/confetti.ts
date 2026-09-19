@@ -48,7 +48,7 @@ export function playConfettiBurst(): void {
 	try {
 		if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
 
-		const canvas = document.createElement("canvas");
+		const canvas = createEl("canvas");
 		canvas.addClass("scribe-confetti-canvas");
 		canvas.width = window.innerWidth;
 		canvas.height = window.innerHeight;
@@ -115,13 +115,13 @@ export function playConfettiBurst(): void {
 			}
 
 			if (elapsed < DURATION_MS) {
-				animationId = requestAnimationFrame(step);
+				animationId = window.requestAnimationFrame(step);
 			} else {
 				cleanup();
 			}
 		};
 
-		animationId = requestAnimationFrame(step);
+		animationId = window.requestAnimationFrame(step);
 		// Safety net: requestAnimationFrame pauses while the window is out of
 		// focus, so without this a burst interrupted that way could leave the
 		// canvas sitting in the DOM until the window regains focus.

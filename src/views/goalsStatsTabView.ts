@@ -74,7 +74,7 @@ export class GoalsStatsTabView extends ItemView {
 	}
 
 	getDisplayText(): string {
-		return "(SL) Goals & Stats";
+		return "(SL) goals & stats";
 	}
 
 	getIcon(): string {
