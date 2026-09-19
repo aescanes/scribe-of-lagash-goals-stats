@@ -4,7 +4,7 @@ Guidance for AI agents working on this repository. Read this before making chang
 
 ## Concept
 
-**Scribe of Lagash - Goals & Stats** is an Obsidian plugin that helps storytellers
+**Scribe of Lagash - Goals & Stats** is an Obsidian plugin that helps writers
 set writing goals and see detailed statistics for those goals and for the story
 as a whole (word counts, progress toward goals, repeated words, and more). It is
 the second plugin in the **"Scribe of Lagash"** series — a set of independent,

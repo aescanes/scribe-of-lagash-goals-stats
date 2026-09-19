@@ -4,7 +4,7 @@ Status: initial version landed.
 
 ## Goal
 
-Give the storyteller one place to describe what they are writing toward and
+Give the writer one place to describe what they are writing toward and
 which notes count. Everything the goals and stats features need starts from
 these values.
 

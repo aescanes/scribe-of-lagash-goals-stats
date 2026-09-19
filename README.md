@@ -3,10 +3,21 @@
 ![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)
 ![Minimum Obsidian version](https://img.shields.io/badge/obsidian-%E2%89%A51.10.0-8b6cef)
 
-An [Obsidian](https://obsidian.md) plugin that helps storytellers set **writing
-goals** and see **detailed statistics** for those goals and for the story as a
+An [Obsidian](https://obsidian.md) plugin that helps writers set **goals** and see **detailed statistics** for those goals and for the story as a
 whole. It is the second plugin in the **Scribe of Lagash** series, a set of
 independent, focused tools for planning and writing stories in Obsidian.
+
+## Scribe of Lagash Plugins
+
+**Scribe of Lagash** is a series of independent, single-concern Obsidian
+plugins for planning and writing stories:
+
+- **[Scribe of Lagash - Visualization](https://github.com/aescanes/scribe-of-lagash-visualization)**
+  ([community plugin](https://community.obsidian.md/plugins/scribe-of-lagash-visualization)) —
+  helps writers visualize their chapters and scenes.
+- **[Scribe of Lagash - Goals & Stats](https://github.com/aescanes/scribe-of-lagash-goals-stats)**
+  ([community plugin](https://community.obsidian.md/plugins/scribe-of-lagash-goals-stats)) —
+  helps writers set goals and see detailed statistics for their story.
 
 ## Current features
 
