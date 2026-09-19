@@ -179,7 +179,7 @@ export class GoalHistoryStore extends Component {
 			// settings) or a sync conflict; the next scheduled save retries. Log
 			// it rather than failing silently — a *persistent* failure here
 			// would otherwise look exactly like "nothing happens".
-			console.error(`Scribe Goals & Stats: failed to save "${path}"`, err);
+			console.error(`Scribe Goals and Stats: failed to save "${path}"`, err);
 			return;
 		}
 		this.lastSavedContent = content;

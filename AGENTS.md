@@ -4,7 +4,7 @@ Guidance for AI agents working on this repository. Read this before making chang
 
 ## Concept
 
-**Scribe of Lagash - Goals & Stats** is an Obsidian plugin that helps writers
+**Scribe of Lagash - Goals and Stats** is an Obsidian plugin that helps writers
 set writing goals and see detailed statistics for those goals and for the story
 as a whole (word counts, progress toward goals, repeated words, and more). It is
 the second plugin in the **"Scribe of Lagash"** series — a set of independent,
@@ -33,7 +33,7 @@ Shape so far (grows as features land):
 
 - Entry point: [`src/main.ts`](src/main.ts) → `ScribeGoalsStatsPlugin` — onload
   wiring only: settings tab, the ribbon icons / commands that open the two
-  views — the goal widget (right sidebar) and the Goals & Stats tab (main
+  views — the goal widget (right sidebar) and the Goals and Stats tab (main
   area) — via a shared `activateView(viewType, placement)`, and child
   `Component`s (`ScopeScanner`, `ExplorerDecorator`, `GoalHistoryStore`).
   `saveSettings()` pokes the scanner to rescan, which cascades to the other

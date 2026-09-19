@@ -5,6 +5,10 @@ is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+### Changed
+
+- Now accross all repository we use `Goals and Stats` instead `Goals & Stats` to match `name` in `manifest`.
+
 ## [0.7.2](https://github.com/aescanes/scribe-of-lagash-goals-stats/releases/tag/0.7.2) - 2026-09-19
 
 ### Changed
@@ -21,7 +25,7 @@ is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 ### Changed
 
 - The writing-goal widget's ribbon/tab icon now has a thicker stroke, matching
-  the Goals & Stats tab's chart icon.
+  the Goals and Stats tab's chart icon.
 - CI/release workflows: `actions/checkout` and `actions/setup-node` bumped
   from v4 to v6, and `setup-node` now caches npm's download cache
   (keyed on `package-lock.json`) for faster installs.
@@ -43,7 +47,7 @@ is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - Word and character counts now update live while typing in the active note,
   instead of lagging about a second behind until Obsidian saves the file to
   disk.
-- A few ribbon/command labels and the Goals & Stats tab title are now
+- A few ribbon/command labels and the Goals and Stats tab title are now
   lowercase after the "(SL)"/"G & S" prefix, matching Obsidian's sentence-case
   convention for UI text.
 
@@ -80,7 +84,7 @@ is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ### Added
 
-- The Goals & Stats tab's "Writing goal history" totals now also show This
+- The Goals and Stats tab's "Writing goal history" totals now also show This
   year and Last 365 days, next to the existing This month and Last 30 days,
   each with its own daily average.
 - Reaching the daily goal now shows a toast notification and lights up a
@@ -92,9 +96,9 @@ is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ### Changed
 
-- Calendar day cells (sidebar widget and Goals & Stats tab alike) are now
+- Calendar day cells (sidebar widget and Goals and Stats tab alike) are now
   rounded squares instead of circles.
-- The Goals & Stats tab's calendar card: Today's total and the clicked-day
+- The Goals and Stats tab's calendar card: Today's total and the clicked-day
   total each sit in their own small rounded-corner box instead of as plain
   text with a divider between them; the clicked-day box stays invisible
   (rather than showing an empty outline) until a day other than today is
@@ -118,7 +122,7 @@ is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ### Changed
 
-- Reworked the "Writing goal history" section of the Goals & Stats tab into
+- Reworked the "Writing goal history" section of the Goals and Stats tab into
   two side-by-side cards:
   - Left: This week / This month, then Last 7 days / Last 30 days, each as a
     plain value-over-label pair with a "(N per day)" average below it.
@@ -144,7 +148,7 @@ is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ### Added
 
-- Main-area "Goals & Stats" tab (ribbon icon or the "Open Goals & Stats"
+- Main-area "Goals and Stats" tab (ribbon icon or the "Open Goals and Stats"
   command). Opens as a tab (like the Visualization plugin's StoryLines) rather
   than a sidebar, since this is meant to be worked in rather than glanced at.
   Two sections:

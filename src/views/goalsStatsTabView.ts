@@ -35,7 +35,7 @@ interface PeriodStat {
 }
 
 /**
- * Main-area tab: the full "Goals & Stats" picture. Opens as a tab, like the
+ * Main-area tab: the full "Goals and Stats" picture. Opens as a tab, like the
  * Visualization plugin's StoryLines, rather than a sidebar — this is meant to
  * be worked in, not just glanced at alongside writing. Two sections,
  * separated by a divider:
@@ -74,7 +74,7 @@ export class GoalsStatsTabView extends ItemView {
 	}
 
 	getDisplayText(): string {
-		return "(SL) goals & stats";
+		return "(SL) Goals and Stats";
 	}
 
 	getIcon(): string {

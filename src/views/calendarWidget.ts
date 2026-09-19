@@ -25,7 +25,7 @@ export interface CalendarWidgetOptions {
 /**
  * Renders a month calendar — prev/next nav and a Sunday-first grid of day
  * cells coloured by goal status — into `containerEl`. Shared by the
- * right-sidebar goal widget and the main-area Goals & Stats tab, so both stay
+ * right-sidebar goal widget and the main-area Goals and Stats tab, so both stay
  * visually and behaviourally identical without duplicating the DOM building.
  */
 export function renderCalendarWidget(containerEl: HTMLElement, options: CalendarWidgetOptions): void {

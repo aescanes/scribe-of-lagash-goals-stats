@@ -1,4 +1,4 @@
-# Scribe of Lagash - Goals & Stats
+# Scribe of Lagash - Goals and Stats
 
 ![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)
 ![Minimum Obsidian version](https://img.shields.io/badge/obsidian-%E2%89%A51.10.0-8b6cef)
@@ -15,7 +15,7 @@ plugins for planning and writing stories:
 - **[Scribe of Lagash - Visualization](https://github.com/aescanes/scribe-of-lagash-visualization)**
   ([community plugin](https://community.obsidian.md/plugins/scribe-of-lagash-visualization)) —
   helps writers visualize their chapters and scenes.
-- **[Scribe of Lagash - Goals & Stats](https://github.com/aescanes/scribe-of-lagash-goals-stats)**
+- **[Scribe of Lagash - Goals and Stats](https://github.com/aescanes/scribe-of-lagash-goals-stats)**
   ([community plugin](https://community.obsidian.md/plugins/scribe-of-lagash-goals-stats)) —
   helps writers set goals and see detailed statistics for their story.
 
@@ -28,7 +28,7 @@ plugins for planning and writing stories:
   plugin-managed file in the vault, so it survives a plugin uninstall/reinstall
   and travels with the vault through whatever the author already syncs it
   with.
-- **Goals & Stats tab** — a main-area tab (ribbon icon or the "Open Goals &
+- **Goals and Stats tab** — a main-area tab (ribbon icon or the "Open Goals &
   Stats" command) with a "Writing goal history" section: week/month, rolling
   7-/30-day, and year/365-day totals with daily averages, beside the same
   month calendar as the sidebar widget with today's total and, when clicked,
@@ -77,7 +77,7 @@ Planned:
 - **Goal stats** — writing streaks and how each day compares to the target pace.
 - **Story stats** — total and per-chapter/scene word, sentence, and paragraph
   counts; average scene and chapter length; reading-time estimate. Will live
-  in the Goals & Stats tab's "Story Stats" section (already there as an empty
+  in the Goals and Stats tab's "Story Stats" section (already there as an empty
   placeholder).
 - **Repeated-word analysis** — most-frequent words and phrases across the
   whole story or a single chapter, with common stop-words filtered out, to

@@ -56,7 +56,7 @@ export default defineConfig([
 	},
 	{
 		// "(SL) G & S:" is this plugin's own command-palette/ribbon prefix (short
-		// for "Scribe of Lagash" / "Goals & Stats"), used so its entries group
+		// for "Scribe of Lagash" - "Goals and Stats"), used so its entries group
 		// together — sentence-casing it into "(Sl) g & s:" would mangle that
 		// on-purpose prefix. `acronyms` is case-insensitive (so "SL" alone is
 		// enough), but a bare `acronyms: ["G", "S"]` would also force-uppercase
@@ -65,11 +65,22 @@ export default defineConfig([
 		// only leaves an already-uppercase "G"/"S" alone, never mangling those
 		// lowercase ones. Everything after the prefix still gets sentence-cased
 		// normally, same as any other UI string.
+		//
+		// "Goals" and "Stats" are in `ignoreWords` too, deliberately: the Goals
+		// & Stats tab's own `getDisplayText()` is title-cased ("(SL) Goals and
+		// Stats") rather than sentence-cased, unlike every other UI string in
+		// this plugin — a one-off exception the maintainer chose to keep, even
+		// though it's a real deviation from Obsidian's own sentence-case
+		// guideline (this rule mirrors that guideline, so a manual reviewer
+		// could still flag it at submission time — this only silences the
+		// local warning). Being case-sensitive, this doesn't touch the
+		// lowercase "goals"/"stats" used correctly everywhere else (command
+		// names, the ribbon tooltip, …).
 		files: ["src/**/*.ts"],
 		rules: {
 			"obsidianmd/ui/sentence-case": [
 				"warn",
-				{ enforceCamelCaseLower: true, acronyms: ["SL"], ignoreWords: ["G", "S"] },
+				{ enforceCamelCaseLower: true, acronyms: ["SL"], ignoreWords: ["G", "S", "Goals", "Stats"] },
 			],
 		},
 	},

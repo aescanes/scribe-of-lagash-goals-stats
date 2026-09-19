@@ -1,6 +1,6 @@
 # Contributing
 
-Thanks for your interest in contributing to Scribe of Lagash - Goals & Stats.
+Thanks for your interest in contributing to Scribe of Lagash - Goals and Stats.
 This project is part of the **Scribe of Lagash** series — independent
 Obsidian plugins that help writers plan and write, each focused on one
 concern. This particular plugin covers writing goals and statistics for a
