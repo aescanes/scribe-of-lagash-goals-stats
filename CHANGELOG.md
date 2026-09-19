@@ -5,6 +5,10 @@ is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+### Changed
+
+- Change `name` on `manifest.json` file to follow Obsidian rules.
+
 ## [0.7.1](https://github.com/aescanes/scribe-of-lagash-goals-stats/releases/tag/0.7.1) - 2026-09-19
 
 ### Added
