@@ -23,7 +23,7 @@ export const GOALS_STATS_TAB_ICON_ID = "scribe-goals-stats-chart";
  * the `scribe-ribbon-icon` class.
  */
 export const GOALS_STATS_TAB_ICON_SVG =
-	`<g fill="none" stroke="currentColor" stroke-width="8.33" stroke-linecap="round" stroke-linejoin="round">` +
+	`<g fill="none" stroke="currentColor" stroke-width="10" stroke-linecap="round" stroke-linejoin="round">` +
 	`<path d="M12.5 12.5v66.67a8.33 8.33 0 0 0 8.33 8.33h66.67"/>` +
 	`<path d="M79.17 37.5l-20.83 20.83-16.67-16.67-12.5 12.5"/></g>`;
 

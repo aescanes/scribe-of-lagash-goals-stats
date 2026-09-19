@@ -5,6 +5,16 @@ is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+### Added
+
+- `styles.css` is now linted with stylelint (`stylelint-config-obsidianmd`),
+  alongside the existing ESLint check, in `npm run validate` and CI.
+
+### Changed
+
+- The writing-goal widget's ribbon/tab icon now has a thicker stroke, matching
+  the Goals & Stats tab's chart icon.
+
 ## [0.7.0](https://github.com/aescanes/scribe-of-lagash-goals-stats/releases/tag/0.7.0) - 2026-09-19
 
 ### Added

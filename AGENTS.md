@@ -133,7 +133,10 @@ Shape so far (grows as features land):
   accent: it is defined once as `--scribe-accent` / `--scribe-accent-soft`
   (with a `.theme-dark` override) and everything else references those
   variables. Never introduce another raw hex; never set a colour from
-  JavaScript; never override a core Obsidian colour.
+  JavaScript; never override a core Obsidian colour. `npm run lint:css`
+  ([`.stylelintrc.json`](.stylelintrc.json), extending
+  `stylelint-config-obsidianmd`) enforces most of this automatically — keep it
+  green alongside `npm run lint`.
 
 ## Conventions (enforced — don't violate)
 
@@ -223,7 +226,8 @@ npm run build    # tsc --noEmit type-check + minified production bundle → main
 npm test         # esbuild-compile tests/**/*.test.ts → .test-build, run node --test
 npm run lint     # eslint src tests — ESLint 9 flat config; src/ gets
                  # @typescript-eslint type-checked rules (needs the TS project)
-npm run validate # typecheck + test + lint — what the pre-commit hook runs
+npm run lint:css # stylelint styles.css, via stylelint-config-obsidianmd
+npm run validate # typecheck + test + lint + lint:css — what the pre-commit hook runs
 ```
 
 A Husky pre-commit hook ([`.husky/pre-commit`](.husky/pre-commit)) runs
@@ -231,7 +235,7 @@ A Husky pre-commit hook ([`.husky/pre-commit`](.husky/pre-commit)) runs
 `npm run prepare` and git-ignored.
 
 CI ([`.github/workflows/ci.yml`](.github/workflows/ci.yml)) runs `npm run build`,
-`npm test`, and eslint on push/PR to `main`, on **Node 24** (matching
+`npm test`, eslint, and stylelint on push/PR to `main`, on **Node 24** (matching
 `@types/node`). All must pass before a PR.
 
 Tests use Node's built-in `node:test` — **no test framework dependency**. They

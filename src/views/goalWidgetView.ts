@@ -10,7 +10,23 @@ import { renderCalendarWidget } from "./calendarWidget";
 import { renderProgressRing } from "./progressRing";
 
 export const VIEW_TYPE_GOAL_WIDGET = "scribe-goal-widget";
-export const GOAL_WIDGET_ICON = "target";
+
+/** Custom icon for the view tab and ribbon; registered in `main.ts` via `addIcon`. */
+export const GOAL_WIDGET_ICON = "scribe-goal-widget-target";
+
+/**
+ * Lucide "target" paths, scaled from the 24-unit box they were authored in up
+ * to Obsidian's 100-unit icon box — see `GOALS_STATS_TAB_ICON_SVG`'s doc
+ * comment for why this replaces the built-in "target" icon: a custom copy is
+ * the only way to control its `stroke-width`, which the built-in one doesn't
+ * expose. `currentColor` so the tab icon follows the theme; the ribbon is
+ * tinted via the `scribe-ribbon-icon` class.
+ */
+export const GOAL_WIDGET_ICON_SVG =
+	`<g fill="none" stroke="currentColor" stroke-width="10" stroke-linecap="round" stroke-linejoin="round">` +
+	`<circle cx="50" cy="50" r="41.67"/>` +
+	`<circle cx="50" cy="50" r="25"/>` +
+	`<circle cx="50" cy="50" r="8.33"/></g>`;
 
 /** The three one-click session lengths; a custom-minutes input covers anything else. */
 const SESSION_PRESETS_MINUTES = [15, 30, 60];

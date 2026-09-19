@@ -53,6 +53,7 @@ body {
 	width: 100%;
 	height: 100%;
 	pointer-events: none;
+
 	/* High enough to sit above the app's own UI without needing to compete
 	   with a specific Obsidian layer token — this is a one-off decorative
 	   overlay, not real interface chrome. */
@@ -102,6 +103,8 @@ body {
 	display: inline-flex;
 }
 
+/* stylelint-disable-next-line no-descending-specificity -- unrelated to the
+   tab-header icon rule above; no element can match both selectors. */
 .scribe-explorer-count-icon svg {
 	width: var(--icon-xs);
 	height: var(--icon-xs);
@@ -173,6 +176,7 @@ body {
 .scribe-goal-ring {
 	width: 100%;
 	height: 100%;
+
 	/* Start the fill at 12 o'clock instead of SVG's default 3 o'clock. */
 	transform: rotate(-90deg);
 }
@@ -185,6 +189,7 @@ body {
 .scribe-goal-ring-fill {
 	fill: none;
 	stroke: var(--scribe-accent);
+
 	/* Matches ARC_STROKE_WIDTH in goalWidgetView.ts — the arc's radius is
 	   computed from this so it sits flush on the disc's rim; keep them in sync. */
 	stroke-width: 10;
@@ -259,6 +264,7 @@ body {
 /* Play/pause acts on whatever session is already running/paused; the custom
    input starts a new one — kept in the same row since they're both "control
    the timer right now" actions, just for different situations. */
+
 /* The custom-length input and the play/pause button that starts it — one
    row, above the presets and below the ring. */
 .scribe-session-custom {
@@ -270,6 +276,7 @@ body {
 
 .scribe-session-custom-input {
 	width: 4.5rem;
+
 	/* Obsidian's default number-input width is wider than this small card
 	   comfortably fits alongside the play/pause and reset buttons. */
 	text-align: center;
@@ -406,6 +413,8 @@ body {
 	color: var(--scribe-accent);
 }
 
+/* stylelint-disable-next-line no-descending-specificity -- unrelated to the
+   tab-header icon rule near the top; no element can match both selectors. */
 .scribe-stats-section-icon svg {
 	width: var(--icon-m);
 	height: var(--icon-m);

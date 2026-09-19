@@ -8,7 +8,7 @@ import { ExplorerDecorator } from "./views/explorerDecorator";
 import { ScopeScanner } from "./views/scopeScanner";
 import { GoalCelebration } from "./views/goalCelebration";
 import { GoalHistoryStore, TodayTextBaseline } from "./views/goalHistoryStore";
-import { GOAL_WIDGET_ICON, GoalWidgetView, VIEW_TYPE_GOAL_WIDGET } from "./views/goalWidgetView";
+import { GOAL_WIDGET_ICON, GOAL_WIDGET_ICON_SVG, GoalWidgetView, VIEW_TYPE_GOAL_WIDGET } from "./views/goalWidgetView";
 import { PersistedWritingSession, WritingSessionTimer } from "./views/writingSessionTimer";
 import {
 	GOALS_STATS_TAB_ICON_ID,
@@ -87,6 +87,7 @@ export default class ScribeGoalsStatsPlugin extends Plugin {
 			}),
 		);
 
+		addIcon(GOAL_WIDGET_ICON, GOAL_WIDGET_ICON_SVG);
 		addIcon(GOALS_STATS_TAB_ICON_ID, GOALS_STATS_TAB_ICON_SVG);
 
 		this.registerView(VIEW_TYPE_GOAL_WIDGET, (leaf) => new GoalWidgetView(leaf, this));
