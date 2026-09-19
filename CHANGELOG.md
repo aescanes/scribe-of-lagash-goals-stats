@@ -14,6 +14,9 @@ is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 - The writing-goal widget's ribbon/tab icon now has a thicker stroke, matching
   the Goals & Stats tab's chart icon.
+- CI/release workflows: `actions/checkout` and `actions/setup-node` bumped
+  from v4 to v6, and `setup-node` now caches npm's download cache
+  (keyed on `package-lock.json`) for faster installs.
 
 ## [0.7.0](https://github.com/aescanes/scribe-of-lagash-goals-stats/releases/tag/0.7.0) - 2026-09-19
 
