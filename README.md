@@ -28,12 +28,14 @@ plugins for planning and writing stories:
   plugin-managed file in the vault, so it survives a plugin uninstall/reinstall
   and travels with the vault through whatever the author already syncs it
   with.
+
   <img src="docs/images/writing-goal-widget.png" alt="Writing-goal widget" width="200">
 - **Goals and Stats tab** ![Goals and Stats icon](docs/images/goals-and-stats-icon.png) — a main-area tab (ribbon icon or the "Open Goals &
   Stats" command) with a "Writing goal history" section: week/month, rolling
   7-/30-day, and year/365-day totals with daily averages, beside the same
   month calendar as the sidebar widget with today's total and, when clicked,
   any other day's total shown next to it.
+
   <img src="docs/images/goals-and-stats-tab.png" alt="Goals and Stats tab" width="500">
 - **Daily-goal celebration** — the moment you reach the daily goal, a toast
   notification plus a confetti burst say so, and a status-bar item lights up
@@ -49,7 +51,8 @@ plugins for planning and writing stories:
 - **File-explorer counts** — every note inside the story folder shows its word
   (or character) count next to its name in the file explorer, and every folder
   shows the total of the notes beneath it. Counts update as you write.
-  ![File-explorer counts](docs/images/story-count.png)
+
+  <img src="docs/images/story-count.png" alt="File-explorer counts" width="400">
 - **Writing-goal settings** — a story folder, a words/characters metric, a
   daily goal, and the days of the week you write; the weekly and monthly
   targets are worked out from those. Plus a list of notes and folders to
