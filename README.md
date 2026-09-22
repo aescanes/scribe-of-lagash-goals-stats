@@ -44,7 +44,7 @@ plugins for planning and writing stories:
   ring, play/pause, reset, and a toast plus a short bell sound once time's
   up. A session in progress survives closing Obsidian — reopening shows it
   paused, ready to resume with a click.
-  
+
   <img src="docs/images/writing-session.png" alt="Writing session" width="200">
 - **File-explorer counts** — every note inside the story folder shows its word
   (or character) count next to its name in the file explorer, and every folder
