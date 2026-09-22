@@ -12,9 +12,9 @@ independent, focused tools for planning and writing stories in Obsidian.
 **Scribe of Lagash** is a series of independent, single-concern Obsidian
 plugins for planning and writing stories:
 
-- **<a href="https://community.obsidian.md/plugins/scribe-of-lagash-visualization" target="_blank" rel="noopener noreferrer">Scribe of Lagash - Visualization</a>** <a href="https://github.com/aescanes/scribe-of-lagash-visualization" target="_blank" rel="noopener noreferrer">(github repository)</a> —
+- **[Scribe of Lagash - Visualization](https://community.obsidian.md/plugins/scribe-of-lagash-visualization)** ([github repository](https://github.com/aescanes/scribe-of-lagash-visualization)) —
   helps writers visualize their chapters and scenes.
-- **<a href="https://community.obsidian.md/plugins/scribe-of-lagash-goals-stats" target="_blank" rel="noopener noreferrer">Scribe of Lagash - Goals and Stats</a>** <a href="https://github.com/aescanes/scribe-of-lagash-goals-stats" target="_blank" rel="noopener noreferrer">(github repository)</a> —
+- **[Scribe of Lagash - Goals and Stats](https://community.obsidian.md/plugins/scribe-of-lagash-goals-stats)** ([github repository](https://github.com/aescanes/scribe-of-lagash-goals-stats)) —
   helps writers set goals and see detailed statistics for their story.
 
 ## Current features
