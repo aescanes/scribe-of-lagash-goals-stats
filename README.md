@@ -48,7 +48,10 @@ plugins for planning and writing stories:
   <img src="docs/images/writing-session.png" alt="Writing session" width="200">
 - **File-explorer counts** — every note inside the story folder shows its word
   (or character) count next to its name in the file explorer, and every folder
-  shows the total of the notes beneath it. Counts update as you write.
+  shows the total of the notes beneath it. Counts update as you write. Set a
+  story folder in settings to count only that folder instead of the whole
+  vault, and add specific notes or folders to the exclusion list to leave them
+  out of the count entirely.
 
   <img src="docs/images/story-count.png" alt="File-explorer counts" width="400">
 - **Writing-goal settings** — a story folder, a words/characters metric, a

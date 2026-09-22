@@ -5,6 +5,19 @@ is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+### Added
+
+- Screenshots for the writing-goal widget, Goals and Stats tab, writing
+  session, and file-explorer counts in the README's "Current features"
+  section.
+
+### Changed
+
+- Simplified the "Scribe of Lagash Plugins" section links in the README back
+  to plain markdown links, after finding that GitHub strips the `target`
+  attribute from raw HTML in READMEs regardless — so a plugin/repository link
+  there can never open in a new tab, no matter how it's marked up.
+
 ## [0.7.3](https://github.com/aescanes/scribe-of-lagash-goals-stats/releases/tag/0.7.3) - 2026-09-22
 
 ### Changed
