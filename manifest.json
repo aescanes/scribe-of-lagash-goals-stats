@@ -1,7 +1,7 @@
 {
 	"id": "scribe-of-lagash-goals-stats",
 	"name": "Scribe of Lagash - Goals and Stats",
-	"version": "0.7.2",
+	"version": "0.7.3",
 	"minAppVersion": "1.10.0",
 	"description": "Track your story's progress with goals and statistics.",
 	"author": "aescanes",
