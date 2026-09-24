@@ -7,6 +7,16 @@ An [Obsidian](https://obsidian.md) plugin that helps writers set **goals** and s
 whole. It is the second plugin in the **Scribe of Lagash** series, a set of
 independent, focused tools for planning and writing stories in Obsidian.
 
+## Installation
+
+Requires Obsidian ≥1.10.0.
+
+You can install it from the
+[community plugins page](https://obsidian.md/plugins?id=scribe-of-lagash-goals-stats),
+or download `main.js`, `manifest.json`, and `styles.css` from the
+[latest release](https://github.com/aescanes/scribe-of-lagash-goals-stats/releases/latest)
+and copy them into `<vault>/.obsidian/plugins/scribe-of-lagash-goals-stats/`.
+
 ## Scribe of Lagash Plugins
 
 **Scribe of Lagash** is a series of independent, single-concern Obsidian
@@ -16,10 +26,15 @@ plugins for planning and writing stories:
   helps writers visualize their chapters and scenes.
 - **[Scribe of Lagash - Goals and Stats](https://community.obsidian.md/plugins/scribe-of-lagash-goals-stats)** ([github repository](https://github.com/aescanes/scribe-of-lagash-goals-stats)) —
   helps writers set goals and see detailed statistics for their story.
+  
+### About the name
+
+"Scribe" is the writer at the center of every plugin in the series, and
+"Lagash" nods to *Nippur de Lagash*, the classic Argentine comic.
 
 ## Current features
 
-- **Writing-goal widget** ![Writing-goal widget icon](docs/images/writing-goal-widget-icon.png) — a right-sidebar view (ribbon icon or the "Open
+- **Writing-goal widget** ![Writing-goal widget icon](https://raw.githubusercontent.com/aescanes/scribe-of-lagash-goals-stats/main/docs/images/writing-goal-widget-icon.png) — a right-sidebar view (ribbon icon or the "Open
   writing goal widget" command) with a ring for today's progress toward the
   daily goal, a week/month summary, and a month calendar colouring each day by
   whether it met, partly met, or missed the goal. History is kept in a
@@ -27,14 +42,14 @@ plugins for planning and writing stories:
   and travels with the vault through whatever the author already syncs it
   with.
 
-  <img src="docs/images/writing-goal-widget.png" alt="Writing-goal widget" width="200">
-- **Goals and Stats tab** ![Goals and Stats icon](docs/images/goals-and-stats-icon.png) — a main-area tab (ribbon icon or the "Open Goals &
+  <img src="https://raw.githubusercontent.com/aescanes/scribe-of-lagash-goals-stats/main/docs/images/writing-goal-widget.png" alt="Writing-goal widget" width="200">
+- **Goals and Stats tab** ![Goals and Stats icon](https://raw.githubusercontent.com/aescanes/scribe-of-lagash-goals-stats/main/docs/images/goals-and-stats-icon.png) — a main-area tab (ribbon icon or the "Open Goals &
   Stats" command) with a "Writing goal history" section: week/month, rolling
   7-/30-day, and year/365-day totals with daily averages, beside the same
   month calendar as the sidebar widget with today's total and, when clicked,
   any other day's total shown next to it.
 
-  <img src="docs/images/goals-and-stats-tab.png" alt="Goals and Stats tab" width="500">
+  <img src="https://raw.githubusercontent.com/aescanes/scribe-of-lagash-goals-stats/main/docs/images/goals-and-stats-tab.png" alt="Goals and Stats tab" width="500">
 - **Daily-goal celebration** — the moment you reach the daily goal, a toast
   notification plus a confetti burst say so, and a status-bar item lights up
   for as long as it stays met, whether or not the writing-goal widget is open.
@@ -45,7 +60,7 @@ plugins for planning and writing stories:
   up. A session in progress survives closing Obsidian — reopening shows it
   paused, ready to resume with a click.
 
-  <img src="docs/images/writing-session.png" alt="Writing session" width="200">
+  <img src="https://raw.githubusercontent.com/aescanes/scribe-of-lagash-goals-stats/main/docs/images/writing-session.png" alt="Writing session" width="200">
 - **File-explorer counts** — every note inside the story folder shows its word
   (or character) count next to its name in the file explorer, and every folder
   shows the total of the notes beneath it. Counts update as you write. Set a
@@ -53,7 +68,7 @@ plugins for planning and writing stories:
   vault, and add specific notes or folders to the exclusion list to leave them
   out of the count entirely.
 
-  <img src="docs/images/story-count.png" alt="File-explorer counts" width="400">
+  <img src="https://raw.githubusercontent.com/aescanes/scribe-of-lagash-goals-stats/main/docs/images/story-count.png" alt="File-explorer counts" width="400">
 - **Writing-goal settings** — a story folder, a words/characters metric, a
   daily goal, and the days of the week you write; the weekly and monthly
   targets are worked out from those. Plus a list of notes and folders to
