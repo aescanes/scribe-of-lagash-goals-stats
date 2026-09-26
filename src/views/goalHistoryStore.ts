@@ -2,7 +2,15 @@
 // Copyright (C) 2026 aescanes
 
 import { App, Component, debounce, normalizePath, TFile, TFolder } from "obsidian";
-import { dateKey, FileText, GoalHistory, parseHistory, serializeHistory, writtenAcrossFiles } from "../data/goalHistory";
+import {
+	dateKey,
+	FileText,
+	GoalHistory,
+	hasWrittenAnything,
+	parseHistory,
+	serializeHistory,
+	writtenAcrossFiles,
+} from "../data/goalHistory";
 import type { GoalMetric } from "../settings/settings";
 import type { ScopeScanner } from "./scopeScanner";
 
@@ -171,6 +179,10 @@ export class GoalHistoryStore extends Component {
 
 		const path = this.path();
 		const file = this.app.vault.getAbstractFileByPath(path);
+		// Don't create the history file just to record an all-zero day — wait
+		// for the first real character. `lastSavedContent` stays null, so this
+		// keeps re-checking on every later save attempt until that happens.
+		if (!(file instanceof TFile) && !hasWrittenAnything(this.history)) return;
 		try {
 			if (file instanceof TFile) await this.app.vault.process(file, () => content);
 			else await this.app.vault.create(path, content);

@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 // Copyright (C) 2026 aescanes
 
-import { App, PluginSettingTab, requireApiVersion, Setting } from "obsidian";
+import { App, Notice, normalizePath, PluginSettingTab, requireApiVersion, Setting, TFolder } from "obsidian";
 import type { SettingDefinitionItem } from "obsidian";
 import type ScribeGoalsStatsPlugin from "../main";
 import {
@@ -12,6 +12,8 @@ import {
 	writingDaysPerWeek,
 } from "../data/goalMath";
 import { SCRIBE_GENERATED_PREFIX } from "../data/exclusion";
+import { ConfirmModal } from "./confirmModal";
+import { FolderSuggest } from "./folderSuggest";
 
 /** Lower-case noun for the active metric, singular kept simple ("word"/"character"). */
 function unitLabel(plugin: ScribeGoalsStatsPlugin): string {
@@ -24,6 +26,52 @@ export class ScribeGoalsStatsSettingTab extends PluginSettingTab {
 	/** Info rows whose text is recomputed as the daily goal / days / metric change. */
 	private weeklyGoalRow: Setting | null = null;
 	private monthlyGoalRow: Setting | null = null;
+
+	/**
+	 * A story folder isn't just "which notes count" — it's also which history
+	 * file today's writing lands in, so unlike every other setting it isn't
+	 * applied as the author types: they click "Set" (or press Enter in the
+	 * field — see `renderStoryFolderField`) once the path is actually ready.
+	 * Switching to a different folder mid-day means `GoalHistoryStore` has no
+	 * start-of-day snapshot for that folder's files, so without resetting it,
+	 * every word already sitting in the new folder would look like it was
+	 * written today (see `ScribeGoalsStatsPlugin.resetTodayTextBaseline`'s own
+	 * doc comment) — hence the confirmation. The old folder's history file is
+	 * never touched — it's simply not pointed at anymore until the author
+	 * switches back to it.
+	 */
+	private async applyStoryFolder(value: string): Promise<void> {
+		if (value === this.plugin.settings.storyFolder) return;
+
+		// Empty is always valid (it means "the whole vault"); anything else
+		// must be a folder that's actually there — otherwise every note in the
+		// vault would silently drop out of scope until the typo is noticed.
+		if (value !== "" && !(this.app.vault.getAbstractFileByPath(normalizePath(value)) instanceof TFolder)) {
+			new Notice(`Folder "${value}" doesn't exist.`);
+			return;
+		}
+
+		const proceed = await this.confirmStoryFolderChange();
+		if (!proceed) return;
+
+		await this.plugin.resetTodayTextBaseline();
+		this.plugin.settings.storyFolder = value;
+		await this.plugin.saveSettings();
+		this.updateIfSupported();
+	}
+
+	private confirmStoryFolderChange(): Promise<boolean> {
+		return new Promise((resolve) => {
+			new ConfirmModal(
+				this.app,
+				"Changing the story folder starts today's writing count over at zero for the new " +
+					"folder. Nothing is deleted — the old folder's history file stays exactly as it is, " +
+					"and switching back to it later picks up right where you left off.",
+				"Change story folder",
+				resolve,
+			).open();
+		});
+	}
 
 	constructor(app: App, plugin: ScribeGoalsStatsPlugin) {
 		super(app, plugin);
@@ -55,12 +103,8 @@ export class ScribeGoalsStatsSettingTab extends PluginSettingTab {
 				items: [
 					{
 						name: "Story folder",
-						desc: "The folder containing the story's act/chapter/scene notes. Leave empty to scan the whole vault.",
-						control: {
-							type: "folder",
-							key: "storyFolder",
-							placeholder: "Stories/the silent city",
-						},
+						desc: this.storyFolderDesc(),
+						render: (setting) => this.renderStoryFolderField(setting),
 					},
 					{
 						name: "Excluded notes and folders",
@@ -131,8 +175,6 @@ export class ScribeGoalsStatsSettingTab extends PluginSettingTab {
 
 	getControlValue(key: string): unknown {
 		switch (key) {
-			case "storyFolder":
-				return this.plugin.settings.storyFolder;
 			case "excludedPaths":
 				return this.plugin.settings.excludedPaths.join("\n");
 			case "metric":
@@ -148,9 +190,6 @@ export class ScribeGoalsStatsSettingTab extends PluginSettingTab {
 
 	async setControlValue(key: string, value: unknown): Promise<void> {
 		switch (key) {
-			case "storyFolder":
-				this.plugin.settings.storyFolder = typeof value === "string" ? value.trim() : "";
-				break;
 			case "excludedPaths":
 				this.plugin.settings.excludedPaths =
 					typeof value === "string"
@@ -194,17 +233,8 @@ export class ScribeGoalsStatsSettingTab extends PluginSettingTab {
 
 		new Setting(containerEl)
 			.setName("Story folder")
-			.setDesc(
-				"The folder containing the story's act/chapter/scene notes. Leave empty to scan the whole vault.",
-			)
-			.addText((text) => {
-				text.setPlaceholder("Stories/the silent city");
-				text.setValue(this.plugin.settings.storyFolder);
-				text.onChange(async (value) => {
-					this.plugin.settings.storyFolder = value.trim();
-					await this.plugin.saveSettings();
-				});
-			});
+			.setDesc(this.storyFolderDesc())
+			.then((setting) => this.renderStoryFolderField(setting));
 
 		new Setting(containerEl)
 			.setName("Excluded notes and folders")
@@ -291,6 +321,44 @@ export class ScribeGoalsStatsSettingTab extends PluginSettingTab {
 				"When enabled, spaces are counted in character totals. When disabled, spaces are ignored.",
 			);
 		});
+	}
+
+	/** The fragment shared by both `display()`'s imperative row and the declarative definition. */
+	private storyFolderDesc(): DocumentFragment {
+		return createFragment((frag) => {
+			frag.appendText(
+				"The folder containing the story's act/chapter/scene notes. Leave empty to scan the whole vault.",
+			);
+			frag.createEl("br");
+			frag.appendText('Click "Set" (or press Enter in the field) to apply it.');
+		});
+	}
+
+	/**
+	 * Text field plus a "Set" button — shared by both `display()`'s imperative
+	 * row and the declarative definition. Nothing is applied while typing;
+	 * only the button (or Enter in the field) commits the typed path, via
+	 * `applyStoryFolder` — see its own doc comment for why.
+	 */
+	private renderStoryFolderField(setting: Setting): void {
+		let typed = this.plugin.settings.storyFolder;
+		setting.addText((text) => {
+			text.setPlaceholder("Stories/the silent city");
+			text.setValue(this.plugin.settings.storyFolder);
+			text.onChange((value) => (typed = value));
+			text.inputEl.addEventListener("keydown", (evt) => {
+				if (evt.key === "Enter") void this.applyStoryFolder(typed.trim());
+			});
+			// Picking a suggestion doesn't itself redraw the input — set both
+			// the tracked value and the field's displayed text explicitly.
+			new FolderSuggest(this.app, text.inputEl).onSelect((folder) => {
+				typed = folder.path;
+				text.setValue(folder.path);
+			});
+		});
+		setting.addButton((button) =>
+			button.setButtonText("Set").onClick(() => void this.applyStoryFolder(typed.trim())),
+		);
 	}
 
 	/** The fragment shared by both `display()`'s imperative row and the declarative definition. */

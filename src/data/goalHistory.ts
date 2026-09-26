@@ -148,6 +148,25 @@ export function serializeHistory(history: GoalHistory): string {
 }
 
 /**
+ * Whether any day on record has ever had anything genuinely written — used to
+ * decide whether the history file is worth creating yet. A brand-new install
+ * (or one where the story folder is still empty) otherwise has just today's
+ * entry, sitting at zero because nothing's been typed; that's identical to
+ * having no entry at all as far as `writtenFor`/`resolveDayGoal` are
+ * concerned, so there is nothing to lose by holding off on writing the file
+ * for it — see `GoalHistoryStore.save()`.
+ */
+export function hasWrittenAnything(history: GoalHistory): boolean {
+	return Object.values(history).some(
+		(day) =>
+			day.written.words > 0 ||
+			(day.written.charactersWithSpaces ?? 0) > 0 ||
+			(day.written.charactersWithoutSpaces ?? 0) > 0 ||
+			(day.written.characters ?? 0) > 0,
+	);
+}
+
+/**
  * Today's `written`: for every file in `current`, the words genuinely new
  * since its entry in `baselineText` (see `insertedText` — a missing entry
  * means the whole file is new today, since it didn't exist at the start of

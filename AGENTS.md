@@ -37,7 +37,10 @@ Shape so far (grows as features land):
   area) — via a shared `activateView(viewType, placement)`, and child
   `Component`s (`ScopeScanner`, `ExplorerDecorator`, `GoalHistoryStore`).
   `saveSettings()` pokes the scanner to rescan, which cascades to the other
-  two via `onChange`.
+  two via `onChange`. `resetTodayTextBaseline()` clears the persisted
+  start-of-day text snapshot — called from the settings tab when the story
+  folder changes mid-day, so a different folder's files don't inherit a
+  baseline recorded for someone else's.
 - `src/types.ts` — *not created yet*. When frontmatter or shared domain types
   are needed, this holds `FRONTMATTER_KEYS` (**single source of truth** for key
   names) plus the plugin's own data types (goals, snapshots, stat results).
@@ -45,14 +48,24 @@ Shape so far (grows as features land):
   type-only symbol from `src/settings/` is fine). Everything unit-testable
   lives here: `goalMath` (weekly/monthly targets), `exclusion` (`isExcluded`
   plus the always-on `(SL) ` rule), `scope` (`inStoryFolder`), `textMetrics`
-  (`countWords` / `countCharacters` / `stripFrontmatter` / `measure` /
-  `measureBoth`), `countTree` (`folderTotals`), `countFormat` (`formatCount`),
-  `textDiff` (`insertedWords`: a word-level Myers diff, size-capped — see
-  [goal-widget-plan.md](docs/feature-plans/goal-widget-plan.md)), `goalHistory`
+  (`countWords` / `countCharactersWithSpaces` / `countCharactersWithoutSpaces`
+  / `stripFrontmatter` / `measure` / `measureBoth` — characters come in both
+  conventions, see the "Count spaces in character counts" setting), `countTree`
+  (`folderTotals`), `countFormat` (`formatCount`), `textDiff` (`insertedText`:
+  a word-level Myers diff, size-capped — see
+  [goal-widget-plan.md](docs/feature-plans/goal-widget-plan.md) — returning
+  both the inserted words and the contiguous *runs* of newly-typed text they
+  came from, so a "characters with spaces" count can measure the real
+  whitespace actually typed instead of rejoining words with a single space;
+  `insertedWords` is a thin projection onto just the word list), `goalHistory`
   (the history-file model: `parseHistory`, `serializeHistory`,
   `writtenAcrossFiles`, `writtenFor`, `writtenBetween`, `resolveDayGoal` — a
   day's own recorded `dailyGoal`/`metric`, not today's live settings, so
-  changing either later never repaints a past day's calendar colour),
+  changing either later never repaints a past day's calendar colour;
+  `charactersFor` resolves a day's `DayTotals` for a given spaces convention,
+  falling back to the legacy single `characters` field a day recorded before
+  the with/without-spaces split still has; `hasWrittenAnything` says whether
+  the history file is worth creating yet — see `GoalHistoryStore.save()`),
   `calendarGrid`
   (`monthGrid`, `buildCalendar`, `dayStatus`), `writingSession`
   (`formatDuration`, `sessionProgress` — a countdown's own math, unrelated to
@@ -67,15 +80,22 @@ Shape so far (grows as features land):
     to it instead of scanning the vault itself.
   - `explorerDecorator.ts` — paints counts into the file explorer, re-picking
     the active metric from the scanner's scan.
-  - `goalHistoryStore.ts` — records each day's totals (both metrics) from the
+  - `goalHistoryStore.ts` — records each day's totals (every metric) from the
     scanner into a plugin-managed vault file, `"(SL) Goals History.json"`
     inside the story folder (or the vault root). A real vault file, not
     plugin data under `.obsidian/`, so it survives an uninstall/reinstall and
-    travels with however the vault is already synced. Today's per-file text
-    baseline that `writtenAcrossFiles` diffs against *is* kept in plugin data
-    (injected as `TodayTextBaselineCache`, backed by `main.ts`'s
+    travels with however the vault is already synced. Not created until
+    there's an actual first character to record (`hasWrittenAnything`) — a
+    fresh install (or a story folder that's still empty) otherwise creates it
+    immediately with nothing but a zero-written day in it. Today's per-file
+    text baseline that `writtenAcrossFiles` diffs against *is* kept in plugin
+    data (injected as `TodayTextBaselineCache`, backed by `main.ts`'s
     `saveData()`/`loadData()`) — it only matters for the day still in
-    progress, so losing it on an uninstall is fine.
+    progress, so losing it on an uninstall is fine; it's also what
+    `ScribeGoalsStatsPlugin.resetTodayTextBaseline()` clears when the story
+    folder changes mid-day (see `settingsTab.ts` below), so the new folder's
+    files start the day's diff from scratch instead of inheriting a snapshot
+    that was never theirs.
   - `calendarWidget.ts` — `renderCalendarWidget`: the month-calendar nav +
     grid DOM, shared by `goalWidgetView.ts` and `goalsStatsTabView.ts` so both
     stay identical without duplicating the DOM building. A day with data gets
@@ -126,7 +146,20 @@ Shape so far (grows as features land):
     different day is clicked, that day's) and "Story Stats" (placeholder, not
     built yet).
 - [`src/settings/`](src/settings/) — `settings.ts` (interface, defaults,
-  `normalizeSettings`) and `settingsTab.ts` (the tab; imperative `display()`).
+  `normalizeSettings`; includes `charactersIncludeSpaces`, the "Count spaces
+  in character counts" toggle) and `settingsTab.ts` (the tab; imperative
+  `display()`, with a declarative `getSettingDefinitions()` counterpart for
+  Obsidian 1.13+'s settings search — the two are kept in sync by hand). The
+  story folder is the one setting not applied as it's typed: `renderStoryFolderField`
+  is a text input (with `FolderSuggest` autocomplete) plus a "Set" button —
+  Enter also works — and `applyStoryFolder` rejects a path that isn't an
+  actual folder (`Notice`), then confirms via `ConfirmModal` before applying
+  an actual change to a different, already-in-use folder, since that resets
+  `GoalHistoryStore`'s start-of-day baseline for the new scope (see
+  `ScribeGoalsStatsPlugin.resetTodayTextBaseline` above). `confirmModal.ts`
+  (`ConfirmModal`, a minimal Yes/No `Modal` — Obsidian has no built-in one)
+  and `folderSuggest.ts` (`FolderSuggest`, an `AbstractInputSuggest` over
+  `Vault.getAllFolders()`) are both small, single-purpose files of their own.
 - [`styles.css`](styles.css) — prefer Obsidian's own CSS variables
   (`var(--text-muted)`, `var(--size-4-2)`, …). Plugin classes are prefixed
   `.scribe-`. The one hardcoded-colour exception is the plugin's magenta brand

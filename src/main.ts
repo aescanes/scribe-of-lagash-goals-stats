@@ -134,6 +134,20 @@ export default class ScribeGoalsStatsPlugin extends Plugin {
 		void this.scanner.refresh();
 	}
 
+	/**
+	 * Clears the persisted "today started at" text snapshot — called when the
+	 * story folder changes mid-day (see `ScribeGoalsStatsSettingTab`'s
+	 * confirmation for that), so the new scope's files don't inherit a
+	 * baseline recorded for a *different* folder's files, which would make
+	 * all of the new folder's already-existing content look like it was
+	 * written today. `GoalHistoryStore` itself already starts a fresh day
+	 * from scratch whenever it finds no cached baseline — this just ensures
+	 * that's what it finds.
+	 */
+	async resetTodayTextBaseline(): Promise<void> {
+		await this.savePluginData({ todayTextBaseline: undefined });
+	}
+
 	private async loadTodayTextBaseline(): Promise<TodayTextBaseline | null> {
 		const data = (await this.loadData()) as PluginData | null;
 		return data?.todayTextBaseline ?? null;

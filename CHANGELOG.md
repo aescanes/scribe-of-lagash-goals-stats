@@ -18,6 +18,35 @@ is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
   real text actually typed (preserving double spaces, blank lines between new
   paragraphs, and so on), so it agrees with the file-explorer badge's count of
   the same note rather than reading a little low.
+- Changing the story folder to a different, already-in-use folder now asks
+  for confirmation before applying: switching mid-day otherwise had no way to
+  know where that folder's files stood at the start of the day, so their
+  entire existing content would be counted as written today. Accepting starts
+  today's count over at zero for the new folder; the previous folder's own
+  history file is left exactly as it was, ready to resume from later.
+- Setting the story folder to a path that isn't an actual folder in the vault
+  is now rejected with a notice, instead of being silently accepted and
+  taking every note in the vault out of scope until the typo was noticed.
+- The story folder field now suggests matching folders as you type on every
+  supported Obsidian version (1.10.0+), not just 1.13+.
+
+### Changed
+
+- The story folder setting is no longer applied on every keystroke like every
+  other setting — type the path, then click "Set" (or press Enter) to apply
+  it. Applying it live meant that briefly clearing the field to type a
+  different path was indistinguishable from deliberately emptying it (which
+  scans the whole vault), so doing that could rescan everything and create a
+  stray goals-history file at the vault root before the new path was even
+  finished being typed.
+
+### Fixed
+
+- "(SL) Goals History.json" no longer gets created immediately on installing
+  the plugin, before a story folder is even chosen or a single character is
+  written. A day with nothing written is indistinguishable from having no
+  entry at all, so the file is now only created once there's an actual first
+  character to record.
 
 ## [0.7.5](https://github.com/aescanes/scribe-of-lagash-goals-stats/releases/tag/0.7.5) - 2026-09-24
 

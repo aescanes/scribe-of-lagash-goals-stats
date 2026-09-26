@@ -8,6 +8,7 @@ import {
 	dateKey,
 	FileText,
 	GoalHistory,
+	hasWrittenAnything,
 	parseHistory,
 	resolveDayGoal,
 	serializeHistory,
@@ -16,6 +17,30 @@ import {
 	writtenFor,
 } from "../../src/data/goalHistory";
 import { DIFF_WORD_LIMIT } from "../../src/data/textDiff";
+
+test("hasWrittenAnything is false for an empty history or one with only all-zero days", () => {
+	assert.equal(hasWrittenAnything({}), false);
+	assert.equal(
+		hasWrittenAnything({
+			"2026-09-26": { written: { words: 0, charactersWithSpaces: 0, charactersWithoutSpaces: 0 } },
+		}),
+		false,
+	);
+	// A legacy-format zero day too.
+	assert.equal(hasWrittenAnything({ "2026-09-26": { written: { words: 0, characters: 0 } } }), false);
+});
+
+test("hasWrittenAnything is true as soon as any day, in any field, has something recorded", () => {
+	assert.equal(hasWrittenAnything({ "2026-09-26": { written: { words: 3 } } }), true);
+	assert.equal(
+		hasWrittenAnything({
+			"2026-09-25": { written: { words: 0, charactersWithSpaces: 0, charactersWithoutSpaces: 0 } },
+			"2026-09-26": { written: { words: 0, charactersWithSpaces: 12, charactersWithoutSpaces: 10 } },
+		}),
+		true,
+	);
+	assert.equal(hasWrittenAnything({ "2026-09-26": { written: { words: 0, characters: 5 } } }), true);
+});
 
 test("dateKey is the local YYYY-MM-DD, zero-padded", () => {
 	assert.equal(dateKey(new Date(2026, 0, 5)), "2026-01-05");
