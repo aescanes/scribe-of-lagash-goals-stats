@@ -13,6 +13,8 @@ import type { GoalHistoryStore } from "./goalHistoryStore";
 export interface GoalCelebrationConfig {
 	dailyGoal: number;
 	metric: GoalMetric;
+	/** Only meaningful when `metric` is "characters" — see `ScribeGoalsStatsSettings.charactersIncludeSpaces`. */
+	charactersIncludeSpaces: boolean;
 }
 
 /**
@@ -64,9 +66,9 @@ export class GoalCelebration extends Component {
 	}
 
 	private update(): void {
-		const { dailyGoal, metric } = this.getConfig();
+		const { dailyGoal, metric, charactersIncludeSpaces } = this.getConfig();
 		const today = dateKey(new Date());
-		const written = writtenFor(this.goalHistoryStore.getHistory(), today, metric);
+		const written = writtenFor(this.goalHistoryStore.getHistory(), today, metric, charactersIncludeSpaces);
 		const met = dayStatus(written, dailyGoal) === "met";
 
 		this.statusBarEl.toggleClass("mod-hidden", !met);

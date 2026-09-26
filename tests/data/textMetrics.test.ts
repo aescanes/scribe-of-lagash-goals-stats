@@ -3,7 +3,14 @@
 
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import { countCharacters, countWords, measure, measureBoth, stripFrontmatter } from "../../src/data/textMetrics";
+import {
+	countCharactersWithoutSpaces,
+	countCharactersWithSpaces,
+	countWords,
+	measure,
+	measureBoth,
+	stripFrontmatter,
+} from "../../src/data/textMetrics";
 
 test("stripFrontmatter removes a leading YAML block only", () => {
 	assert.equal(stripFrontmatter("---\ntitle: x\n---\nHello world"), "Hello world");
@@ -24,19 +31,31 @@ test("countWords treats markdown and punctuation as part of the word", () => {
 	assert.equal(countWords("well-being isn't one"), 3);
 });
 
-test("countCharacters excludes whitespace between words", () => {
-	assert.equal(countCharacters("hello world"), 10);
-	assert.equal(countCharacters("---\ntitle: x\n---\n  trimmed  "), "trimmed".length);
-	assert.equal(countCharacters("one\ntwo\tthree"), 11);
-	assert.equal(countCharacters(""), 0);
+test("countCharactersWithoutSpaces excludes whitespace between words", () => {
+	assert.equal(countCharactersWithoutSpaces("hello world"), 10);
+	assert.equal(countCharactersWithoutSpaces("---\ntitle: x\n---\n  trimmed  "), "trimmed".length);
+	assert.equal(countCharactersWithoutSpaces("one\ntwo\tthree"), 11);
+	assert.equal(countCharactersWithoutSpaces(""), 0);
 });
 
-test("measure dispatches on the metric", () => {
-	assert.equal(measure("one two three", "words"), 3);
-	assert.equal(measure("one two three", "characters"), 11);
+test("countCharactersWithSpaces counts internal whitespace, only the ends trimmed", () => {
+	assert.equal(countCharactersWithSpaces("hello world"), 11);
+	assert.equal(countCharactersWithSpaces("---\ntitle: x\n---\n  trimmed  "), "trimmed".length);
+	assert.equal(countCharactersWithSpaces("one\ntwo\tthree"), 13);
+	assert.equal(countCharactersWithSpaces(""), 0);
 });
 
-test("measureBoth returns both counts from one pass, frontmatter excluded", () => {
-	assert.deepEqual(measureBoth("---\ntitle: x\n---\none two three"), { words: 3, characters: 11 });
-	assert.deepEqual(measureBoth(""), { words: 0, characters: 0 });
+test("measure dispatches on the metric, and on the spaces convention for characters", () => {
+	assert.equal(measure("one two three", "words", false), 3);
+	assert.equal(measure("one two three", "characters", false), 11);
+	assert.equal(measure("one two three", "characters", true), 13);
+});
+
+test("measureBoth returns every count from one pass, frontmatter excluded", () => {
+	assert.deepEqual(measureBoth("---\ntitle: x\n---\none two three"), {
+		words: 3,
+		charactersWithSpaces: 13,
+		charactersWithoutSpaces: 11,
+	});
+	assert.deepEqual(measureBoth(""), { words: 0, charactersWithSpaces: 0, charactersWithoutSpaces: 0 });
 });

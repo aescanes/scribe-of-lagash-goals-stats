@@ -35,10 +35,14 @@ the notes beneath it.
 ## Modules
 
 - [`src/data/textMetrics.ts`](../../src/data/textMetrics.ts) —
-  `stripFrontmatter`, `countWords`, `countCharacters`, and `measure(content,
-  metric)` which dispatches on the words/characters metric. A "word" is a run
-  of non-whitespace; characters are counted with inner spaces, ends trimmed.
-  Pure, unit-tested. Shared with the (later) writing-goal work.
+  `stripFrontmatter`, `countWords`, `countCharactersWithSpaces`/
+  `countCharactersWithoutSpaces`, and `measure(content, metric, includeSpaces)`
+  which dispatches on the words/characters metric (`includeSpaces` only
+  matters for characters — see the "Count spaces in character counts"
+  setting). A "word" is a run of non-whitespace; "with spaces" counts inner
+  spaces/line breaks, ends trimmed, while "without spaces" (the default)
+  excludes all whitespace. Pure, unit-tested. Shared with the (later)
+  writing-goal work.
 - [`src/data/countTree.ts`](../../src/data/countTree.ts) — `folderTotals`: rolls
   per-file counts up into every ancestor folder. Pure, unit-tested.
 - [`src/data/countFormat.ts`](../../src/data/countFormat.ts) — `formatCount`:

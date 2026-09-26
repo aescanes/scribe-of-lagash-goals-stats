@@ -12,10 +12,12 @@ export interface ScopeScannerConfig {
 	excludedPaths: string[];
 }
 
-/** Both metrics for one file, measured together from a single read. */
+/** Every metric for one file, measured together from a single read — both
+ *  characters conventions always included, like `DayTotals`. */
 export interface FileMetrics {
 	words: number;
-	characters: number;
+	charactersWithSpaces: number;
+	charactersWithoutSpaces: number;
 }
 
 /**
@@ -83,15 +85,17 @@ export class ScopeScanner extends Component {
 		return this.perFileContent;
 	}
 
-	/** Both metrics summed across every in-scope file. */
+	/** Every metric summed across every in-scope file. */
 	getTotals(): FileMetrics {
 		let words = 0;
-		let characters = 0;
+		let charactersWithSpaces = 0;
+		let charactersWithoutSpaces = 0;
 		for (const metrics of this.perFile.values()) {
 			words += metrics.words;
-			characters += metrics.characters;
+			charactersWithSpaces += metrics.charactersWithSpaces;
+			charactersWithoutSpaces += metrics.charactersWithoutSpaces;
 		}
-		return { words, characters };
+		return { words, charactersWithSpaces, charactersWithoutSpaces };
 	}
 
 	/** Rescans in-scope notes; safe to call from anywhere (e.g. when settings change). */

@@ -28,16 +28,26 @@ leaves the device. A real vault file is the only option that satisfies both.
 - **Format**: plain JSON, not markdown — no fenced-code-block parsing needed,
   and `.json` isn't returned by `getMarkdownFiles()`, so it's automatically
   outside the counting/explorer-badge logic without needing the `(SL) ` rule.
-- **Shape**: one entry per local calendar day, in both metrics regardless of
-  which is active (so switching the words/characters setting later doesn't
-  strand or misinterpret past history) — with these fields per day:
+- **Shape**: one entry per local calendar day, in every metric regardless of
+  which is active (so switching the words/characters setting, or the
+  characters-with/without-spaces setting, later doesn't strand or
+  misinterpret past history) — with these fields per day:
   ```json
   { "2026-09-10": {
-      "written":   { "words": 340, "characters": 1820 },
+      "written":   { "words": 340, "charactersWithSpaces": 2010, "charactersWithoutSpaces": 1820 },
       "dailyGoal": 500,
       "metric":    "words"
   } }
   ```
+  `written.characters` (a single number, "without spaces") is the original,
+  pre-split field — every day recorded before the "Count spaces in character
+  counts" setting shipped has this instead of the two `charactersWith*`
+  fields above, and it is never written again from that version on. Real
+  users already had history files on the single-field shape, so `parseHistory`
+  reads either shape and `charactersFor` (in
+  [`src/data/goalHistory.ts`](../../src/data/goalHistory.ts)) resolves a day's
+  count for a given spaces setting, falling back to the legacy field for an
+  old day that has no split fields to choose between.
   `written` is what the ring/calendar show, and it's a real word-level diff
   (see `writtenAcrossFiles` and `src/data/textDiff.ts`) between every in-scope
   file's text right now and its own text at the moment the day started: only

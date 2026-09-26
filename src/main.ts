@@ -56,6 +56,7 @@ export default class ScribeGoalsStatsPlugin extends Plugin {
 		this.addChild(
 			new ExplorerDecorator(this.app, this.scanner, () => ({
 				metric: this.settings.metric,
+				charactersIncludeSpaces: this.settings.charactersIncludeSpaces,
 			})),
 		);
 
@@ -75,7 +76,11 @@ export default class ScribeGoalsStatsPlugin extends Plugin {
 		this.addChild(
 			new GoalCelebration(
 				this.goalHistoryStore,
-				() => ({ dailyGoal: this.settings.dailyGoal, metric: this.settings.metric }),
+				() => ({
+					dailyGoal: this.settings.dailyGoal,
+					metric: this.settings.metric,
+					charactersIncludeSpaces: this.settings.charactersIncludeSpaces,
+				}),
 				this.addStatusBarItem(),
 			),
 		);

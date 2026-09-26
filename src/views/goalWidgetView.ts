@@ -90,9 +90,9 @@ export class GoalWidgetView extends ItemView {
 	}
 
 	private renderRing(containerEl: HTMLElement): void {
-		const { dailyGoal, metric } = this.plugin.settings;
+		const { dailyGoal, metric, charactersIncludeSpaces } = this.plugin.settings;
 		const today = dateKey(new Date());
-		const written = writtenFor(this.plugin.goalHistoryStore.getHistory(), today, metric);
+		const written = writtenFor(this.plugin.goalHistoryStore.getHistory(), today, metric, charactersIncludeSpaces);
 		const progress = dailyGoal > 0 ? written / dailyGoal : 0;
 		const reached = progress >= 1;
 
@@ -115,15 +115,21 @@ export class GoalWidgetView extends ItemView {
 
 	/** A compact card between the ring and the calendar: totals for the current week and month. */
 	private renderSummary(containerEl: HTMLElement): void {
-		const { metric } = this.plugin.settings;
+		const { metric, charactersIncludeSpaces } = this.plugin.settings;
 		const history = this.plugin.goalHistoryStore.getHistory();
 		const today = new Date();
 		// Sunday-first, matching the calendar grid below.
 		const startOfWeek = new Date(today.getFullYear(), today.getMonth(), today.getDate() - today.getDay());
 		const startOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
 
-		const weekTotal = writtenBetween(history, dateKey(startOfWeek), dateKey(today), metric);
-		const monthTotal = writtenBetween(history, dateKey(startOfMonth), dateKey(today), metric);
+		const weekTotal = writtenBetween(history, dateKey(startOfWeek), dateKey(today), metric, charactersIncludeSpaces);
+		const monthTotal = writtenBetween(
+			history,
+			dateKey(startOfMonth),
+			dateKey(today),
+			metric,
+			charactersIncludeSpaces,
+		);
 
 		const card = containerEl.createDiv({ cls: "scribe-goal-card scribe-goal-summary" });
 		this.renderSummaryItem(card, "This week", weekTotal);
@@ -138,16 +144,21 @@ export class GoalWidgetView extends ItemView {
 	}
 
 	private renderCalendar(containerEl: HTMLElement): void {
-		const { dailyGoal, metric } = this.plugin.settings;
+		const { dailyGoal, metric, charactersIncludeSpaces } = this.plugin.settings;
 		const history = this.plugin.goalHistoryStore.getHistory();
 
 		const card = containerEl.createDiv({ cls: "scribe-goal-card" });
 		renderCalendarWidget(card, {
 			cursor: this.cursor,
 			metric,
-			writtenForDate: (iso) => writtenFor(history, iso, metric),
+			writtenForDate: (iso) => writtenFor(history, iso, metric, charactersIncludeSpaces),
 			statusForDate: (iso) => {
-				const { written, dailyGoal: goal } = resolveDayGoal(history, iso, { dailyGoal, metric });
+				const { written, dailyGoal: goal } = resolveDayGoal(
+					history,
+					iso,
+					{ dailyGoal, metric },
+					charactersIncludeSpaces,
+				);
 				return dayStatus(written, goal);
 			},
 			onNavigate: (next) => {

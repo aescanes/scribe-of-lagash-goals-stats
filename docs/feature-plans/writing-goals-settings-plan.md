@@ -24,6 +24,7 @@ own planning files) are **always** excluded and are not stored in
 | Setting | Type | Stored as | Notes |
 | --- | --- | --- | --- |
 | Metric | dropdown | `metric: "words" \| "characters"` | What every goal and statistic counts. |
+| Count spaces in character counts | toggle | `charactersIncludeSpaces: boolean` | Only meaningful when Metric is Characters: include spaces/line breaks ("characters with spaces", matching Obsidian's own word count) or exclude them ("characters without spaces" — the default, and the plugin's only behavior before this setting existed). See [`src/data/textMetrics.ts`](../../src/data/textMetrics.ts) and [`src/data/goalHistory.ts`](../../src/data/goalHistory.ts)'s `charactersFor` for how this interacts with already-recorded history. |
 | Daily writing goal | number | `dailyGoal: number` | Target for one writing day, in the chosen metric. Rounded, floored at 0. |
 | Writing days | 7 checkboxes | `writingDays: boolean[]` (length 7) | Monday-first: index 0 = Monday … 6 = Sunday. Default all true. |
 

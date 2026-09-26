@@ -5,6 +5,20 @@ is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+### Added
+
+- "Count spaces in character counts" setting: character counts (file-explorer
+  badges, the daily goal, and the goal history) can now include spaces and
+  line breaks, matching Obsidian's own word-count status bar, instead of
+  always excluding them like before. Existing writing-goal history is
+  unaffected — days recorded before this setting shipped keep their original
+  count either way, and every day from now on records both conventions so
+  switching the setting later never changes how past days read. The daily
+  goal and goal history measure "today's" characters-with-spaces from the
+  real text actually typed (preserving double spaces, blank lines between new
+  paragraphs, and so on), so it agrees with the file-explorer badge's count of
+  the same note rather than reading a little low.
+
 ## [0.7.5](https://github.com/aescanes/scribe-of-lagash-goals-stats/releases/tag/0.7.5) - 2026-09-24
 
 ### Added

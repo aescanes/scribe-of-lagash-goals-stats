@@ -100,12 +100,12 @@ export class GoalsStatsTabView extends ItemView {
 	private renderGoalHistorySection(containerEl: HTMLElement): void {
 		this.renderSectionTitle(containerEl, GOAL_WIDGET_ICON, "Writing goal history");
 
-		const { dailyGoal, metric } = this.plugin.settings;
+		const { dailyGoal, metric, charactersIncludeSpaces } = this.plugin.settings;
 		const history = this.plugin.goalHistoryStore.getHistory();
 
 		const columns = containerEl.createDiv({ cls: "scribe-goal-history-columns" });
-		this.renderCalendarCard(columns, history, dailyGoal, metric);
-		this.renderTotalsCard(columns, history, metric);
+		this.renderCalendarCard(columns, history, dailyGoal, metric, charactersIncludeSpaces);
+		this.renderTotalsCard(columns, history, metric, charactersIncludeSpaces);
 	}
 
 	/**
@@ -116,7 +116,12 @@ export class GoalsStatsTabView extends ItemView {
 	 * length), so an in-progress week, month, or year doesn't read as an
 	 * artificially slow pace.
 	 */
-	private renderTotalsCard(containerEl: HTMLElement, history: GoalHistory, metric: GoalMetric): void {
+	private renderTotalsCard(
+		containerEl: HTMLElement,
+		history: GoalHistory,
+		metric: GoalMetric,
+		charactersIncludeSpaces: boolean,
+	): void {
 		const today = new Date();
 		const todayIso = dateKey(today);
 		// Sunday-first, matching the calendar; getDay() is 0 (Sun) to 6 (Sat).
@@ -138,17 +143,17 @@ export class GoalsStatsTabView extends ItemView {
 			[
 				{
 					label: "This week",
-					total: writtenBetween(history, startOfWeek, todayIso, metric),
+					total: writtenBetween(history, startOfWeek, todayIso, metric, charactersIncludeSpaces),
 					days: daysIntoWeek,
 				},
 				{
 					label: "This month",
-					total: writtenBetween(history, startOfMonth, todayIso, metric),
+					total: writtenBetween(history, startOfMonth, todayIso, metric, charactersIncludeSpaces),
 					days: daysIntoMonth,
 				},
 				{
 					label: "This year",
-					total: writtenBetween(history, startOfYear, todayIso, metric),
+					total: writtenBetween(history, startOfYear, todayIso, metric, charactersIncludeSpaces),
 					days: daysIntoYear,
 				},
 			],
@@ -158,9 +163,21 @@ export class GoalsStatsTabView extends ItemView {
 		this.renderStatRow(
 			card,
 			[
-				{ label: "Last 7 days", total: writtenBetween(history, last7Start, todayIso, metric), days: 7 },
-				{ label: "Last 30 days", total: writtenBetween(history, last30Start, todayIso, metric), days: 30 },
-				{ label: "Last 365 days", total: writtenBetween(history, last365Start, todayIso, metric), days: 365 },
+				{
+					label: "Last 7 days",
+					total: writtenBetween(history, last7Start, todayIso, metric, charactersIncludeSpaces),
+					days: 7,
+				},
+				{
+					label: "Last 30 days",
+					total: writtenBetween(history, last30Start, todayIso, metric, charactersIncludeSpaces),
+					days: 30,
+				},
+				{
+					label: "Last 365 days",
+					total: writtenBetween(history, last365Start, todayIso, metric, charactersIncludeSpaces),
+					days: 365,
+				},
 			],
 			metric,
 		);
@@ -196,6 +213,7 @@ export class GoalsStatsTabView extends ItemView {
 		history: GoalHistory,
 		dailyGoal: number,
 		metric: GoalMetric,
+		charactersIncludeSpaces: boolean,
 	): void {
 		const todayIso = dateKey(new Date());
 		const card = containerEl.createDiv({ cls: "scribe-goal-card mod-calendar" });
@@ -205,9 +223,14 @@ export class GoalsStatsTabView extends ItemView {
 		renderCalendarWidget(calendarBlock, {
 			cursor: this.cursor,
 			metric,
-			writtenForDate: (iso) => writtenFor(history, iso, metric),
+			writtenForDate: (iso) => writtenFor(history, iso, metric, charactersIncludeSpaces),
 			statusForDate: (iso) => {
-				const { written, dailyGoal: goal } = resolveDayGoal(history, iso, { dailyGoal, metric });
+				const { written, dailyGoal: goal } = resolveDayGoal(
+					history,
+					iso,
+					{ dailyGoal, metric },
+					charactersIncludeSpaces,
+				);
 				return dayStatus(written, goal);
 			},
 			onNavigate: (next) => {
@@ -226,12 +249,16 @@ export class GoalsStatsTabView extends ItemView {
 		const side = layout.createDiv({ cls: "scribe-goal-calendar-side" });
 
 		const todayBox = side.createDiv({ cls: "scribe-goal-calendar-side-box" });
-		this.renderStatCell(todayBox, "Today", formatCount(writtenFor(history, todayIso, metric), metric, false));
+		this.renderStatCell(
+			todayBox,
+			"Today",
+			formatCount(writtenFor(history, todayIso, metric, charactersIncludeSpaces), metric, false),
+		);
 
 		const detailSlot = side.createDiv({ cls: "scribe-goal-calendar-side-box" });
 		if (this.selectedDay) {
 			const label = this.selectedDay.date.toLocaleDateString(undefined, { month: "short", day: "numeric" });
-			const total = writtenFor(history, this.selectedDay.iso, metric);
+			const total = writtenFor(history, this.selectedDay.iso, metric, charactersIncludeSpaces);
 			const cell = this.renderStatCell(detailSlot, label, formatCount(total, metric, false));
 			cell.setAttr(
 				"aria-label",

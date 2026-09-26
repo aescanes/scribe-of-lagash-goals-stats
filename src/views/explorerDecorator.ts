@@ -10,6 +10,8 @@ import type { ScopeScanner } from "./scopeScanner";
 /** The settings slice the decorator needs, read lazily so it always sees current values. */
 export interface ExplorerDecoratorConfig {
 	metric: GoalMetric;
+	/** Only meaningful when `metric` is "characters" — see `ScribeGoalsStatsSettings.charactersIncludeSpaces`. */
+	charactersIncludeSpaces: boolean;
 }
 
 /**
@@ -76,10 +78,15 @@ export class ExplorerDecorator extends Component {
 
 	/** Re-picks this metric's counts from the scanner's latest scan, then repaints. */
 	recomputeFromScanner(): void {
-		const metric = this.getConfig().metric;
+		const { metric, charactersIncludeSpaces } = this.getConfig();
 		const counts: Record<string, number> = {};
 		for (const [path, metrics] of this.scanner.getPerFile()) {
-			counts[path] = metric === "characters" ? metrics.characters : metrics.words;
+			counts[path] =
+				metric === "characters"
+					? charactersIncludeSpaces
+						? metrics.charactersWithSpaces
+						: metrics.charactersWithoutSpaces
+					: metrics.words;
 		}
 
 		this.fileCounts = new Map(Object.entries(counts));

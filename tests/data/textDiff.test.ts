@@ -3,7 +3,7 @@
 
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import { DIFF_WORD_LIMIT, insertedWords } from "../../src/data/textDiff";
+import { DIFF_WORD_LIMIT, insertedText, insertedWords } from "../../src/data/textDiff";
 
 test("insertedWords: identical text has nothing new", () => {
 	assert.deepEqual(insertedWords("The hero walked in.", "The hero walked in."), []);
@@ -81,4 +81,46 @@ test("insertedWords: a large but mostly-unchanged note still diffs precisely", (
 	const baseline = words.join(" ");
 	const current = [...words, "new1", "new2"].join(" ");
 	assert.deepEqual(insertedWords(baseline, current), ["new1", "new2"]);
+});
+
+test("insertedText: a run's real internal whitespace survives, not just its words", () => {
+	// Two spaces after the period and a blank line before the next paragraph —
+	// exactly what "characters with spaces" needs to count precisely, unlike
+	// the word list, which is naturally blind to how much whitespace ran between tokens.
+	// The run also reaches back to claim the gap before it (the two spaces
+	// right after "para.") — see `InsertedText.runs`'s doc comment for why.
+	const baseline = "First para.";
+	const current = "First para.  Second sentence.\n\nNew paragraph here.";
+	const result = insertedText(baseline, current);
+	assert.deepEqual(result?.words, ["Second", "sentence.", "New", "paragraph", "here."]);
+	assert.deepEqual(result?.runs, ["  Second sentence.\n\nNew paragraph here."]);
+	// Exact: baseline is current's unchanged prefix, so the run is precisely everything after it.
+	assert.equal(result?.runs[0].length, current.length - baseline.length);
+});
+
+test("insertedText: separate (non-contiguous) insertions are their own runs, never stitched together", () => {
+	// "new1" is inserted mid-sentence, "new2" much later — an unrelated,
+	// unchanged word ("c") sits between them in `current`, so they must not be
+	// treated as one contiguous run joined by an invented separator. Each run
+	// still reaches back to claim its own leading gap (the space after the
+	// untouched word before it), but never forward into the other run's gap.
+	const baseline = "a b c d";
+	const current = "a new1 b c new2 d";
+	const result = insertedText(baseline, current);
+	assert.deepEqual(result?.words, ["new1", "new2"]);
+	assert.deepEqual(result?.runs, [" new1", " new2"]);
+});
+
+test("insertedText: an empty baseline's single run is the whole trimmed current text, real spacing included", () => {
+	const result = insertedText("", "  Two  spaces   here.  ");
+	assert.deepEqual(result?.runs, ["Two  spaces   here."]);
+});
+
+test("insertedText: an empty current text has no words and no runs", () => {
+	assert.deepEqual(insertedText("a b c", ""), { words: [], runs: [] });
+});
+
+test("insertedText: returns null under the same conditions insertedWords does", () => {
+	const big = Array.from({ length: DIFF_WORD_LIMIT }, (_, i) => `w${i}`).join(" ");
+	assert.equal(insertedText(big, big + " one-more-word"), null);
 });

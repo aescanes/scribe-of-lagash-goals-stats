@@ -66,13 +66,18 @@ plugins for planning and writing stories:
   shows the total of the notes beneath it. Counts update as you write. Set a
   story folder in settings to count only that folder instead of the whole
   vault, and add specific notes or folders to the exclusion list to leave them
-  out of the count entirely.
+  out of the count entirely. Character counts default to "characters without
+  spaces", so they'll read lower than Obsidian's own word-count status bar,
+  which counts every character including spaces and line breaks — turn on
+  "Count spaces in character counts" in settings to match that convention
+  instead.
 
   <img src="https://raw.githubusercontent.com/aescanes/scribe-of-lagash-goals-stats/main/docs/images/story-count.png" alt="File-explorer counts" width="400">
-- **Writing-goal settings** — a story folder, a words/characters metric, a
-  daily goal, and the days of the week you write; the weekly and monthly
-  targets are worked out from those. Plus a list of notes and folders to
-  exclude from everything the plugin measures.
+- **Writing-goal settings** — a story folder, a words/characters metric (with
+  a with/without-spaces toggle for characters), a daily goal, and the days of
+  the week you write; the weekly and monthly targets are worked out from
+  those. Plus a list of notes and folders to exclude from everything the
+  plugin measures.
 
 ### How "written today" is counted
 

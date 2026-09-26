@@ -21,6 +21,14 @@ export interface ScribeGoalsStatsSettings {
 	/** Whether goals and statistics count words or characters. */
 	metric: GoalMetric;
 
+	/**
+	 * Only meaningful when `metric` is "characters": whether the count includes
+	 * spaces and line breaks ("characters with spaces", matching Obsidian's own
+	 * word-count status bar) or excludes them ("characters without spaces" —
+	 * the previous, fixed behavior of this plugin).
+	 */
+	charactersIncludeSpaces: boolean;
+
 	/** Target for a single writing day, in the chosen metric. */
 	dailyGoal: number;
 
@@ -36,6 +44,7 @@ export const DEFAULT_SETTINGS: ScribeGoalsStatsSettings = {
 	storyFolder: "",
 	excludedPaths: [],
 	metric: "words",
+	charactersIncludeSpaces: false,
 	dailyGoal: 500,
 	// Default to writing every day; the author unchecks the days they take off.
 	writingDays: [true, true, true, true, true, true, true],
@@ -57,6 +66,7 @@ export function normalizeSettings(
 			? merged.excludedPaths.filter((p): p is string => typeof p === "string" && p.trim() !== "")
 			: [],
 		metric: merged.metric === "characters" ? "characters" : "words",
+		charactersIncludeSpaces: merged.charactersIncludeSpaces === true,
 		dailyGoal:
 			Number.isFinite(merged.dailyGoal) && merged.dailyGoal > 0
 				? Math.round(merged.dailyGoal)

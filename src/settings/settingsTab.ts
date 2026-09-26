@@ -88,6 +88,14 @@ export class ScribeGoalsStatsSettingTab extends PluginSettingTab {
 						},
 					},
 					{
+						name: "Count spaces in character counts",
+						desc: this.countSpacesDesc(),
+						control: {
+							type: "toggle",
+							key: "charactersIncludeSpaces",
+						},
+					},
+					{
 						name: "Daily writing goal",
 						desc: "How much you aim to write on each of your writing days.",
 						control: {
@@ -129,6 +137,8 @@ export class ScribeGoalsStatsSettingTab extends PluginSettingTab {
 				return this.plugin.settings.excludedPaths.join("\n");
 			case "metric":
 				return this.plugin.settings.metric;
+			case "charactersIncludeSpaces":
+				return this.plugin.settings.charactersIncludeSpaces;
 			case "dailyGoal":
 				return this.plugin.settings.dailyGoal;
 			default:
@@ -152,6 +162,9 @@ export class ScribeGoalsStatsSettingTab extends PluginSettingTab {
 				break;
 			case "metric":
 				this.plugin.settings.metric = value === "characters" ? "characters" : "words";
+				break;
+			case "charactersIncludeSpaces":
+				this.plugin.settings.charactersIncludeSpaces = value === true;
 				break;
 			case "dailyGoal":
 				this.plugin.settings.dailyGoal = typeof value === "number" ? Math.round(value) : this.plugin.settings.dailyGoal;
@@ -230,6 +243,17 @@ export class ScribeGoalsStatsSettingTab extends PluginSettingTab {
 			});
 
 		new Setting(containerEl)
+			.setName("Count spaces in character counts")
+			.setDesc(this.countSpacesDesc())
+			.addToggle((toggle) => {
+				toggle.setValue(this.plugin.settings.charactersIncludeSpaces);
+				toggle.onChange(async (value) => {
+					this.plugin.settings.charactersIncludeSpaces = value;
+					await this.plugin.saveSettings();
+				});
+			});
+
+		new Setting(containerEl)
 			.setName("Daily writing goal")
 			.setDesc("How much you aim to write on each of your writing days.")
 			.addText((text) => {
@@ -254,6 +278,19 @@ export class ScribeGoalsStatsSettingTab extends PluginSettingTab {
 		this.weeklyGoalRow = new Setting(containerEl).setName("Weekly goal");
 		this.monthlyGoalRow = new Setting(containerEl).setName("Monthly goal");
 		this.refreshComputedGoals();
+	}
+
+	/** The fragment shared by both `display()`'s imperative row and the declarative definition. */
+	private countSpacesDesc(): DocumentFragment {
+		return createFragment((frag) => {
+			frag.appendText(
+				"This setting only matters when the metric above is Characters.",
+			);
+			frag.createEl("br");
+			frag.appendText(
+				"When enabled, spaces are counted in character totals. When disabled, spaces are ignored.",
+			);
+		});
 	}
 
 	/** The fragment shared by both `display()`'s imperative row and the declarative definition. */
