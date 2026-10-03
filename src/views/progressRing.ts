@@ -3,7 +3,7 @@
 
 const SVG_NS = "http://www.w3.org/2000/svg";
 const DISC_RADIUS = 52;
-/** An SVG stroke is centred on its path, so the arc needs a smaller radius
+/** An SVG stroke is centered on its path, so the arc needs a smaller radius
  *  than the filled disc — by half its own width — to sit flush on the rim
  *  instead of sticking out past it. */
 const ARC_STROKE_WIDTH = 10;
@@ -15,7 +15,7 @@ export interface ProgressRingOptions {
 	progress: number;
 	/** Adds the glowing "reached" styling — the goal met, or a session done. */
 	reached?: boolean;
-	/** Big text at the centre — a word count, or a countdown like "4:32". */
+	/** Big text at the center — a word count, or a countdown like "4:32". */
 	valueText: string;
 	/** Smaller text under the value, e.g. a unit; omitted when there's none. */
 	unitText?: string;

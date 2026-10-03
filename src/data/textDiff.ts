@@ -81,12 +81,12 @@ export interface InsertedText {
 	 * — extended backward to also claim the whitespace gap between the run
 	 * and whichever token precedes it (if any), on top of the run's own
 	 * internal whitespace. That gap is the separator the run needed typing
-	 * *some* new whitespace against an untouched neighbour to stay readable
+	 * *some* new whitespace against an untouched neighbor to stay readable
 	 * (`"a b c"` gaining a word becomes `"a new b c"`, not `"anew b c"`), so
 	 * attributing it to the run is right far more often than leaving it
 	 * unclaimed. It's deliberately not also extended forward past the run's
 	 * own last token: a lone inserted word sitting between two untouched
-	 * neighbours only ever needs *one* new separator, not two, and claiming
+	 * neighbors only ever needs *one* new separator, not two, and claiming
 	 * both sides would double-count the very same keystroke — whichever
 	 * single side actually got typed can't be told apart from the other, so
 	 * this picks one consistently rather than risking counting a typed

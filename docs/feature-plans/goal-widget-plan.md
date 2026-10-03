@@ -67,7 +67,7 @@ leaves the device. A real vault file is the only option that satisfies both.
   calendar renders. Fixes a real bug: previously the calendar judged every
   day — including ones from weeks ago — against *today's* live daily goal and
   metric, so raising or lowering the goal (or switching between words and
-  characters) silently repainted every past day's colour to match, even ones
+  characters) silently repainted every past day's color to match, even ones
   recorded under a completely different goal. A day recorded before this was
   tracked has neither field; `resolveDayGoal` falls back to the live settings
   only for that one case (see [`src/data/goalHistory.ts`](../../src/data/goalHistory.ts)
@@ -207,7 +207,7 @@ leaves the device. A real vault file is the only option that satisfies both.
   background and border on all so they read as one family.
   1. Today's ring (progress clamped at 100%; a pale filled disc with a
      progress arc, becoming a full glowing ring and swapping its label to
-     "Goal reached!" once the goal is hit — modelled on Keep the Rhythm's own
+     "Goal reached!" once the goal is hit — modeled on Keep the Rhythm's own
      goal card).
   2. A two-up summary — `writtenBetween` summed from the start of the week
      (Sunday, matching the calendar below) and the start of the month, through
@@ -247,7 +247,7 @@ leaves the device. A real vault file is the only option that satisfies both.
   already had to avoid (see its own `onload()`).
 - [`src/views/confetti.ts`](../../src/views/confetti.ts) — `playConfettiBurst()`:
   a ~3-second fountain of tumbling, fading rectangles launched from the
-  bottom centre of the window, fanning up and out to either side
+  bottom center of the window, fanning up and out to either side
   (`LAUNCH_SPREAD_RADIANS`, `MIN_LAUNCH_SPEED`/`MAX_LAUNCH_SPEED`) before
   gravity brings each piece back down — not pieces already falling from
   random points across the top. Drawn on a full-viewport `<canvas>` it
@@ -317,7 +317,7 @@ leaves the device. A real vault file is the only option that satisfies both.
   "Story Stats" section:
   placeholder, not built yet.
 
-## Colour
+## Color
 
 The ring's fill and the calendar cells use the plugin's brand accent, same as
 the file-explorer badges and the ribbon icon, rather than a separate

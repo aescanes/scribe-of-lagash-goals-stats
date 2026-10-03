@@ -18,7 +18,7 @@ import type { ScopeScanner } from "./scopeScanner";
 export interface GoalHistoryStoreConfig {
 	storyFolder: string;
 	/** Recorded into each day's own entry — see `DayRecord.dailyGoal`/`.metric`
-	 *  — so a later change to either never repaints a past day's calendar colour. */
+	 *  — so a later change to either never repaints a past day's calendar color. */
 	dailyGoal: number;
 	metric: GoalMetric;
 }

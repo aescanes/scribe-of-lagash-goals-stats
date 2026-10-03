@@ -63,7 +63,7 @@ write for a set stretch, not another way of measuring how much they wrote.
   digits and colons) and `sessionProgress` (0 to 1, how much of the session
   has elapsed — the ring's fill fraction).
 - [`src/views/progressRing.ts`](../../src/views/progressRing.ts) —
-  `renderProgressRing`: the disc-plus-arc SVG and its centred text, shared by
+  `renderProgressRing`: the disc-plus-arc SVG and its centered text, shared by
   the daily-goal ring and this session's ring. Takes a plain `progress`
   fraction, a `label`/`valueText`/optional `unitText`, and an optional
   `reached` flag (the glowing-ring styling) — it has no idea whether it's
@@ -116,7 +116,7 @@ write for a set stretch, not another way of measuring how much they wrote.
   still does for the rest of the view, it would tear down and recreate the
   custom-length input every second — wiping out whatever's typed and, worse,
   stealing focus away mid-keystroke, exactly while the auto-pause-on-type
-  behaviour above needs that same input to still be there and still focused.
+  behavior above needs that same input to still be there and still focused.
 - [`src/views/bellSound.ts`](../../src/views/bellSound.ts) — `playBellSound()`,
   called from `tick()` alongside the completion `Notice`: a single
   high-pitched strike (~2600 Hz, roughly E7 — a small hotel reception/service

@@ -6,7 +6,7 @@ import type { GoalMetric } from "../settings/settings";
 /**
  * The count as shown next to a file-explorer row: locale-grouped number, a
  * short unit ("word"/"words", "char"/"chars"), singular below two. Folder vs.
- * note is no longer spelled out in the text — the badge's position, colour and
+ * note is no longer spelled out in the text — the badge's position, color and
  * the note-only icon (see `explorerDecorator`) carry that distinction instead.
  * `isFolder` is kept in the signature in case that changes again.
  */

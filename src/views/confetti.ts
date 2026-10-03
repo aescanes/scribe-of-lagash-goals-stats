@@ -13,8 +13,8 @@ interface ConfettiPiece {
 }
 
 const PARTICLE_COUNT = 300;
-/** The plugin's own brand accent alongside a handful of festive colours —
- *  confetti reads as colourful and celebratory regardless of the app's
+/** The plugin's own brand accent alongside a handful of festive colors —
+ *  confetti reads as colorful and celebratory regardless of the app's
  *  theme, unlike a UI element, which is why this doesn't go through
  *  `--scribe-accent`-style CSS variables the way everything else does. */
 const COLORS = ["#81096b", "#b851a5", "#f4c542", "#4ecdc4", "#ff6b6b"];
@@ -33,7 +33,7 @@ const LAUNCH_SPREAD_RADIANS = Math.PI * 0.35;
 const FADE_START_FRACTION = 0.7;
 
 /**
- * A brief confetti fountain — launched from the bottom centre of the window,
+ * A brief confetti fountain — launched from the bottom center of the window,
  * fanning up and out to either side before gravity brings it back down —
  * celebrating the daily goal being reached. A first-party canvas animation
  * instead of a dependency, for the same reason `bellSound.ts`'s tone is
@@ -60,7 +60,7 @@ export function playConfettiBurst(): void {
 			return;
 		}
 
-		// A fountain from the bottom centre, fanning up and out to either side —
+		// A fountain from the bottom center, fanning up and out to either side —
 		// not pieces already falling from random points across the top.
 		const originX = canvas.width / 2;
 		const originY = canvas.height;

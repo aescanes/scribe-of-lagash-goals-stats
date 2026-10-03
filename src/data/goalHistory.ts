@@ -60,7 +60,7 @@ export type FileText = Record<string, string>;
  * `dailyGoal`/`metric` are the goal settings actually in effect *that day* —
  * recorded once as part of the day's entry, not read live from settings at
  * display time, so changing the daily goal (or the words/characters metric)
- * later never repaints a past day's calendar colour. Optional because a day
+ * later never repaints a past day's calendar color. Optional because a day
  * recorded before this was tracked has neither; see `resolveDayGoal` for how
  * that's handled.
  */
@@ -182,7 +182,7 @@ export function hasWrittenAnything(history: GoalHistory): boolean {
  * total. When a file's diff is too large or too different to compute cheaply
  * (`insertedText` returns `null` — see its size limits), that one file falls
  * back to a plain count difference floored at 0, still immune to a
- * *different* file's deletions cancelling it out, just not immune to old and
+ * *different* file's deletions canceling it out, just not immune to old and
  * new text mixing together within that one large file.
  */
 export function writtenAcrossFiles(baselineText: FileText, current: FileText): DayTotals {
@@ -222,7 +222,7 @@ export function writtenFor(history: GoalHistory, date: string, metric: GoalMetri
 }
 
 /**
- * What to compare against `dayStatus` for `date`'s calendar colour: the
+ * What to compare against `dayStatus` for `date`'s calendar color: the
  * amount written and the daily goal actually recorded for that day, in
  * whichever metric was active *then* — not `fallback`'s live, current
  * values, and not necessarily today's metric either, so a day's status

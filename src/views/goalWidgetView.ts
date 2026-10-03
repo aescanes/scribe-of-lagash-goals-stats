@@ -33,7 +33,7 @@ const SESSION_PRESETS_MINUTES = [15, 30, 60];
 
 /**
  * Right-sidebar widget: a ring for today's progress toward the daily goal, a
- * week/month summary, a month calendar colouring each day by whether it met,
+ * week/month summary, a month calendar coloring each day by whether it met,
  * partly met, or missed the goal, and — unrelated to any of that — a writing-
  * session countdown timer. Pure display — computation lives in `src/data/`.
  */

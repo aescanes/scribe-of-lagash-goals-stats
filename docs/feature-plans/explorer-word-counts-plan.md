@@ -8,7 +8,7 @@ Show progress at a glance without opening a view: next to every note in the
 file explorer, its word (or character) count; next to every folder, the sum of
 the notes beneath it.
 
-## Behaviour
+## Behavior
 
 - **Scope** — notes inside the story folder. When the story folder is empty the
   whole vault is counted (matching the plugin's "empty = whole vault" rule).
@@ -20,9 +20,9 @@ the notes beneath it.
   (`.tree-item-inner`); CSS then places it. Both are a small pill (tinted
   background, rounded corners) sized via `--font-ui-small`, with a leading type
   icon — `file-text` for a note, `folder` for a folder. A note's own count sits
-  just after the title, coloured with the softer `--scribe-accent-soft`
+  just after the title, colored with the softer `--scribe-accent-soft`
   (`.mod-note`). A folder's rolled-up total is pushed to the right edge of the
-  row (`margin-left: auto`) and coloured with the stronger `--scribe-accent`
+  row (`margin-left: auto`) and colored with the stronger `--scribe-accent`
   (`.mod-folder`).
 - **Exclusions** — `isExcluded` is applied, so `(SL) ` files/folders and the
   user's excluded paths are neither counted nor shown. A folder's total does

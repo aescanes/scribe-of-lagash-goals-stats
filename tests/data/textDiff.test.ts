@@ -25,7 +25,7 @@ test("insertedWords: prepended words are new, the unchanged suffix is not", () =
 	assert.deepEqual(insertedWords("b c", "a b c"), ["a"]);
 });
 
-test("insertedWords: a word inserted mid-sentence is new, its neighbours are not", () => {
+test("insertedWords: a word inserted mid-sentence is new, its neighbors are not", () => {
 	assert.deepEqual(insertedWords("a b d", "a b c d"), ["c"]);
 });
 

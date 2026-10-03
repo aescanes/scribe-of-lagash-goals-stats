@@ -5,7 +5,7 @@
 
 import { dateKey } from "./goalHistory";
 
-/** How a day compares to the daily goal, for colouring its calendar cell. */
+/** How a day compares to the daily goal, for coloring its calendar cell. */
 export type DayStatus = "met" | "partial" | "none";
 
 export interface CalendarCell {

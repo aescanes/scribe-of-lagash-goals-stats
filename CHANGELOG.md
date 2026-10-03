@@ -198,7 +198,7 @@ is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
   it — its flex container centers children by their own content width, which
   collapsed an empty `<hr>` down to nothing.
 - Changing the daily goal (or the words/characters metric) no longer
-  repaints past days' calendar colours to match. Each day's own goal and
+  repaints past days' calendar colors to match. Each day's own goal and
   metric are now recorded alongside its `written` total and judged against
   those, not against today's live settings — previously the calendar
   compared *every* day, including weeks-old ones, to whatever the goal
@@ -251,7 +251,7 @@ is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - Writing-goal widget: open it from the ribbon icon or the "Open writing goal
   widget" command. A ring shows today's progress toward the daily goal, a
   summary card below it totals the current week and month, and a month
-  calendar further down colours each day by whether it met, partly met, or
+  calendar further down colors each day by whether it met, partly met, or
   missed the goal (navigate with the arrows either side of the month name).
   Progress is tracked in `"(SL) Goals History.json"`, a plugin-managed file
   inside the story folder (or the vault root, when none is set) — a real vault

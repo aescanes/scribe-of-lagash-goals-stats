@@ -61,7 +61,7 @@ Shape so far (grows as features land):
   (the history-file model: `parseHistory`, `serializeHistory`,
   `writtenAcrossFiles`, `writtenFor`, `writtenBetween`, `resolveDayGoal` — a
   day's own recorded `dailyGoal`/`metric`, not today's live settings, so
-  changing either later never repaints a past day's calendar colour;
+  changing either later never repaints a past day's calendar color;
   `charactersFor` resolves a day's `DayTotals` for a given spaces convention,
   falling back to the legacy single `characters` field a day recorded before
   the with/without-spaces split still has; `hasWrittenAnything` says whether
@@ -162,11 +162,11 @@ Shape so far (grows as features land):
   `Vault.getAllFolders()`) are both small, single-purpose files of their own.
 - [`styles.css`](styles.css) — prefer Obsidian's own CSS variables
   (`var(--text-muted)`, `var(--size-4-2)`, …). Plugin classes are prefixed
-  `.scribe-`. The one hardcoded-colour exception is the plugin's magenta brand
+  `.scribe-`. The one hardcoded-color exception is the plugin's magenta brand
   accent: it is defined once as `--scribe-accent` / `--scribe-accent-soft`
   (with a `.theme-dark` override) and everything else references those
-  variables. Never introduce another raw hex; never set a colour from
-  JavaScript; never override a core Obsidian colour. `npm run lint:css`
+  variables. Never introduce another raw hex; never set a color from
+  JavaScript; never override a core Obsidian color. `npm run lint:css`
   ([`.stylelintrc.json`](.stylelintrc.json), extending
   `stylelint-config-obsidianmd`) enforces most of this automatically — keep it
   green alongside `npm run lint`.
@@ -236,6 +236,12 @@ The rules that bite most often here:
 - **Comments explain *why*, not *what*.** Match the existing sparse style.
 - **Keep diffs focused** — no drive-by formatting or refactoring mixed into a
   feature/fix.
+- Every source file starts with the SPDX `MIT` header + copyright line.
+- **Use US English only, never British English** — in code, comments, UI text,
+  docs, and commit messages: `color` not `colour`, `normalize` not `normalise`,
+  `materialize` not `materialise`, `favor` not `favour`, `behavior` not
+  `behaviour`, `recognized` not `recognised`, `math` not `maths`. (Language
+  names/labels for the shipped `es` / `en` title patterns are unaffected.)
 - Every source file starts with the SPDX `MIT` header + copyright line.
 - **License is MIT** — don't add dependencies under a copyleft (GPL/LGPL/…) or
   otherwise MIT-incompatible license.

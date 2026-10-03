@@ -2,7 +2,7 @@
 
 /* The plugin's magenta accent, as overridable CSS custom properties. These are
    set only here in CSS (never from JavaScript) and used only on the plugin's
-   own elements — no core Obsidian colour is overridden. A theme or user snippet
+   own elements — no core Obsidian color is overridden. A theme or user snippet
    can restyle the plugin by redefining these. Dark theme lightens them so they
    stay legible on a dark background. */
 body {
@@ -26,7 +26,7 @@ body {
    Obsidian renders each view's own tab-header icon (shown when the view is
    open, in the sidebar's tab strip or the main tab bar) itself, separately
    from the ribbon button above — it never picks up .scribe-ribbon-icon, so
-   without this it stays the theme's plain icon colour while the ribbon is
+   without this it stays the theme's plain icon color while the ribbon is
    branded. Obsidian tags the tab header with the view's type via `data-type`,
    so this is scoped to only this plugin's own views. */
 .workspace-tab-header[data-type="scribe-goal-widget"] svg,
@@ -98,7 +98,7 @@ body {
 }
 
 /* Count-badge icon — folder or note, marking which kind of row it's on. Sized
-   down and coloured via currentColor so it always matches the badge's text. */
+   down and colored via currentColor so it always matches the badge's text. */
 .scribe-explorer-count-icon {
 	display: inline-flex;
 }

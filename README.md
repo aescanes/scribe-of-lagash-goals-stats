@@ -37,7 +37,7 @@ plugins for planning and writing stories:
 
 - **Writing-goal widget** — a right-sidebar view (ribbon icon or the "Open
   writing goal widget" command) with a ring for today's progress toward the
-  daily goal, a week/month summary, and a month calendar colouring each day by
+  daily goal, a week/month summary, and a month calendar coloring each day by
   whether it met, partly met, or missed the goal. History is kept in a
   plugin-managed file in the vault, so it survives a plugin uninstall/reinstall
   and travels with the vault through whatever the author already syncs it
