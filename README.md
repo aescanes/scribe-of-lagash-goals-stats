@@ -4,8 +4,9 @@
 ![Minimum Obsidian version](https://img.shields.io/badge/obsidian-%E2%89%A51.10.0-8b6cef)
 
 An [Obsidian](https://obsidian.md) plugin that helps writers set **goals** and see **detailed statistics** for those goals and for the story as a
-whole. It is the second plugin in the **Scribe of Lagash** series, a set of
-independent, focused tools for planning and writing stories in Obsidian.
+whole. It is part of the **Scribe of Lagash**
+series, a set of independent, focused tools for planning and writing stories
+in Obsidian.
 
 ## Installation
 
@@ -34,7 +35,7 @@ plugins for planning and writing stories:
 
 ## Current features
 
-- **Writing-goal widget** ![Writing-goal widget icon](https://raw.githubusercontent.com/aescanes/scribe-of-lagash-goals-stats/main/docs/images/writing-goal-widget-icon.png) — a right-sidebar view (ribbon icon or the "Open
+- **Writing-goal widget** — a right-sidebar view (ribbon icon or the "Open
   writing goal widget" command) with a ring for today's progress toward the
   daily goal, a week/month summary, and a month calendar colouring each day by
   whether it met, partly met, or missed the goal. History is kept in a
@@ -43,7 +44,7 @@ plugins for planning and writing stories:
   with.
 
   <img src="https://raw.githubusercontent.com/aescanes/scribe-of-lagash-goals-stats/main/docs/images/writing-goal-widget.png" alt="Writing-goal widget" width="200">
-- **Goals and Stats tab** ![Goals and Stats icon](https://raw.githubusercontent.com/aescanes/scribe-of-lagash-goals-stats/main/docs/images/goals-and-stats-icon.png) — a main-area tab (ribbon icon or the "Open Goals &
+- **Goals and Stats tab** — a main-area tab (ribbon icon or the "Open Goals &
   Stats" command) with a "Writing goal history" section: week/month, rolling
   7-/30-day, and year/365-day totals with daily averages, beside the same
   month calendar as the sidebar widget with today's total and, when clicked,

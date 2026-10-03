@@ -5,6 +5,10 @@ is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+### Changed
+- Update part of the README documentation to improve clarity and readability on the 
+  Obsidian community page.
+
 ## [0.8.0](https://github.com/aescanes/scribe-of-lagash-goals-stats/releases/tag/0.8.0) - 2026-09-26
 
 ### Added
