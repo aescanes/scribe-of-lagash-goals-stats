@@ -3,45 +3,42 @@
 
 import { App, Modal, Setting } from "obsidian";
 
+interface ConfirmOptions {
+	title: string;
+	body: string;
+	/** Label for the confirming button. */
+	cta: string;
+}
+
 /**
- * A minimal Yes/No confirmation dialog — Obsidian has no built-in one. The
- * only current use is confirming a story-folder change mid-day (see
- * `ScribeGoalsStatsSettingTab`). Dismissing the modal any other way (Escape,
- * clicking outside) is treated the same as declining.
+ * A minimal yes/no modal — Obsidian ships no confirm primitive. Resolves `true`
+ * only if the user clicks the CTA; closing any other way resolves `false`.
  */
-export class ConfirmModal extends Modal {
-	private confirmed = false;
+export function confirm(app: App, options: ConfirmOptions): Promise<boolean> {
+	return new Promise((resolve) => {
+		const modal = new (class extends Modal {
+			private decided = false;
 
-	constructor(
-		app: App,
-		private message: string,
-		private confirmText: string,
-		private onResult: (confirmed: boolean) => void,
-	) {
-		super(app);
-	}
+			onOpen(): void {
+				this.titleEl.setText(options.title);
+				this.contentEl.createEl("p", { text: options.body });
+				new Setting(this.contentEl)
+					.addButton((b) => b.setButtonText("Cancel").onClick(() => this.close()))
+					.addButton((b) =>
+						b
+							.setButtonText(options.cta)
+							.setCta()
+							.onClick(() => {
+								this.decided = true;
+								this.close();
+							}),
+					);
+			}
 
-	onOpen(): void {
-		const { contentEl } = this;
-		contentEl.createEl("p", { text: this.message });
-		new Setting(contentEl)
-			.addButton((button) =>
-				button
-					.setButtonText(this.confirmText)
-					// `setDestructive()` needs Obsidian 1.13.0, above this plugin's
-					// minAppVersion (1.10.0) — `setWarning()` is deprecated in its
-					// favor but still works, and still compatible that far back.
-					.setWarning()
-					.onClick(() => {
-						this.confirmed = true;
-						this.close();
-					}),
-			)
-			.addButton((button) => button.setButtonText("Cancel").onClick(() => this.close()));
-	}
-
-	onClose(): void {
-		this.contentEl.empty();
-		this.onResult(this.confirmed);
-	}
+			onClose(): void {
+				resolve(this.decided);
+			}
+		})(app);
+		modal.open();
+	});
 }
