@@ -8,7 +8,9 @@ is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 ### Changed
 - The story-folder confirmation dialog now uses the same shared `confirm()`
   modal as the Visualization plugin: it has a title, and the confirm button uses
-  the call-to-action style instead of the deprecated warning style.
+  the call-to-action style instead of the deprecated warning style. The modal
+  lives in the new `src/utils/` folder so it can be reused from any settings
+  tab or view.
 - Unified the README and contributing docs with the other Scribe of Lagash
   plugins: same structure, commands, link style and formatting, plus a note on
   how the plugins relate and corrections to statements that no longer matched

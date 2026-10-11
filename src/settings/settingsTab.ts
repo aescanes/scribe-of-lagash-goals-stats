@@ -12,7 +12,7 @@ import {
 	writingDaysPerWeek,
 } from "../data/goalMath";
 import { SCRIBE_GENERATED_PREFIX } from "../data/exclusion";
-import { confirm } from "./confirmModal";
+import { confirm } from "../utils/confirmModal";
 import { FolderSuggest } from "./folderSuggest";
 
 /** Lower-case noun for the active metric, singular kept simple ("word"/"character"). */
