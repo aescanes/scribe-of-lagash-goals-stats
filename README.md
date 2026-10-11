@@ -13,7 +13,7 @@ in Obsidian.
 Requires Obsidian ≥1.10.0.
 
 You can install it from the
-[community plugins page](https://obsidian.md/plugins?id=scribe-of-lagash-goals-stats),
+[community plugins page](https://community.obsidian.md/plugins/scribe-of-lagash-goals-stats),
 or download `main.js`, `manifest.json`, and `styles.css` from the
 [latest release](https://github.com/aescanes/scribe-of-lagash-goals-stats/releases/latest)
 and copy them into `<vault>/.obsidian/plugins/scribe-of-lagash-goals-stats/`.
@@ -27,63 +27,96 @@ plugins for planning and writing stories:
   helps writers visualize their chapters and scenes.
 - **[Scribe of Lagash - Goals and Stats](https://community.obsidian.md/plugins/scribe-of-lagash-goals-stats)** ([github repository](https://github.com/aescanes/scribe-of-lagash-goals-stats)) —
   helps writers set goals and see detailed statistics for their story.
-  
+
+Each plugin works fine on its own, so each has its own **Story folder**
+setting and neither requires the other. They are designed to complement each
+other, though, and work best together: point both at the same story folder so
+the cards you see in Visualization and the counts and goals you track here
+describe the same notes. Keep in mind that this plugin counts every word (or
+character) in every note inside the story folder, not only notes titled as
+chapters or scenes, so its totals can be higher than the sum of the chapter and
+scene cards in Visualization.
+
 ### About the name
 
 "Scribe" is the writer at the center of every plugin in the series, and
-"Lagash" nods to *Nippur de Lagash*, the classic Argentine comic.
+"Lagash" nods to _Nippur de Lagash_, the classic Argentine comic.
 
 ## Current features
 
-- **Writing-goal widget** — a right-sidebar view (ribbon icon or the "Open
-  writing goal widget" command) with a ring for today's progress toward the
-  daily goal, a week/month summary, and a month calendar coloring each day by
-  whether it met, partly met, or missed the goal. History is kept in a
-  plugin-managed file in the vault, so it survives a plugin uninstall/reinstall
-  and travels with the vault through whatever the author already syncs it
-  with.
+### Writing-goal widget
 
-  <img src="https://raw.githubusercontent.com/aescanes/scribe-of-lagash-goals-stats/main/docs/images/writing-goal-widget.png" alt="Writing-goal widget" width="200">
-- **Goals and Stats tab** — a main-area tab (ribbon icon or the "Open Goals &
-  Stats" command) with a "Writing goal history" section: week/month, rolling
-  7-/30-day, and year/365-day totals with daily averages, beside the same
-  month calendar as the sidebar widget with today's total and, when clicked,
-  any other day's total shown next to it.
+A right-sidebar view (ribbon icon or the "Open
+writing goal widget" command) with a ring for today's progress toward the
+daily goal, a week/month summary, and a month calendar coloring each day by
+whether it met, partly met, or missed the goal. History is kept in a
+plugin-managed file in the vault, so it survives a plugin uninstall/reinstall
+and travels with the vault through whatever the author already syncs it
+with.
 
-  <img src="https://raw.githubusercontent.com/aescanes/scribe-of-lagash-goals-stats/main/docs/images/goals-and-stats-tab.png" alt="Goals and Stats tab" width="500">
-- **Daily-goal celebration** — the moment you reach the daily goal, a toast
-  notification plus a confetti burst say so, and a status-bar item lights up
-  for as long as it stays met, whether or not the writing-goal widget is open.
-- **Writing session** — a plain countdown timer in the writing-goal widget,
-  unrelated to the daily goal or any particular day: 15/30/60-minute presets
-  or a custom length, with the same ring styling as the daily-goal progress
-  ring, play/pause, reset, and a toast plus a short bell sound once time's
-  up. A session in progress survives closing Obsidian — reopening shows it
-  paused, ready to resume with a click.
+<img src="https://raw.githubusercontent.com/aescanes/scribe-of-lagash-goals-stats/main/docs/images/writing-goal-widget.png" alt="Writing-goal widget" width="200">
 
-  <img src="https://raw.githubusercontent.com/aescanes/scribe-of-lagash-goals-stats/main/docs/images/writing-session.png" alt="Writing session" width="200">
-- **File-explorer counts** — every note inside the story folder shows its word
-  (or character) count next to its name in the file explorer, and every folder
-  shows the total of the notes beneath it. Counts update as you write. Set a
-  story folder in settings to count only that folder instead of the whole
-  vault, and add specific notes or folders to the exclusion list to leave them
-  out of the count entirely. Character counts default to "characters without
-  spaces", so they'll read lower than Obsidian's own word-count status bar,
-  which counts every character including spaces and line breaks — turn on
-  "Count spaces in character counts" in settings to match that convention
-  instead.
+### Goals and Stats tab
 
-  <img src="https://raw.githubusercontent.com/aescanes/scribe-of-lagash-goals-stats/main/docs/images/story-count.png" alt="File-explorer counts" width="400">
-- **Writing-goal settings** — a story folder (with folder autocomplete;
-  switching it away from a different folder you've already used asks you to
-  confirm first, since it starts today's writing count over for the new one
-  — the previous folder's history is kept, ready to pick back up later), a
-  words/characters metric (with a with/without-spaces toggle for characters),
-  a daily goal, and the days of the week you write; the weekly and monthly
-  targets are worked out from those. Plus a list of notes and folders to
-  exclude from everything the plugin measures.
+A main-area tab (ribbon icon or the "Open goals and stats" command) with a "Writing goal history" section: week/month, rolling
+7-/30-day, and year/365-day totals with daily averages, beside the same
+month calendar as the sidebar widget with today's total and, when clicked,
+any other day's total shown next to it.
 
-### How "written today" is counted
+<img src="https://raw.githubusercontent.com/aescanes/scribe-of-lagash-goals-stats/main/docs/images/goals-and-stats-tab.png" alt="Goals and Stats tab" width="500">
+
+### Daily-goal celebration
+
+The moment you reach the daily goal, a toast
+notification plus a confetti burst say so, and a status-bar item lights up
+for as long as it stays met, whether or not the writing-goal widget is open.
+
+### Writing session
+
+A plain countdown timer in the writing-goal widget,
+unrelated to the daily goal or any particular day: 15/30/60-minute presets
+or a custom length, with the same ring styling as the daily-goal progress
+ring, play/pause, reset, and a toast plus a short bell sound once time's
+up. A session in progress survives closing Obsidian — reopening shows it
+paused, ready to resume with a click.
+
+<img src="https://raw.githubusercontent.com/aescanes/scribe-of-lagash-goals-stats/main/docs/images/writing-session.png" alt="Writing session" width="200">
+
+### File-explorer counts
+
+Every note inside the story folder shows its word
+(or character) count next to its name in the file explorer, and every folder
+shows the total of the notes beneath it. Counts update as you write. Set a
+story folder in settings to count only that folder instead of the whole
+vault, and add specific notes or folders to the exclusion list to leave them
+out of the count entirely. Character counts default to "characters without
+spaces", so they'll read lower than Obsidian's own word-count status bar,
+which counts every character including spaces and line breaks — turn on
+"Count spaces in character counts" in settings to match that convention
+instead.
+
+<img src="https://raw.githubusercontent.com/aescanes/scribe-of-lagash-goals-stats/main/docs/images/story-count.png" alt="File-explorer counts" width="400">
+
+### Writing-goal settings
+
+A story folder (with folder autocomplete;
+switching it away from a different folder you've already used asks you to
+confirm first, since it starts today's writing count over for the new one
+— the previous folder's history is kept, ready to pick back up later), a
+words/characters metric (with a with/without-spaces toggle for characters),
+a daily goal, and the days of the week you write; the weekly and monthly
+targets are worked out from those. Plus a list of notes and folders to
+exclude from everything the plugin measures.
+
+### Files starting with "(SL)"
+
+Your writing history is kept in `(SL) Goals History.json`, a file this plugin
+creates for itself in the story folder. Any file or folder whose name starts
+with `(SL)` is left out of the counts: it gets no file-explorer count and adds
+nothing to your daily total, even inside the story folder. So don't start the
+name of a note you want counted with `(SL)`.
+
+## How "written today" is counted
 
 Today's count isn't just "how much longer is the note now" — it's genuinely
 new writing, worked out by comparing what each note says right now to what it
@@ -94,7 +127,7 @@ before. That has one nice effect: cleaning up old work doesn't punish you.
   count.** Cut a whole tired paragraph from last week, reorganize a chapter,
   trim an old scene down to nothing — none of it counts against you, because
   none of it was written today.
-- **Deleting something you wrote *today* does lower today's count**, same as
+- **Deleting something you wrote _today_ does lower today's count**, same as
   any ordinary word counter. Write a new sentence, then cut a couple of words
   from it before you're done for the day, and the count reflects what's
   actually on the page.
@@ -103,7 +136,7 @@ So the number always answers "how many new words are sitting in my story
 right now," not "how many keys did I press today" — a big cleanup of old
 material can never accidentally erase a day's progress.
 
-Planned:
+## Planned next
 
 - **Goal targets** — total word count and a deadline, per-chapter or per-scene
   length targets, and a projected completion date.
@@ -115,8 +148,6 @@ Planned:
 - **Repeated-word analysis** — most-frequent words and phrases across the
   whole story or a single chapter, with common stop-words filtered out, to
   surface overused crutch words.
-- **Per-story scoping** — every statistic can be computed for one story folder
-  or the whole vault.
 
 See [`docs/feature-plans/`](docs/feature-plans/) for the detailed plan of each
 feature (one file per feature).
@@ -125,9 +156,11 @@ feature (one file per feature).
 
 ```bash
 npm install
+npm run prepare  # activate the Husky pre-commit hook (once; npm install skips it because ignore-scripts=true)
 npm run dev    # watch build, outputs main.js
 npm run build  # type-check + production build
 npm test       # unit tests (Node's built-in runner; no test framework dependency)
+npm run validate # typecheck + test + lint + lint:css (run before every commit)
 ```
 
 ### Supply-chain safety

@@ -236,7 +236,6 @@ The rules that bite most often here:
 - **Comments explain *why*, not *what*.** Match the existing sparse style.
 - **Keep diffs focused** — no drive-by formatting or refactoring mixed into a
   feature/fix.
-- Every source file starts with the SPDX `MIT` header + copyright line.
 - **Use US English only, never British English** — in code, comments, UI text,
   docs, and commit messages: `color` not `colour`, `normalize` not `normalise`,
   `materialize` not `materialise`, `favor` not `favour`, `behavior` not
