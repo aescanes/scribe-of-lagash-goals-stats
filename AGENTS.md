@@ -153,13 +153,16 @@ Shape so far (grows as features land):
   story folder is the one setting not applied as it's typed: `renderStoryFolderField`
   is a text input (with `FolderSuggest` autocomplete) plus a "Set" button —
   Enter also works — and `applyStoryFolder` rejects a path that isn't an
-  actual folder (`Notice`), then confirms via `ConfirmModal` before applying
+  actual folder (`Notice`), then confirms via `confirm()` before applying
   an actual change to a different, already-in-use folder, since that resets
   `GoalHistoryStore`'s start-of-day baseline for the new scope (see
-  `ScribeGoalsStatsPlugin.resetTodayTextBaseline` above). `confirmModal.ts`
-  (`ConfirmModal`, a minimal Yes/No `Modal` — Obsidian has no built-in one)
-  and `folderSuggest.ts` (`FolderSuggest`, an `AbstractInputSuggest` over
-  `Vault.getAllFolders()`) are both small, single-purpose files of their own.
+  `ScribeGoalsStatsPlugin.resetTodayTextBaseline` above). `folderSuggest.ts`
+  (`FolderSuggest`, an `AbstractInputSuggest` over `Vault.getAllFolders()`) is
+  a small, single-purpose file of its own.
+- [`src/utils/`](src/utils/) — small helpers shared across settings and views.
+  `confirmModal.ts`: `confirm(app, {title, body, cta})` → `Promise<boolean>`, a
+  minimal Yes/No `Modal` (Obsidian has no built-in one). It is identical to the
+  Visualization plugin's copy — keep the two in sync.
 - [`styles.css`](styles.css) — prefer Obsidian's own CSS variables
   (`var(--text-muted)`, `var(--size-4-2)`, …). Plugin classes are prefixed
   `.scribe-`. The one hardcoded-color exception is the plugin's magenta brand

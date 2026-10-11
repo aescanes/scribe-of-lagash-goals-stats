@@ -12,7 +12,7 @@ import {
 	writingDaysPerWeek,
 } from "../data/goalMath";
 import { SCRIBE_GENERATED_PREFIX } from "../data/exclusion";
-import { ConfirmModal } from "./confirmModal";
+import { confirm } from "../utils/confirmModal";
 import { FolderSuggest } from "./folderSuggest";
 
 /** Lower-case noun for the active metric, singular kept simple ("word"/"character"). */
@@ -61,15 +61,13 @@ export class ScribeGoalsStatsSettingTab extends PluginSettingTab {
 	}
 
 	private confirmStoryFolderChange(): Promise<boolean> {
-		return new Promise((resolve) => {
-			new ConfirmModal(
-				this.app,
+		return confirm(this.app, {
+			title: "Change story folder",
+			body:
 				"Changing the story folder starts today's writing count over at zero for the new " +
-					"folder. Nothing is deleted — the old folder's history file stays exactly as it is, " +
-					"and switching back to it later picks up right where you left off.",
-				"Change story folder",
-				resolve,
-			).open();
+				"folder. Nothing is deleted — the old folder's history file stays exactly as it is, " +
+				"and switching back to it later picks up right where you left off.",
+			cta: "Change story folder",
 		});
 	}
 
