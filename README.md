@@ -8,6 +8,15 @@ whole. It is part of the **Scribe of Lagash**
 series, a set of independent, focused tools for planning and writing stories
 in Obsidian.
 
+## Thank you
+
+If this plugin helps your writing, you can support its development
+[buying me a coffee on Ko-fi](https://ko-fi.com/O3J528W3FZ)
+
+<div align="left">
+
+[![Buy me a coffee](https://raw.githubusercontent.com/aescanes/scribe-of-lagash-goals-stats/main/assets/images/buy-me-a-coffee.png)](https://ko-fi.com/O3J528W3FZ)
+
 ## Installation
 
 Requires Obsidian ≥1.10.0.
