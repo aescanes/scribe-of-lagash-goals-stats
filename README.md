@@ -8,6 +8,8 @@ whole. It is part of the **Scribe of Lagash**
 series, a set of independent, focused tools for planning and writing stories
 in Obsidian.
 
+<img src="docs/images/goals-and-stats-tab.png" alt="Goals and Stats tab" width="500">
+
 ## Thank you
 
 If this plugin helps your writing, you can support its development
