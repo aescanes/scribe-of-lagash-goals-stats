@@ -15,6 +15,10 @@ is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
   plugins: same structure, commands, link style and formatting, plus a note on
   how the plugins relate and corrections to statements that no longer matched
   current behavior.
+- README: the "Scribe of Lagash Plugins" and Installation sections now match
+  across the three plugins. The series list includes Focus, and the intro states
+  that each plugin works on its own, none requires another, and they work best
+  together.
 
 ## [0.8.1](https://github.com/aescanes/scribe-of-lagash-goals-stats/releases/tag/0.8.1) - 2026-10-03
 
