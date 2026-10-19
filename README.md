@@ -8,7 +8,7 @@ whole. It is part of the **Scribe of Lagash**
 series, a set of independent, focused tools for planning and writing stories
 in Obsidian.
 
-<img src="docs/images/goals-and-stats-tab.png" alt="Goals and Stats tab" width="500">
+<img src="docs/images/goals-and-stats-tab.png" alt="Goals and Stats tab">
 
 ## Thank you
 
@@ -49,7 +49,7 @@ designed to complement each other and work best together.
 "Scribe" is the writer at the center of every plugin in the series, and
 "Lagash" nods to _Nippur de Lagash_, the classic Argentine comic.
 
-## Current features
+## Features
 
 ### Writing-goal widget
 
@@ -70,7 +70,7 @@ A main-area tab (ribbon icon or the "Open goals and stats" command) with a "Writ
 month calendar as the sidebar widget with today's total and, when clicked,
 any other day's total shown next to it.
 
-<img src="docs/images/goals-and-stats-tab.png" alt="Goals and Stats tab" width="500">
+<img src="docs/images/goals-and-stats-tab.png" alt="Goals and Stats tab">
 
 ### Daily-goal celebration
 
@@ -87,7 +87,7 @@ ring, play/pause, reset, and a toast plus a short bell sound once time's
 up. A session in progress survives closing Obsidian — reopening shows it
 paused, ready to resume with a click.
 
-<img src="docs/images/writing-session.png" alt="Writing session" width="200">
+<img src="docs/images/writing-session.png" alt="Writing session" width="300">
 
 ### File-explorer counts
 
@@ -102,7 +102,7 @@ which counts every character including spaces and line breaks — turn on
 "Count spaces in character counts" in settings to match that convention
 instead.
 
-<img src="docs/images/story-count.png" alt="File-explorer counts" width="400">
+<img src="docs/images/story-count.png" alt="File-explorer counts" width="500">
 
 ### Writing-goal settings
 
