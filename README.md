@@ -15,7 +15,7 @@ If this plugin helps your writing, you can support its development
 
 <div align="left">
 
-[![Buy me a coffee](https://raw.githubusercontent.com/aescanes/scribe-of-lagash-goals-stats/main/assets/images/buy-me-a-coffee.png)](https://ko-fi.com/O3J528W3FZ)
+[![Buy me a coffee](assets/images/buy-me-a-coffee.png)](https://ko-fi.com/O3J528W3FZ)
 
 ## Installation
 
@@ -36,15 +36,11 @@ plugins for planning and writing stories:
   helps writers visualize their chapters and scenes.
 - **[Scribe of Lagash - Goals and Stats](https://community.obsidian.md/plugins/scribe-of-lagash-goals-stats)** ([github repository](https://github.com/aescanes/scribe-of-lagash-goals-stats)) —
   helps writers set goals and see detailed statistics for their story.
+- **[Scribe of Lagash - Focus](https://community.obsidian.md/plugins/scribe-of-lagash-focus)** ([github repository](https://github.com/aescanes/scribe-of-lagash-focus)) —
+  helps writers focus on their work and remove distractions.
 
-Each plugin works fine on its own, so each has its own **Story folder**
-setting and neither requires the other. They are designed to complement each
-other, though, and work best together: point both at the same story folder so
-the cards you see in Visualization and the counts and goals you track here
-describe the same notes. Keep in mind that this plugin counts every word (or
-character) in every note inside the story folder, not only notes titled as
-chapters or scenes, so its totals can be higher than the sum of the chapter and
-scene cards in Visualization.
+Each plugin works fine on its own, and none requires another, but they are
+designed to complement each other and work best together.
 
 ### About the name
 
@@ -63,7 +59,7 @@ plugin-managed file in the vault, so it survives a plugin uninstall/reinstall
 and travels with the vault through whatever the author already syncs it
 with.
 
-<img src="https://raw.githubusercontent.com/aescanes/scribe-of-lagash-goals-stats/main/docs/images/writing-goal-widget.png" alt="Writing-goal widget" width="200">
+<img src="docs/images/writing-goal-widget.png" alt="Writing-goal widget" width="200">
 
 ### Goals and Stats tab
 
@@ -72,7 +68,7 @@ A main-area tab (ribbon icon or the "Open goals and stats" command) with a "Writ
 month calendar as the sidebar widget with today's total and, when clicked,
 any other day's total shown next to it.
 
-<img src="https://raw.githubusercontent.com/aescanes/scribe-of-lagash-goals-stats/main/docs/images/goals-and-stats-tab.png" alt="Goals and Stats tab" width="500">
+<img src="docs/images/goals-and-stats-tab.png" alt="Goals and Stats tab" width="500">
 
 ### Daily-goal celebration
 
@@ -89,7 +85,7 @@ ring, play/pause, reset, and a toast plus a short bell sound once time's
 up. A session in progress survives closing Obsidian — reopening shows it
 paused, ready to resume with a click.
 
-<img src="https://raw.githubusercontent.com/aescanes/scribe-of-lagash-goals-stats/main/docs/images/writing-session.png" alt="Writing session" width="200">
+<img src="docs/images/writing-session.png" alt="Writing session" width="200">
 
 ### File-explorer counts
 
@@ -104,7 +100,7 @@ which counts every character including spaces and line breaks — turn on
 "Count spaces in character counts" in settings to match that convention
 instead.
 
-<img src="https://raw.githubusercontent.com/aescanes/scribe-of-lagash-goals-stats/main/docs/images/story-count.png" alt="File-explorer counts" width="400">
+<img src="docs/images/story-count.png" alt="File-explorer counts" width="400">
 
 ### Writing-goal settings
 
