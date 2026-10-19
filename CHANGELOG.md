@@ -5,6 +5,8 @@ is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+## [0.8.2](https://github.com/aescanes/scribe-of-lagash-goals-stats/releases/tag/0.8.2) - 2026-10-19
+
 ### Changed
 - The story-folder confirmation dialog now uses the same shared `confirm()`
   modal as the Visualization plugin: it has a title, and the confirm button uses
