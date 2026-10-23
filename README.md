@@ -90,22 +90,23 @@ shows its own subtotal, and a Total row closes the table. Click a note's name
 to open it.
 
 Each note row shows its words (or characters, following your metric setting),
-read time, syllables, sentences, paragraphs, pages and status.
+read time, syllables, sentences, paragraphs and pages.
 
-A note's status comes from one of two places, in this order:
-
-1. The Status column of the (SL) Visualization plugin's Outline file, in the row
-   whose Act, Chapter and Scene numbers match the note's folders and file name
-   (digits or roman numerals, any title language).
-2. Otherwise, the note's `scribe-note-status` property.
-
-As in the (SL) Visualization plugin, the outline wins when both exist.
+The Target column, beside words (or characters), is the note's target length in
+the same unit. It comes from the Target column of the (SL) Visualization plugin's
+Outline file, in the row whose Act, Chapter and Scene numbers match the note's
+folders and file name (digits or roman numerals, any title language), or,
+failing that, the note's `scribe-note-target` property (a plain number
+such as `5000`). Folder rows and the Total add up the targets that are set; a note
+without one shows a dash. A note with a target also gets a small progress ring
+beside the number, like the daily goal ring.
 
 ### Note stats popup
 
 While a note in the story is open, a stats icon appears in the note's header,
 next to its other buttons. Click it, or run "Show note stats", to open a popup with the same
-numbers for just that note: its status, the headline word count, read time,
+numbers for just that note: the headline word count (with a
+progress bar toward the note's target, when it has one), read time,
 pages, sentences, paragraphs and syllables, and words per sentence, sentences
 per paragraph and syllables per word. It updates as you type and follows the
 light and dark themes.

@@ -5,16 +5,19 @@
 // imports, unit-tested.
 
 import { FRONTMATTER_KEYS, NoteStats } from "../types";
-import { KNOWN_STATUSES } from "./statusLabel";
 import { WORDS_PER_MINUTE, WORDS_PER_PAGE } from "./textStats";
 
-/** Tooltips for the (?) icons beside "Read time", "Pages" and "Status". */
+/** Tooltips for the (?) icons beside "Target", "Read time" and "Pages". */
+export const TARGET_HELP =
+	`The note's target length, in the same unit as the count beside it. Set in the "Target" column of the ` +
+	`(SL) Visualization plugin's outline file, or with the ${FRONTMATTER_KEYS.target} property (the outline wins).`;
 export const READ_TIME_HELP = `At ${WORDS_PER_MINUTE} words per minute, the average adult silent reading speed.`;
 export const PAGES_HELP = `At ${WORDS_PER_PAGE} words per page, the standard manuscript page.`;
-export const STATUS_HELP =
-	`Set in the Status column of the (SL) Visualization plugin's outline file, or with the ` +
-	`${FRONTMATTER_KEYS.status} property (the outline wins). ` +
-	`Statuses: ${KNOWN_STATUSES.join(", ")}. Any other text is shown as written.`;
+
+/** A target, locale-grouped; an em dash for none. */
+export function formatTarget(target: number | null): string {
+	return target === null ? "—" : target.toLocaleString();
+}
 
 /** "12 min", "1 h 5 min", "2 h"; an em dash for nothing to read. */
 export function formatReadTime(minutes: number): string {
@@ -51,7 +54,7 @@ export function noteRatios(stats: NoteStats): NoteRatio[] {
 }
 
 /** Progress toward a note's target length: whole percent, a 0–1 bar fraction, and what is left. */
-export function goalProgress(size: number, target: number): { percent: number; fraction: number; remaining: number } {
+export function targetProgress(size: number, target: number): { percent: number; fraction: number; remaining: number } {
 	const fraction = target > 0 ? Math.min(1, Math.max(0, size / target)) : 0;
 	return {
 		percent: target > 0 ? Math.round((size / target) * 100) : 0,

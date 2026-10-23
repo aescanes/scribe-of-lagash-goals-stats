@@ -3,7 +3,7 @@
 
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import { formatPages, formatReadTime, goalProgress, noteRatios } from "../../src/data/statsFormat";
+import { formatTarget, formatPages, formatReadTime, targetProgress, noteRatios } from "../../src/data/statsFormat";
 
 test("formatReadTime shows minutes, then hours and minutes", () => {
 	assert.equal(formatReadTime(0), "—");
@@ -25,8 +25,13 @@ test("noteRatios divides to one decimal, with a dash for a zero divisor", () => 
 	assert.deepEqual(noteRatios(empty).map((r) => r.value), ["—", "—", "—"]);
 });
 
-test("goalProgress gives percent, a clamped bar fraction and what remains", () => {
-	assert.deepEqual(goalProgress(4670, 5000), { percent: 93, fraction: 0.934, remaining: 330 });
-	assert.deepEqual(goalProgress(6000, 5000), { percent: 120, fraction: 1, remaining: 0 });
-	assert.deepEqual(goalProgress(10, 0), { percent: 0, fraction: 0, remaining: 0 });
+test("targetProgress gives percent, a clamped bar fraction and what remains", () => {
+	assert.deepEqual(targetProgress(4670, 5000), { percent: 93, fraction: 0.934, remaining: 330 });
+	assert.deepEqual(targetProgress(6000, 5000), { percent: 120, fraction: 1, remaining: 0 });
+	assert.deepEqual(targetProgress(10, 0), { percent: 0, fraction: 0, remaining: 0 });
+});
+
+test("formatTarget groups digits and dashes a missing target", () => {
+	assert.equal(formatTarget(null), "—");
+	assert.equal(formatTarget(5000), (5000).toLocaleString());
 });

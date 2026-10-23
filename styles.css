@@ -161,6 +161,14 @@ body {
 	aspect-ratio: 1;
 }
 
+/* A tiny ring inline beside a number (the Story Stats goal cell). */
+.scribe-goal-ring-wrap.mod-compact {
+	display: inline-block;
+	width: 1.6em;
+	max-width: none;
+	vertical-align: middle;
+}
+
 .scribe-goal-ring {
 	width: 100%;
 	height: 100%;
@@ -642,6 +650,17 @@ body {
 	font-variant-numeric: tabular-nums;
 }
 
+/* Holds only a ring, hugging the Goal number before it. */
+.scribe-stats-table td.scribe-stats-ring-cell,
+.scribe-stats-table th.scribe-stats-ring-cell {
+	padding: 0;
+	width: 1px;
+
+	/* The ring is taller than a text line; zeroing this cell's own height lets
+	   the other cells set the row height, so rows with and without a ring match. */
+	line-height: 0;
+}
+
 .scribe-stats-folder-row {
 	background: var(--background-secondary);
 	font-weight: var(--font-weight-medium);
@@ -666,6 +685,11 @@ body {
 }
 
 .scribe-stats-note-link {
+	display: inline-block;
+	max-width: 28ch;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	vertical-align: bottom;
 	color: var(--text-normal);
 	cursor: pointer;
 	text-decoration: none;
@@ -681,43 +705,9 @@ body {
 	font-weight: var(--font-weight-bold);
 }
 
-/* ---- Status pill (table and note popup) ---- */
-
-.scribe-status-pill {
-	display: inline-block;
-	padding: 0 var(--size-4-2);
-	border: 1px solid var(--background-modifier-border);
-	border-radius: var(--radius-l);
-	color: var(--text-muted);
-	font-size: var(--font-ui-smaller);
-}
-
-/* The Outline's statuses (see the Visualization plugin): To do stays neutral,
-   the draft stages step from yellow to orange, In Progress is blue, Done green. */
-.scribe-status-pill.mod-in-progress {
-	color: var(--color-blue);
-	border-color: var(--color-blue);
-}
-
-.scribe-status-pill.mod-draft,
-.scribe-status-pill.mod-first-draft {
-	color: var(--color-yellow);
-	border-color: var(--color-yellow);
-}
-
-.scribe-status-pill.mod-revised-draft {
-	color: color-mix(in srgb, var(--color-yellow) 50%, var(--color-orange));
-	border-color: color-mix(in srgb, var(--color-yellow) 50%, var(--color-orange));
-}
-
-.scribe-status-pill.mod-final-draft {
-	color: var(--color-orange);
-	border-color: var(--color-orange);
-}
-
-.scribe-status-pill.mod-done {
-	color: var(--color-green);
-	border-color: var(--color-green);
+.scribe-stats-table .scribe-stats-ring-cell + td,
+.scribe-stats-table .scribe-stats-ring-cell + th {
+	padding-left: var(--size-4-2);
 }
 
 /* ---- Note stats popup and header icon ---- */
@@ -783,26 +773,6 @@ body {
 	font-weight: var(--font-weight-bold);
 }
 
-/* In the popup a status is a tinted pill with a leading dot, in the status's
-   own color (see the per-status colors above). */
-.scribe-note-stats-modal .scribe-status-pill {
-	display: inline-flex;
-	align-items: center;
-	gap: var(--size-2-2);
-	padding: var(--size-2-1) var(--size-4-3);
-	border: 0;
-	background: color-mix(in srgb, currentcolor 14%, transparent);
-	font-size: var(--font-ui-small);
-}
-
-.scribe-note-stats-modal .scribe-status-pill::before {
-	content: "";
-	width: var(--size-2-3);
-	height: var(--size-2-3);
-	border-radius: 50%;
-	background: currentcolor;
-}
-
 .scribe-note-stats-hero {
 	display: flex;
 	align-items: flex-end;
@@ -830,13 +800,13 @@ body {
 	font-size: calc(var(--font-ui-medium, 15px) * 1.3);
 }
 
-.scribe-note-stats-goal {
+.scribe-note-stats-target {
 	color: var(--text-muted);
 	font-size: var(--font-ui-small);
 	text-align: right;
 }
 
-.scribe-note-stats-goal-percent {
+.scribe-note-stats-target-percent {
 	color: var(--text-normal);
 	font-weight: var(--font-weight-bold);
 }

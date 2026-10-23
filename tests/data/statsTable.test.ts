@@ -3,16 +3,15 @@
 
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import { groupByFolder, StatsRow, sumStats } from "../../src/data/statsTable";
-import { normalizeStatus, statusModifier } from "../../src/data/statusLabel";
+import { groupByFolder, StatsRow, sumTargets, sumStats } from "../../src/data/statsTable";
 import type { NoteStats } from "../../src/types";
 
 function stats(size: number, extra: Partial<NoteStats> = {}): NoteStats {
 	return { size, words: size, readMinutes: 1, syllables: size * 2, sentences: 1, paragraphs: 1, pages: 0.5, ...extra };
 }
 
-function row(path: string, size: number, status = ""): StatsRow {
-	return { path, name: path.slice(path.lastIndexOf("/") + 1).replace(/\.md$/, ""), stats: stats(size), status };
+function row(path: string, size: number, target: number | null = null): StatsRow {
+	return { path, name: path.slice(path.lastIndexOf("/") + 1).replace(/\.md$/, ""), stats: stats(size), target };
 }
 
 test("sumStats adds counts and derives read time and pages from the summed words", () => {
@@ -39,7 +38,7 @@ test("groupByFolder puts story-root notes first, then folders in natural order",
 
 test("groupByFolder sorts notes naturally and rolls up totals", () => {
 	const [group] = groupByFolder(
-		[row("S/Scene 10.md", 4, "draft"), row("S/Scene 2.md", 6, "draft"), row("S/Scene 3.md", 5, "done")],
+		[row("S/Scene 10.md", 4), row("S/Scene 2.md", 6), row("S/Scene 3.md", 5)],
 		"S",
 	);
 	assert.deepEqual(group.rows.map((r) => r.name), ["Scene 2", "Scene 3", "Scene 10"]);
@@ -52,16 +51,13 @@ test("groupByFolder with an empty story folder uses vault-relative folders", () 
 	assert.deepEqual(groupByFolder([], "S"), []);
 });
 
-test("normalizeStatus accepts strings and string lists, nothing else", () => {
-	assert.equal(normalizeStatus("  draft "), "draft");
-	assert.equal(normalizeStatus(["", "done", "x"]), "done");
-	assert.equal(normalizeStatus(3), "");
-	assert.equal(normalizeStatus(null), "");
-	assert.equal(normalizeStatus(undefined), "");
+test("sumTargets adds the targets that are set and is null when none is", () => {
+	assert.equal(sumTargets([1000, null, 500]), 1500);
+	assert.equal(sumTargets([null, null]), null);
+	assert.equal(sumTargets([]), null);
 });
 
-test("statusModifier makes a CSS-safe slug", () => {
-	assert.equal(statusModifier("In Progress"), "in-progress");
-	assert.equal(statusModifier("Revisión!"), "revision");
-	assert.equal(statusModifier(""), "");
+test("groupByFolder rolls a folder's targets up", () => {
+	const groups = groupByFolder([row("S/A/a.md", 1, 300), row("S/A/b.md", 1, 200), row("S/B/c.md", 1)], "S");
+	assert.deepEqual(groups.map((g) => g.target), [500, null]);
 });

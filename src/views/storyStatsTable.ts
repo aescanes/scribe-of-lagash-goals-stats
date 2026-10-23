@@ -2,12 +2,13 @@
 // Copyright (C) 2026 aescanes
 
 import { setIcon } from "obsidian";
-import { FolderGroup, StatsRow, sumStats } from "../data/statsTable";
-import { formatPages, formatReadTime, PAGES_HELP, READ_TIME_HELP, STATUS_HELP } from "../data/statsFormat";
-import { statusModifier } from "../data/statusLabel";
+import { FolderGroup, StatsRow, sumTargets, sumStats } from "../data/statsTable";
+import { formatTarget, formatPages, formatReadTime, TARGET_HELP, PAGES_HELP, READ_TIME_HELP } from "../data/statsFormat";
 import type { GoalMetric } from "../settings/settings";
 import type { NoteStats } from "../types";
+import { targetProgress } from "../data/statsFormat";
 import { renderHelpIcon } from "./helpIcon";
+import { renderProgressRing } from "./progressRing";
 
 export interface StoryStatsTableOptions {
 	metric: GoalMetric;
@@ -17,27 +18,34 @@ export interface StoryStatsTableOptions {
 	onOpenNote: (path: string) => void;
 }
 
-/** A status as a small pill; nothing at all for a note with none. */
-export function renderStatusPill(containerEl: HTMLElement, status: string): void {
-	if (status === "") return;
-	const modifier = statusModifier(status);
-	containerEl.createSpan({
-		cls: modifier ? `scribe-status-pill mod-${modifier}` : "scribe-status-pill",
-		text: status,
-	});
-}
-
 /** The numeric cells shared by note, folder-subtotal and total rows. */
-function renderNumberCells(rowEl: HTMLElement, stats: NoteStats): void {
+function renderNumberCells(
+	rowEl: HTMLElement,
+	stats: NoteStats,
+	target: number | null,
+	showRing = false,
+): void {
 	const cells = [
 		stats.size.toLocaleString(),
+		formatTarget(target),
 		formatReadTime(stats.readMinutes),
 		stats.syllables.toLocaleString(),
 		stats.sentences.toLocaleString(),
 		stats.paragraphs.toLocaleString(),
 		formatPages(stats.pages),
 	];
-	for (const text of cells) rowEl.createEl("td", { cls: "scribe-stats-num", text });
+	cells.forEach((text, i) => {
+		rowEl.createEl("td", { cls: "scribe-stats-num", text });
+		if (i !== 1) return;
+		// A column of its own, unlabeled, so the rings line up. Same logic as the
+		// daily-goal ring: size against target, glowing once met.
+		const ringCell = rowEl.createEl("td", { cls: "scribe-stats-ring-cell" });
+		if (showRing && target !== null) {
+			const { fraction, percent } = targetProgress(stats.size, target);
+			const ring = renderProgressRing(ringCell, { progress: fraction, reached: fraction >= 1, compact: true, label: "", valueText: "" });
+			ring.setAttr("aria-label", `${percent}% of target`);
+		}
+	});
 }
 
 /**
@@ -55,10 +63,10 @@ export function renderStoryStatsTable(
 
 	const headerRow = table.createEl("thead").createEl("tr");
 	const sizeLabel = options.metric === "characters" ? "Characters" : "Words";
-	const help: Record<string, string> = { "Read time": READ_TIME_HELP, Pages: PAGES_HELP, Status: STATUS_HELP };
-	for (const label of ["Note", sizeLabel, "Read time", "Syllables", "Sentences", "Paragraphs", "Pages", "Status"]) {
-		const th = headerRow.createEl("th", { cls: label === "Note" || label === "Status" ? "" : "scribe-stats-num" });
-		th.createSpan({ text: label });
+	const help: Record<string, string> = { Target: TARGET_HELP, "Read time": READ_TIME_HELP, Pages: PAGES_HELP };
+	for (const label of ["Note", sizeLabel, "Target", "", "Read time", "Syllables", "Sentences", "Paragraphs", "Pages"]) {
+		const th = headerRow.createEl("th", { cls: label === "Note" ? "" : label === "" ? "scribe-stats-ring-cell" : "scribe-stats-num" });
+		if (label !== "") th.createSpan({ text: label });
 		if (help[label]) renderHelpIcon(th, help[label]);
 	}
 
@@ -76,8 +84,7 @@ export function renderStoryStatsTable(
 	const total = sumStats(groups.map((group) => group.totals));
 	const totalRow = body.createEl("tr", { cls: "scribe-stats-total-row" });
 	totalRow.createEl("td", { text: "Total" });
-	renderNumberCells(totalRow, total);
-	totalRow.createEl("td");
+	renderNumberCells(totalRow, total, sumTargets(groups.map((group) => group.target)));
 }
 
 function renderFolderRow(
@@ -96,8 +103,7 @@ function renderFolderRow(
 	row.addClass("mod-clickable");
 	row.addEventListener("click", () => options.onToggleFolder(group.folder));
 
-	renderNumberCells(row, group.totals);
-	row.createEl("td");
+	renderNumberCells(row, group.totals, group.target);
 }
 
 function renderNoteRow(
@@ -108,11 +114,10 @@ function renderNoteRow(
 ): void {
 	const rowEl = body.createEl("tr", { cls: "scribe-stats-note-row" });
 	const nameCell = rowEl.createEl("td", { cls: indented ? "mod-indented" : "" });
-	const link = nameCell.createEl("a", { cls: "scribe-stats-note-link", text: row.name });
+	const link = nameCell.createEl("a", { cls: "scribe-stats-note-link", text: row.name, attr: { title: row.name } });
 	link.addEventListener("click", (evt) => {
 		evt.preventDefault();
 		options.onOpenNote(row.path);
 	});
-	renderNumberCells(rowEl, row.stats);
-	renderStatusPill(rowEl.createEl("td"), row.status);
+	renderNumberCells(rowEl, row.stats, row.target, true);
 }

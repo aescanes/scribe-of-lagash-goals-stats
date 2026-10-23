@@ -15,6 +15,8 @@ export interface ProgressRingOptions {
 	progress: number;
 	/** Adds the glowing "reached" styling — the goal met, or a session done. */
 	reached?: boolean;
+	/** Just the disc and arc, small enough to sit inline beside text; the center texts are not drawn. */
+	compact?: boolean;
 	/** Big text at the center — a word count, or a countdown like "4:32". */
 	valueText: string;
 	/** Smaller text under the value, e.g. a unit; omitted when there's none. */
@@ -35,6 +37,7 @@ export function renderProgressRing(containerEl: HTMLElement, options: ProgressRi
 
 	const wrap = containerEl.createDiv({ cls: "scribe-goal-ring-wrap" });
 	wrap.toggleClass("mod-reached", options.reached ?? false);
+	wrap.toggleClass("mod-compact", options.compact ?? false);
 
 	const svg = document.createElementNS(SVG_NS, "svg");
 	svg.setAttribute("viewBox", "0 0 120 120");
@@ -56,6 +59,8 @@ export function renderProgressRing(containerEl: HTMLElement, options: ProgressRi
 	fill.setAttribute("stroke-dasharray", String(RING_CIRCUMFERENCE));
 	fill.setAttribute("stroke-dashoffset", String(RING_CIRCUMFERENCE * (1 - progress)));
 	svg.appendChild(fill);
+
+	if (options.compact) return wrap;
 
 	const center = wrap.createDiv({ cls: "scribe-goal-ring-center" });
 	center.createDiv({ cls: "scribe-goal-ring-label", text: options.label });

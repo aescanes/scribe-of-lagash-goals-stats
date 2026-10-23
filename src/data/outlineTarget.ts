@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 // Copyright (C) 2026 aescanes
 
-// Reads the Status column of the Visualization plugin's Outline file — pure, no
+// Reads the Target column of the Visualization plugin's Outline file — pure, no
 // Obsidian imports, unit-tested. The outline is a Markdown table whose rows
 // name no note: a row plans "Act I / Chapter 1 / Scene 2", and the note it
 // means is the one whose folders and file name carry those same numbers. This
@@ -16,11 +16,13 @@ export interface Segment {
 	text: string;
 }
 
-export interface OutlineStatusRow {
+export interface OutlineTargetRow {
 	segments: Segment[];
-	/** Empty for "No Status" or a blank cell. */
-	status: string;
+	/** The Target cell as a positive number; null when blank or not a number. */
+	target: number | null;
 }
+
+import { parseTarget } from "./noteTarget";
 
 const ROMAN_VALUES: Record<string, number> = { i: 1, v: 5, x: 10, l: 50, c: 100, d: 500, m: 1000 };
 const CANONICAL_ROMAN = /^M{0,3}(CM|CD|D?C{0,3})(XC|XL|L?X{0,3})(IX|IV|V?I{0,3})$/i;
@@ -79,12 +81,12 @@ function unbracket(cell: string): string {
 }
 
 /**
- * The first table in an Outline file's body, as position + status per row.
+ * The first table in an Outline file's body, as position + target per row.
  * Columns are matched by header name, case-insensitively. A row with neither a
  * Chapter nor a Scene plans nothing and is dropped, like the Visualization
- * plugin does. Without a Status column there is nothing to read.
+ * plugin does. Without a Target column there is nothing to read.
  */
-export function parseOutlineStatusRows(body: string): OutlineStatusRow[] {
+export function parseOutlineTargetRows(body: string): OutlineTargetRow[] {
 	const lines = body.split(/\r?\n/);
 	let headerAt = -1;
 	for (let i = 0; i < lines.length - 1; i++) {
@@ -96,14 +98,13 @@ export function parseOutlineStatusRows(body: string): OutlineStatusRow[] {
 	if (headerAt === -1) return [];
 
 	const header = splitRow(lines[headerAt]).map((c) => c.toLowerCase());
-	const statusCol = header.indexOf("status");
-	if (statusCol === -1) return [];
+	if (header.indexOf("target") === -1) return [];
 	const cellAt = (cells: string[], name: string): string => {
 		const i = header.indexOf(name);
 		return i === -1 || i >= cells.length ? "" : unbracket(cells[i]);
 	};
 
-	const rows: OutlineStatusRow[] = [];
+	const rows: OutlineTargetRow[] = [];
 	for (let i = headerAt + 2; i < lines.length; i++) {
 		if (!lines[i].includes("|")) break;
 		const cells = splitRow(lines[i]);
@@ -112,8 +113,7 @@ export function parseOutlineStatusRows(body: string): OutlineStatusRow[] {
 		if (leadingNumber(chapter) === null && leadingNumber(scene) === null) continue;
 
 		const segments = [cellAt(cells, "act"), chapter, scene].filter((c) => c !== "").map(segmentOf);
-		const raw = cellAt(cells, "status");
-		rows.push({ segments, status: raw.toLowerCase() === "no status" ? "" : raw });
+		rows.push({ segments, target: parseTarget(cellAt(cells, "target")) });
 	}
 	return rows;
 }
@@ -139,15 +139,17 @@ function sameSegment(a: Segment, b: Segment): boolean {
 	return a.number !== null && b.number !== null ? a.number === b.number : a.text === b.text;
 }
 
-/**
- * The status of the row that plans the note at `relativePath` (path below the
- * Outline file's folder), or "" when no row does. The first matching row wins.
- */
-export function findOutlineStatus(rows: OutlineStatusRow[], relativePath: string): string {
+/** The first row that plans the note at `relativePath` (path below the Outline file's folder). */
+function findRow(rows: OutlineTargetRow[], relativePath: string): OutlineTargetRow | null {
 	const note = noteSegments(relativePath);
 	for (const row of rows) {
 		if (row.segments.length !== note.length) continue;
-		if (row.segments.every((segment, i) => sameSegment(segment, note[i]))) return row.status;
+		if (row.segments.every((segment, i) => sameSegment(segment, note[i]))) return row;
 	}
-	return "";
+	return null;
+}
+
+/** The Target of the row that plans the note, or null when no row does or its cell is empty. */
+export function findOutlineTarget(rows: OutlineTargetRow[], relativePath: string): number | null {
+	return findRow(rows, relativePath)?.target ?? null;
 }

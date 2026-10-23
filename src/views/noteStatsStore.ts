@@ -5,8 +5,8 @@ import { App, Component, debounce, TFile } from "obsidian";
 import type { GoalMetric } from "../settings/settings";
 import { StatsRow } from "../data/statsTable";
 import { SCRIBE_GENERATED_PREFIX } from "../data/exclusion";
-import { findOutlineStatus, OutlineStatusRow, parseOutlineStatusRows } from "../data/outlineStatus";
-import { normalizeStatus } from "../data/statusLabel";
+import { findOutlineTarget, OutlineTargetRow, parseOutlineTargetRows } from "../data/outlineTarget";
+import { parseTarget } from "../data/noteTarget";
 import { computeNoteStats } from "../data/textStats";
 import { stripFrontmatter } from "../data/textMetrics";
 import { FRONTMATTER_KEYS, NoteStats, OUTLINE_MARKER } from "../types";
@@ -18,10 +18,10 @@ export interface NoteStatsConfig {
 	charactersIncludeSpaces: boolean;
 }
 
-/** One Outline file's Status column, and the folder whose notes its rows plan. */
-interface OutlineStatuses {
+/** One Outline file's Target column, and the folder whose notes its rows plan. */
+interface OutlineTargets {
 	folder: string;
-	rows: OutlineStatusRow[];
+	rows: OutlineTargetRow[];
 }
 
 interface CacheEntry {
@@ -37,14 +37,14 @@ interface CacheEntry {
  * that text on demand and caches them by content, so a note is only
  * re-measured when its text (or a reading setting) actually changed — and the
  * scanner's per-keystroke word/character counts never pay for syllables.
- * A note's status is the Status cell of the Visualization plugin's Outline row
- * that plans it or, when there is none, its `scribe-note-status` property (the
- * Outline wins, as in the Visualization plugin). Both are read-only.
+ * A note's length target is the Target cell of the Visualization plugin's Outline
+ * row that plans it or, when there is none, its `scribe-note-target` property
+ * (the Outline wins, as in the Visualization plugin). Read-only.
  */
 export class NoteStatsStore extends Component {
 	private cache = new Map<string, CacheEntry>();
 	private listeners: Array<() => void> = [];
-	private outlines: OutlineStatuses[] = [];
+	private outlines: OutlineTargets[] = [];
 
 	/** Coalesces bursts of typing/metadata events into one notification, so a
 	 *  visible table isn't rebuilt on every keystroke. */
@@ -87,9 +87,9 @@ export class NoteStatsStore extends Component {
 	private async refreshOutlines(): Promise<void> {
 		const files = this.app.vault.getMarkdownFiles().filter((file) => this.isOutlineFile(file));
 		const outlines = await Promise.all(
-			files.map(async (file): Promise<OutlineStatuses> => {
+			files.map(async (file): Promise<OutlineTargets> => {
 				const content = await this.app.vault.cachedRead(file);
-				return { folder: file.parent?.isRoot() ? "" : (file.parent?.path ?? ""), rows: parseOutlineStatusRows(stripFrontmatter(content)) };
+				return { folder: file.parent?.isRoot() ? "" : (file.parent?.path ?? ""), rows: parseOutlineTargetRows(stripFrontmatter(content)) };
 			}),
 		);
 		// Deepest folder first, so a book nested in another book's folder uses its own outline.
@@ -122,28 +122,25 @@ export class NoteStatsStore extends Component {
 		return content === undefined ? null : this.statsFor(path, content);
 	}
 
-	/**
-	 * The note's status, or "" when it has none. Same precedence as the
-	 * Visualization plugin uses for every shared field: the Outline row wins,
-	 * then the note's own property.
-	 */
-	getStatus(path: string): string {
+	/** The note's length target (same unit as the metric), or null when it has none. */
+	getTarget(path: string): number | null {
 		const file = this.app.vault.getFileByPath(path);
-		if (!file) return "";
-		const fromOutline = this.outlineStatus(path);
-		if (fromOutline !== "") return fromOutline;
+		if (!file) return null;
+		const fromOutline = this.outlineTarget(path);
+		if (fromOutline !== null) return fromOutline;
 		const frontmatter = this.app.metadataCache.getFileCache(file)?.frontmatter;
-		return normalizeStatus(frontmatter?.[FRONTMATTER_KEYS.status]);
+		return parseTarget(frontmatter?.[FRONTMATTER_KEYS.target]);
 	}
 
-	private outlineStatus(path: string): string {
+	/** The target of the row that plans `path` in the deepest Outline folder that covers it. */
+	private outlineTarget(path: string): number | null {
 		for (const outline of this.outlines) {
 			if (outline.folder !== "" && !path.startsWith(`${outline.folder}/`)) continue;
 			const relative = outline.folder === "" ? path : path.slice(outline.folder.length + 1);
-			const status = findOutlineStatus(outline.rows, relative);
-			if (status !== "") return status;
+			const target = findOutlineTarget(outline.rows, relative);
+			if (target !== null) return target;
 		}
-		return "";
+		return null;
 	}
 
 	/** A table row for every in-scope note. */
@@ -159,7 +156,7 @@ export class NoteStatsStore extends Component {
 				path,
 				name: path.slice(slash + 1).replace(/\.md$/i, ""),
 				stats: this.statsFor(path, content),
-				status: this.getStatus(path),
+				target: this.getTarget(path),
 			});
 		}
 		return rows;

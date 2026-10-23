@@ -10,7 +10,7 @@ as a whole (word counts, progress toward goals, repeated words, and more). It is
 the second plugin in the **"Scribe of Lagash"** series — a set of independent,
 single-concern Obsidian plugins for planning and writing stories. The series
 shares one per-note frontmatter vocabulary, `scribe-note-*` (date, characters,
-places, status, …), so a note's metadata means the same thing to every plugin
+places, target, …), so a note's metadata means the same thing to every plugin
 and is written once; this plugin's key list is centralized in
 [`src/types.ts`](src/types.ts).
 
@@ -42,7 +42,7 @@ Shape so far (grows as features land):
   folder changes mid-day, so a different folder's files don't inherit a
   baseline recorded for someone else's.
 - [`src/types.ts`](src/types.ts) — `FRONTMATTER_KEYS` (**single source of truth**
-  for key names; today just `status`) and `NoteStats`, the per-note statistic
+  for key names; today just `target`) and `NoteStats`, the per-note statistic
   set. Add the plugin's other shared domain types here as they appear.
 - [`src/data/`](src/data/) — **pure modules, no Obsidian imports** (importing a
   type-only symbol from `src/settings/` is fine). Everything unit-testable
@@ -71,10 +71,9 @@ Shape so far (grows as features land):
   (`formatDuration`, `sessionProgress` — a countdown's own math, unrelated to
   the goal history), `textStats` (`computeNoteStats`: syllables, sentences,
   paragraphs, read time, pages — first-party heuristics, no NLP dependency),
-  `statsTable` (`groupByFolder`, `sumStats`), `statusLabel` (status
-  normalizing, the known statuses), `statsFormat` (display strings, ratios,
-  goal progress, the (?) tooltips) and `outlineStatus` (the Visualization
-  Outline file's Status column, matched to notes by Act/Chapter/Scene
+  `noteTarget` (`parseTarget`: a note's length target from a property or Outline cell), `statsTable` (`groupByFolder`, `sumStats`, `sumTargets`), `statsFormat` (display strings, ratios,
+  target progress, the (?) tooltips) and `outlineTarget` (the Visualization
+  Outline file's Target column, matched to notes by Act/Chapter/Scene
   numbers) — see
   [story-stats-plan.md](docs/feature-plans/story-stats-plan.md). Later:
   stop-word filtering, repeated-word tallying, pace / projection.
@@ -104,8 +103,8 @@ Shape so far (grows as features land):
     files start the day's diff from scratch instead of inheriting a snapshot
     that was never theirs.
   - `noteStatsStore.ts` — derives each in-scope note's full `NoteStats` from
-    the scanner's kept text (cached by content) and resolves its status (the
-    Outline file's row first, then the `scribe-note-status` property); feeds `storyStatsTable.ts` (the Story Stats table),
+    the scanner's kept text (cached by content) and resolves its length target (the
+    Outline file's row first, then the `scribe-note-target` property); feeds `storyStatsTable.ts` (the Story Stats table),
     `noteStatsModal.ts` (the per-note popup) and `noteStatsHeaderAction.ts`
     (the note-header icon that opens it).
   - `calendarWidget.ts` — `renderCalendarWidget`: the month-calendar nav +

@@ -6,7 +6,7 @@
  * single source of truth for key names — never hardcode these strings.
  */
 export const FRONTMATTER_KEYS = {
-	status: "scribe-note-status",
+	target: "scribe-note-target",
 } as const;
 
 /** Every statistic shown for one note, in the story table and the note popup. */
