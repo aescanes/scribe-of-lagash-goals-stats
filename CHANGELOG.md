@@ -6,6 +6,9 @@ is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 ## [Unreleased]
 
 ### Added
+- Goals and Stats tab: an expand button beside the calendar's month arrows
+  shows the whole year's writing history (all twelve months, with year
+  prev/next); click it again to return to the month view.
 - Story stats: the Goals and Stats tab's "Story Stats" section now shows a
   table of every note grouped by folder, with words (or characters), read time,
   syllables, sentences, paragraphs, pages and status (the note's
