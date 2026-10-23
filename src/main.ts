@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 // Copyright (C) 2026 aescanes
 
-import { addIcon, Plugin, WorkspaceLeaf } from "obsidian";
+import { addIcon, MarkdownView, Plugin, WorkspaceLeaf } from "obsidian";
 import { DEFAULT_SETTINGS, normalizeSettings, ScribeGoalsStatsSettings } from "./settings/settings";
 import { ScribeGoalsStatsSettingTab } from "./settings/settingsTab";
 import { ExplorerDecorator } from "./views/explorerDecorator";
@@ -10,6 +10,9 @@ import { GoalCelebration } from "./views/goalCelebration";
 import { GoalHistoryStore, TodayTextBaseline } from "./views/goalHistoryStore";
 import { GOAL_WIDGET_ICON, GOAL_WIDGET_ICON_SVG, GoalWidgetView, VIEW_TYPE_GOAL_WIDGET } from "./views/goalWidgetView";
 import { PersistedWritingSession, WritingSessionTimer } from "./views/writingSessionTimer";
+import { NoteStatsStore } from "./views/noteStatsStore";
+import { NoteStatsModal } from "./views/noteStatsModal";
+import { NoteStatsHeaderAction } from "./views/noteStatsHeaderAction";
 import {
 	GOALS_STATS_TAB_ICON_ID,
 	GOALS_STATS_TAB_ICON_SVG,
@@ -41,10 +44,16 @@ export default class ScribeGoalsStatsPlugin extends Plugin {
 	settings: ScribeGoalsStatsSettings = { ...DEFAULT_SETTINGS };
 	goalHistoryStore!: GoalHistoryStore;
 	writingSessionTimer!: WritingSessionTimer;
+	noteStatsStore!: NoteStatsStore;
 	private scanner!: ScopeScanner;
 
 	async onload(): Promise<void> {
 		await this.loadSettings();
+
+		// Before anything that calls setIcon with these (e.g. the note-stats
+		// status-bar item) — an unregistered icon id draws nothing.
+		addIcon(GOAL_WIDGET_ICON, GOAL_WIDGET_ICON_SVG);
+		addIcon(GOALS_STATS_TAB_ICON_ID, GOALS_STATS_TAB_ICON_SVG);
 
 		this.scanner = this.addChild(
 			new ScopeScanner(this.app, () => ({
@@ -85,15 +94,21 @@ export default class ScribeGoalsStatsPlugin extends Plugin {
 			),
 		);
 
+		this.noteStatsStore = this.addChild(
+			new NoteStatsStore(this.app, this.scanner, () => ({
+				metric: this.settings.metric,
+				charactersIncludeSpaces: this.settings.charactersIncludeSpaces,
+			})),
+		);
+
+		this.addChild(new NoteStatsHeaderAction(this.app, this.noteStatsStore, () => this.settings.metric));
+
 		this.writingSessionTimer = this.addChild(
 			new WritingSessionTimer({
 				load: () => this.loadWritingSession(),
 				save: (session) => this.saveWritingSession(session),
 			}),
 		);
-
-		addIcon(GOAL_WIDGET_ICON, GOAL_WIDGET_ICON_SVG);
-		addIcon(GOALS_STATS_TAB_ICON_ID, GOALS_STATS_TAB_ICON_SVG);
 
 		this.registerView(VIEW_TYPE_GOAL_WIDGET, (leaf) => new GoalWidgetView(leaf, this));
 		this.registerView(VIEW_TYPE_GOALS_STATS_TAB, (leaf) => new GoalsStatsTabView(leaf, this));
@@ -119,6 +134,17 @@ export default class ScribeGoalsStatsPlugin extends Plugin {
 			id: "open-goals-stats-tab",
 			name: "Open goals and stats",
 			callback: () => void this.activateView(VIEW_TYPE_GOALS_STATS_TAB, "tab"),
+		});
+
+		this.addCommand({
+			id: "show-note-stats",
+			name: "Show note stats",
+			checkCallback: (checking) => {
+				const path = this.app.workspace.getActiveViewOfType(MarkdownView)?.file?.path;
+				if (path === undefined || !this.noteStatsStore.has(path)) return false;
+				if (!checking) new NoteStatsModal(this.app, this.noteStatsStore, path, () => this.settings.metric).open();
+				return true;
+			},
 		});
 
 		this.addSettingTab(new ScribeGoalsStatsSettingTab(this.app, this));

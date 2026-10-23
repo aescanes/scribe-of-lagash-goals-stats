@@ -70,7 +70,32 @@ A main-area tab (ribbon icon or the "Open goals and stats" command) with a "Writ
 month calendar as the sidebar widget with today's total and, when clicked,
 any other day's total shown next to it.
 
+#### Story stats
+
+Below the goal history, the tab's "Story Stats" section is a table of every
+note in the story folder, grouped by folder (click a folder to collapse it;
+each folder shows its own subtotal, and a Total row closes the table). For
+each note: words (or characters, following your metric setting), read time,
+syllables, sentences, paragraphs, pages and status. Status is the note's
+Status column of the Visualization plugin's Outline file (the row whose Act,
+Chapter and Scene numbers match the note's folders and file name — digits or
+roman numerals, any title language) or, when the outline has none for it, its
+`scribe-note-status` property. As in the Visualization plugin, the outline wins. Click a note's name to open it.
+
 <img src="docs/images/goals-and-stats-tab.png" alt="Goals and Stats tab">
+
+### Note stats popup
+
+While a note in the story is open, a stats icon appears in the note's header,
+next to its other buttons. Click it, or run "Show note stats", to open a popup with the same
+numbers for just that note: its status, the headline word count, read time,
+pages, sentences, paragraphs and syllables, and words per sentence, sentences
+per paragraph and syllables per word. It updates as you type and follows the
+light and dark themes.
+
+Syllable and sentence counts are estimates. Read time is based on 245 words
+per minute and pages on 250 words per page; a (?) icon beside each label says
+so.
 
 ### Daily-goal celebration
 
@@ -148,10 +173,8 @@ material can never accidentally erase a day's progress.
 - **Goal targets** — total word count and a deadline, per-chapter or per-scene
   length targets, and a projected completion date.
 - **Goal stats** — writing streaks and how each day compares to the target pace.
-- **Story stats** — total and per-chapter/scene word, sentence, and paragraph
-  counts; average scene and chapter length; reading-time estimate. Will live
-  in the Goals and Stats tab's "Story Stats" section (already there as an empty
-  placeholder).
+- **More story stats** — average scene and chapter length, and status read from
+  an outline file's Status column.
 - **Repeated-word analysis** — most-frequent words and phrases across the
   whole story or a single chapter, with common stop-words filtered out, to
   surface overused crutch words.
