@@ -705,6 +705,18 @@ body {
 	font-weight: var(--font-weight-bold);
 }
 
+/* The name column takes all the spare width, so the stat columns hug the
+   right edge with an even gap between them. */
+.scribe-stats-table th:first-child,
+.scribe-stats-table td:first-child {
+	width: 100%;
+}
+
+/* Highlight the whole hovered row (cells are transparent, so the row's own background shows). */
+.scribe-stats-table tbody tr:not(.scribe-stats-total-row):hover {
+	background: var(--background-modifier-hover);
+}
+
 .scribe-stats-table .scribe-stats-ring-cell + td,
 .scribe-stats-table .scribe-stats-ring-cell + th {
 	padding-left: var(--size-4-2);
