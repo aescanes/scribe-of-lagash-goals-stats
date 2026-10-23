@@ -579,11 +579,16 @@ body {
 	min-width: 0;
 }
 
-/* Bottom-right corner of the calendar card, in the plugin's brand accent. The
-   card reserves extra bottom padding so the button never covers a day cell. */
+/* Bottom-right corner of the calendar card, in the plugin's brand accent. In
+   the month view that corner is free (the side panel is shorter than the
+   grid), so the card keeps its normal size; only the year view, whose grids
+   reach the corner, reserves extra bottom padding. */
 .scribe-goal-card.mod-calendar {
 	position: relative;
-	padding-bottom: var(--size-4-12);
+}
+
+.scribe-goal-card.mod-calendar.mod-expanded {
+	padding-bottom: var(--size-4-10);
 }
 
 .scribe-goal-calendar-expand {
