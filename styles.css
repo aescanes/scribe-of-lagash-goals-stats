@@ -62,20 +62,6 @@ body {
 	z-index: 9999;
 }
 
-/* ---- Settings: writing-days picker ---- */
-
-.scribe-weekday-picker {
-	display: flex;
-	flex-wrap: wrap;
-	gap: var(--size-4-2);
-}
-
-.scribe-weekday {
-	display: flex;
-	align-items: center;
-	gap: var(--size-4-1);
-}
-
 /* ---- Settings: excluded notes/folders ---- */
 
 .scribe-excluded-paths {

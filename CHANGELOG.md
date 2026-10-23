@@ -5,6 +5,11 @@ is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+### Removed
+- Settings: the "Writing days", "Weekly goal" and "Monthly goal" rows are gone
+  (they didn't affect anything); "Daily writing goal" is now a plain daily
+  target.
+
 ### Added
 - Settings: a "Support" section with a Ko-fi button for readers who want to
   support the plugin's development.

@@ -4,13 +4,7 @@
 import { App, Notice, normalizePath, PluginSettingTab, requireApiVersion, Setting, TFolder } from "obsidian";
 import type { SettingDefinitionItem } from "obsidian";
 import type ScribeGoalsStatsPlugin from "../main";
-import {
-	monthlyGoal,
-	WEEKDAYS,
-	weeklyGoal,
-	writingDaysInMonth,
-	writingDaysPerWeek,
-} from "../data/goalMath";
+import { monthlyGoal, weeklyGoal } from "../data/goalMath";
 import { SCRIBE_GENERATED_PREFIX } from "../data/exclusion";
 import { confirm } from "../utils/confirmModal";
 import { FolderSuggest } from "./folderSuggest";
@@ -18,17 +12,11 @@ import { FolderSuggest } from "./folderSuggest";
 const SUPPORT_NAME = "If this plugin helps your writing, you can support its development";
 const SUPPORT_URL = "https://ko-fi.com/O3J528W3FZ";
 
-/** Lower-case noun for the active metric, singular kept simple ("word"/"character"). */
-function unitLabel(plugin: ScribeGoalsStatsPlugin): string {
-	return plugin.settings.metric === "characters" ? "characters" : "words";
-}
+/** Every day counts as a writing day: the goals below are just the daily goal scaled up. */
+const EVERY_DAY: readonly boolean[] = [true, true, true, true, true, true, true];
 
 export class ScribeGoalsStatsSettingTab extends PluginSettingTab {
 	plugin: ScribeGoalsStatsPlugin;
-
-	/** Info rows whose text is recomputed as the daily goal / days / metric change. */
-	private weeklyGoalRow: Setting | null = null;
-	private monthlyGoalRow: Setting | null = null;
 
 	/**
 	 * A story folder isn't just "which notes count" — it's also which history
@@ -94,9 +82,7 @@ export class ScribeGoalsStatsSettingTab extends PluginSettingTab {
 	 * Declarative counterpart to `display()`, used by Obsidian 1.13.0+ so this
 	 * tab's settings appear in the app's settings search — `display()` above
 	 * still runs as-is on older versions, where this is never called. The two
-	 * describe the same settings and are kept in sync by hand; `renderWeekdayPicker`
-	 * and `describeWeeklyGoal`/`describeMonthlyGoal` are shared by both since
-	 * their custom (non-control) UI has no declarative equivalent.
+	 * describe the same settings and are kept in sync by hand.
 	 */
 	getSettingDefinitions(): SettingDefinitionItem[] {
 		return [
@@ -144,27 +130,8 @@ export class ScribeGoalsStatsSettingTab extends PluginSettingTab {
 					},
 					{
 						name: "Daily writing goal",
-						desc: "How much you aim to write on each of your writing days.",
-						control: {
-							type: "number",
-							key: "dailyGoal",
-							min: 0,
-							validate: (value) =>
-								Number.isFinite(value) && value >= 0 ? undefined : "Enter a number of 0 or more.",
-						},
-					},
-					{
-						name: "Writing days",
-						desc: "The days you plan to write. Weekly and monthly goals are calculated from these.",
-						render: (setting) => this.renderWeekdayPicker(setting, () => this.updateIfSupported()),
-					},
-					{
-						name: "Weekly goal",
-						render: (setting) => this.describeWeeklyGoal(setting),
-					},
-					{
-						name: "Monthly goal",
-						render: (setting) => this.describeMonthlyGoal(setting),
+						desc: this.dailyGoalDesc(),
+						render: (setting) => this.renderDailyGoalField(setting),
 					},
 				],
 			},
@@ -190,8 +157,6 @@ export class ScribeGoalsStatsSettingTab extends PluginSettingTab {
 				return this.plugin.settings.metric;
 			case "charactersIncludeSpaces":
 				return this.plugin.settings.charactersIncludeSpaces;
-			case "dailyGoal":
-				return this.plugin.settings.dailyGoal;
 			default:
 				return undefined;
 		}
@@ -214,9 +179,6 @@ export class ScribeGoalsStatsSettingTab extends PluginSettingTab {
 			case "charactersIncludeSpaces":
 				this.plugin.settings.charactersIncludeSpaces = value === true;
 				break;
-			case "dailyGoal":
-				this.plugin.settings.dailyGoal = typeof value === "number" ? Math.round(value) : this.plugin.settings.dailyGoal;
-				break;
 			default:
 				return;
 		}
@@ -226,8 +188,7 @@ export class ScribeGoalsStatsSettingTab extends PluginSettingTab {
 
 	/**
 	 * `SettingTab.update()` only exists since Obsidian 1.13.0, but this is only
-	 * ever reached from the declarative code path above (`setControlValue` and
-	 * the weekday picker's declarative `render`), which Obsidian itself never
+	 * ever reached from the declarative code path above (`setControlValue`), which Obsidian itself never
 	 * invokes below 1.13.0 — `display()`'s own imperative path never calls this.
 	 * Guarded with `requireApiVersion` all the same, both so it's genuinely
 	 * safe rather than safe "by construction", and because `no-unsupported-api`
@@ -276,6 +237,8 @@ export class ScribeGoalsStatsSettingTab extends PluginSettingTab {
 	private renderWritingGoals(containerEl: HTMLElement): void {
 		new Setting(containerEl).setName("Writing goals").setHeading();
 
+		let dailyGoalSetting: Setting | null = null;
+
 		new Setting(containerEl)
 			.setName("Metric")
 			.setDesc("Whether goals and statistics are measured in words or characters.")
@@ -286,7 +249,7 @@ export class ScribeGoalsStatsSettingTab extends PluginSettingTab {
 				dropdown.onChange(async (value) => {
 					this.plugin.settings.metric = value === "characters" ? "characters" : "words";
 					await this.plugin.saveSettings();
-					this.refreshComputedGoals();
+					dailyGoalSetting?.setDesc(this.dailyGoalDesc());
 				});
 			});
 
@@ -301,31 +264,45 @@ export class ScribeGoalsStatsSettingTab extends PluginSettingTab {
 				});
 			});
 
-		new Setting(containerEl)
+		dailyGoalSetting = new Setting(containerEl)
 			.setName("Daily writing goal")
-			.setDesc("How much you aim to write on each of your writing days.")
-			.addText((text) => {
-				text.inputEl.type = "number";
-				text.inputEl.min = "0";
-				text.setValue(String(this.plugin.settings.dailyGoal));
-				text.onChange(async (value) => {
-					if (value.trim() === "") return;
-					const next = Number(value);
-					if (!Number.isFinite(next) || next < 0) return;
-					this.plugin.settings.dailyGoal = Math.round(next);
-					await this.plugin.saveSettings();
-					this.refreshComputedGoals();
-				});
+			.setDesc(this.dailyGoalDesc());
+		this.renderDailyGoalField(dailyGoalSetting);
+	}
+
+	/** Shared by both rendering paths; applies on every keystroke and restates the derived goals. */
+	private renderDailyGoalField(setting: Setting): void {
+		setting.addText((text) => {
+			text.inputEl.type = "number";
+			text.inputEl.min = "0";
+			text.setValue(String(this.plugin.settings.dailyGoal));
+			text.onChange(async (value) => {
+				if (value.trim() === "") return;
+				const next = Number(value);
+				if (!Number.isFinite(next) || next < 0) return;
+				this.plugin.settings.dailyGoal = Math.round(next);
+				await this.plugin.saveSettings();
+				setting.setDesc(this.dailyGoalDesc());
 			});
+		});
+	}
 
-		new Setting(containerEl)
-			.setName("Writing days")
-			.setDesc("The days you plan to write. Weekly and monthly goals are calculated from these.")
-			.then((setting) => this.renderWeekdayPicker(setting, () => this.refreshComputedGoals()));
-
-		this.weeklyGoalRow = new Setting(containerEl).setName("Weekly goal");
-		this.monthlyGoalRow = new Setting(containerEl).setName("Monthly goal");
-		this.refreshComputedGoals();
+	/** Daily goal blurb with the weekly and current-month targets derived from it. */
+	private dailyGoalDesc(): DocumentFragment {
+		const { dailyGoal, metric } = this.plugin.settings;
+		const unit = metric === "characters" ? "characters" : "words";
+		const now = new Date();
+		const monthName = now.toLocaleDateString(undefined, { month: "long", year: "numeric" });
+		const weekly = weeklyGoal(dailyGoal, EVERY_DAY).toLocaleString();
+		const monthly = monthlyGoal(dailyGoal, EVERY_DAY, now.getFullYear(), now.getMonth()).toLocaleString();
+		return createFragment((frag) => {
+			frag.appendText("How much you aim to write each day.");
+			frag.createEl("br");
+			frag.createEl("br");
+			frag.appendText(`Weekly goal: ${weekly} ${unit}.`);
+			frag.createEl("br");
+			frag.appendText(`Monthly goal (${monthName}): ${monthly} ${unit}.`);
+		});
 	}
 
 	/** The fragment shared by both `display()`'s imperative row and the declarative definition. */
@@ -392,62 +369,5 @@ export class ScribeGoalsStatsSettingTab extends PluginSettingTab {
 					"(created by the Scribe of Lagash plugins) are always excluded.",
 			);
 		});
-	}
-
-	/** Builds the weekday checkboxes; `onChange` lets each rendering path (imperative
-	 *  row refresh vs. declarative `update()`) refresh the dependent goal text its own way. */
-	private renderWeekdayPicker(setting: Setting, onChange: () => void): void {
-		const picker = setting.controlEl.createDiv({ cls: "scribe-weekday-picker" });
-		WEEKDAYS.forEach((label, index) => {
-			const dayLabel = picker.createEl("label", { cls: "scribe-weekday" });
-			const checkbox = dayLabel.createEl("input", { type: "checkbox" });
-			checkbox.checked = this.plugin.settings.writingDays[index];
-			checkbox.addEventListener("change", () => {
-				this.plugin.settings.writingDays[index] = checkbox.checked;
-				onChange();
-				void this.plugin.saveSettings();
-			});
-			dayLabel.createSpan({ text: label.slice(0, 3) });
-		});
-	}
-
-	/** Restates the weekly/monthly targets from the current daily goal, days and metric. */
-	private refreshComputedGoals(): void {
-		if (this.weeklyGoalRow) this.describeWeeklyGoal(this.weeklyGoalRow);
-		if (this.monthlyGoalRow) this.describeMonthlyGoal(this.monthlyGoalRow);
-	}
-
-	private describeWeeklyGoal(setting: Setting): void {
-		const { dailyGoal, writingDays } = this.plugin.settings;
-		const unit = unitLabel(this.plugin);
-		const perWeek = writingDaysPerWeek(writingDays);
-		setting.setDesc(
-			`${perWeek} writing ${perWeek === 1 ? "day" : "days"} per week × ${dailyGoal.toLocaleString()} ` +
-				`= ${weeklyGoal(dailyGoal, writingDays).toLocaleString()} ${unit} per week.`,
-		);
-	}
-
-	private describeMonthlyGoal(setting: Setting): void {
-		const { dailyGoal, writingDays } = this.plugin.settings;
-		const unit = unitLabel(this.plugin);
-		const now = new Date();
-		const year = now.getFullYear();
-		const month = now.getMonth();
-		const perMonth = writingDaysInMonth(year, month, writingDays);
-		const monthName = now.toLocaleDateString(undefined, { month: "long", year: "numeric" });
-
-		setting.setDesc(
-			createFragment((frag) => {
-				frag.appendText(
-					"Here we are using the current month to give you a reference of this month's goal:",
-				);
-				frag.createEl("br");
-				frag.appendText(
-					`${perMonth} writing ${perMonth === 1 ? "day" : "days"} in ${monthName} × ` +
-						`${dailyGoal.toLocaleString()} = ` +
-						`${monthlyGoal(dailyGoal, writingDays, year, month).toLocaleString()} ${unit}.`,
-				);
-			}),
-		);
 	}
 }

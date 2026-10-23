@@ -138,8 +138,7 @@ switching it away from a different folder you've already used asks you to
 confirm first, since it starts today's writing count over for the new one
 — the previous folder's history is kept, ready to pick back up later), a
 words/characters metric (with a with/without-spaces toggle for characters),
-a daily goal, and the days of the week you write; the weekly and monthly
-targets are worked out from those. Plus a list of notes and folders to
+and a daily goal. Plus a list of notes and folders to
 exclude from everything the plugin measures.
 
 ### Files starting with "(SL)"
