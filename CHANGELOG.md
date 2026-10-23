@@ -6,6 +6,8 @@ is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 ## [Unreleased]
 
 ### Added
+- Settings: a "Support" section with a Ko-fi button for readers who want to
+  support the plugin's development.
 - Goals and Stats tab: an expand button beside the calendar's month arrows
   shows the whole year's writing history (all twelve months, with year
   prev/next); click it again to return to the month view.

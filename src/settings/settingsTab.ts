@@ -15,6 +15,9 @@ import { SCRIBE_GENERATED_PREFIX } from "../data/exclusion";
 import { confirm } from "../utils/confirmModal";
 import { FolderSuggest } from "./folderSuggest";
 
+const SUPPORT_NAME = "If this plugin helps your writing, you can support its development";
+const SUPPORT_URL = "https://ko-fi.com/O3J528W3FZ";
+
 /** Lower-case noun for the active metric, singular kept simple ("word"/"character"). */
 function unitLabel(plugin: ScribeGoalsStatsPlugin): string {
 	return plugin.settings.metric === "characters" ? "characters" : "words";
@@ -82,6 +85,9 @@ export class ScribeGoalsStatsSettingTab extends PluginSettingTab {
 
 		this.renderGeneral(containerEl);
 		this.renderWritingGoals(containerEl);
+
+		new Setting(containerEl).setName("Support").setHeading();
+		this.renderSupportButton(new Setting(containerEl).setName(SUPPORT_NAME));
 	}
 
 	/**
@@ -162,6 +168,17 @@ export class ScribeGoalsStatsSettingTab extends PluginSettingTab {
 					},
 				],
 			},
+			{
+				type: "group",
+				heading: "Support",
+				items: [
+					{
+						name: SUPPORT_NAME,
+						searchable: false,
+						render: (setting) => this.renderSupportButton(setting),
+					},
+				],
+			},
 		];
 	}
 
@@ -218,6 +235,15 @@ export class ScribeGoalsStatsSettingTab extends PluginSettingTab {
 	 */
 	private updateIfSupported(): void {
 		if (requireApiVersion("1.13.0")) this.update();
+	}
+
+	private renderSupportButton(setting: Setting): void {
+		setting.addButton((button) =>
+			button
+				.setButtonText("Buy me a coffee")
+				.setCta()
+				.onClick(() => window.open(SUPPORT_URL)),
+		);
 	}
 
 	private renderGeneral(containerEl: HTMLElement): void {

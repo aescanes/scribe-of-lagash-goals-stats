@@ -172,8 +172,7 @@ material can never accidentally erase a day's progress.
 
 ## Planned next
 
-- **Goal targets** — total word count and a deadline, per-chapter or per-scene
-  length targets, and a projected completion date.
+- **Goal targets** — total word/character count, per note and per story.
 - **Goal stats** — writing streaks and how each day compares to the target pace.
 - **More story stats** — average scene and chapter length, and status read from
   an outline file's Status column.
