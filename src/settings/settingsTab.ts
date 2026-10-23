@@ -123,6 +123,7 @@ export class ScribeGoalsStatsSettingTab extends PluginSettingTab {
 					{
 						name: "Count spaces in character counts",
 						desc: this.countSpacesDesc(),
+						visible: () => this.plugin.settings.metric === "characters",
 						control: {
 							type: "toggle",
 							key: "charactersIncludeSpaces",
@@ -238,6 +239,7 @@ export class ScribeGoalsStatsSettingTab extends PluginSettingTab {
 		new Setting(containerEl).setName("Writing goals").setHeading();
 
 		let dailyGoalSetting: Setting | null = null;
+		let countSpacesSetting: Setting | null = null;
 
 		new Setting(containerEl)
 			.setName("Metric")
@@ -249,11 +251,12 @@ export class ScribeGoalsStatsSettingTab extends PluginSettingTab {
 				dropdown.onChange(async (value) => {
 					this.plugin.settings.metric = value === "characters" ? "characters" : "words";
 					await this.plugin.saveSettings();
+					countSpacesSetting?.settingEl.toggle(value === "characters");
 					dailyGoalSetting?.setDesc(this.dailyGoalDesc());
 				});
 			});
 
-		new Setting(containerEl)
+		countSpacesSetting = new Setting(containerEl)
 			.setName("Count spaces in character counts")
 			.setDesc(this.countSpacesDesc())
 			.addToggle((toggle) => {
@@ -263,6 +266,7 @@ export class ScribeGoalsStatsSettingTab extends PluginSettingTab {
 					await this.plugin.saveSettings();
 				});
 			});
+		countSpacesSetting.settingEl.toggle(this.plugin.settings.metric === "characters");
 
 		dailyGoalSetting = new Setting(containerEl)
 			.setName("Daily writing goal")
