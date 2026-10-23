@@ -17,6 +17,13 @@ export function normalizeStatus(raw: unknown): string {
 	return "";
 }
 
+/**
+ * The statuses the Visualization plugin's Plot matrix offers for an Outline
+ * row, in the order of a note's life. Any other text is still shown as written;
+ * this list only names the ones with their own color.
+ */
+export const KNOWN_STATUSES = ["TO DO", "In Progress", "First Draft", "Revised Draft", "Final Draft", "Done"] as const;
+
 /** A CSS-safe modifier for a status ("In Progress" → "in-progress"); empty for none. */
 export function statusModifier(status: string): string {
 	return status

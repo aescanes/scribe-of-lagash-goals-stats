@@ -23,6 +23,8 @@ is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
   Draft yellow-orange, Final Draft orange, In Progress blue, Done green.
 - Read time uses 245 words per minute and pages 250 words per page, shown in a
   (?) tooltip beside "Read time" and "Pages" (in the table and the note popup).
+  A (?) beside the table's "Status" lists the statuses and where they are set
+  (the outline file or the `scribe-note-status` property).
 
 ## [0.8.2](https://github.com/aescanes/scribe-of-lagash-goals-stats/releases/tag/0.8.2) - 2026-10-19
 

@@ -4,12 +4,17 @@
 // Pure display formatting for the stats table and note popup — no Obsidian
 // imports, unit-tested.
 
-import type { NoteStats } from "../types";
+import { FRONTMATTER_KEYS, NoteStats } from "../types";
+import { KNOWN_STATUSES } from "./statusLabel";
 import { WORDS_PER_MINUTE, WORDS_PER_PAGE } from "./textStats";
 
-/** Tooltips for the (?) icons beside "Read time" and "Pages". */
+/** Tooltips for the (?) icons beside "Read time", "Pages" and "Status". */
 export const READ_TIME_HELP = `At ${WORDS_PER_MINUTE} words per minute, the average adult silent reading speed.`;
 export const PAGES_HELP = `At ${WORDS_PER_PAGE} words per page, the standard manuscript page.`;
+export const STATUS_HELP =
+	`Set in the Status column of the (SL) Visualization plugin's outline file, or with the ` +
+	`${FRONTMATTER_KEYS.status} property (the outline wins). ` +
+	`Statuses: ${KNOWN_STATUSES.join(", ")}. Any other text is shown as written.`;
 
 /** "12 min", "1 h 5 min", "2 h"; an em dash for nothing to read. */
 export function formatReadTime(minutes: number): string {

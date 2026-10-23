@@ -3,7 +3,7 @@
 
 import { setIcon } from "obsidian";
 import { FolderGroup, StatsRow, sumStats } from "../data/statsTable";
-import { formatPages, formatReadTime, PAGES_HELP, READ_TIME_HELP } from "../data/statsFormat";
+import { formatPages, formatReadTime, PAGES_HELP, READ_TIME_HELP, STATUS_HELP } from "../data/statsFormat";
 import { statusModifier } from "../data/statusLabel";
 import type { GoalMetric } from "../settings/settings";
 import type { NoteStats } from "../types";
@@ -55,7 +55,7 @@ export function renderStoryStatsTable(
 
 	const headerRow = table.createEl("thead").createEl("tr");
 	const sizeLabel = options.metric === "characters" ? "Characters" : "Words";
-	const help: Record<string, string> = { "Read time": READ_TIME_HELP, Pages: PAGES_HELP };
+	const help: Record<string, string> = { "Read time": READ_TIME_HELP, Pages: PAGES_HELP, Status: STATUS_HELP };
 	for (const label of ["Note", sizeLabel, "Read time", "Syllables", "Sentences", "Paragraphs", "Pages", "Status"]) {
 		const th = headerRow.createEl("th", { cls: label === "Note" || label === "Status" ? "" : "scribe-stats-num" });
 		th.createSpan({ text: label });

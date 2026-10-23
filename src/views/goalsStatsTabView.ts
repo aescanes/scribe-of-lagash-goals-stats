@@ -66,6 +66,8 @@ export class GoalsStatsTabView extends ItemView {
 	private selectedDay: CalendarCell | null = null;
 	/** Folder groups the user collapsed in the story stats table (relative path; "" is the story root). */
 	private collapsedFolders = new Set<string>();
+	/** Set when the story stats changed while the tab was hidden; cleared by the next render. */
+	private stale = false;
 
 	constructor(
 		leaf: WorkspaceLeaf,
@@ -88,10 +90,18 @@ export class GoalsStatsTabView extends ItemView {
 
 	onOpen(): Promise<void> {
 		this.register(this.plugin.goalHistoryStore.onChange(() => this.render()));
-		// The table can be large and typing re-notifies often; skip it while the tab is hidden.
+		// The table can be large and typing re-notifies often, so a hidden tab only
+		// notes that it is out of date — e.g. after editing the outline in another
+		// tab — and redraws when it is switched back to.
 		this.register(
 			this.plugin.noteStatsStore.onChange(() => {
 				if (this.containerEl.isShown()) this.render();
+				else this.stale = true;
+			}),
+		);
+		this.registerEvent(
+			this.app.workspace.on("active-leaf-change", (leaf) => {
+				if (this.stale && leaf?.view === this) this.render();
 			}),
 		);
 		this.render();
@@ -99,6 +109,7 @@ export class GoalsStatsTabView extends ItemView {
 	}
 
 	private render(): void {
+		this.stale = false;
 		const { contentEl } = this;
 		contentEl.empty();
 		contentEl.addClass("scribe-goals-view");
