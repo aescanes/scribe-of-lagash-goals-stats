@@ -173,8 +173,8 @@ material can never accidentally erase a day's progress.
 
 - **Goal targets** — total word/character count, per note and per story.
 - **Goal stats** — writing streaks and how each day compares to the target pace.
-- **More story stats** — average scene and chapter length, and status read from
-  an outline file's Status column.
+- **Status manual input** - allow add manually old stats.
+- **Status import** - import from other plugins stats.
 - **Repeated-word analysis** — most-frequent words and phrases across the
   whole story or a single chapter, with common stop-words filtered out, to
   surface overused crutch words.

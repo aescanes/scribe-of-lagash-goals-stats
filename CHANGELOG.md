@@ -13,6 +13,9 @@ is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 ### Added
 - Settings: a "Support" section with a Ko-fi button for readers who want to
   support the plugin's development.
+- Settings: a "Scribe of Lagash series" section, above "Support", with a link
+  to the series website and to the community plugin pages of the other two
+  plugins.
 - Goals and Stats tab: an expand button beside the calendar's month arrows
   shows the whole year's writing history (all twelve months, with year
   prev/next); click it again to return to the month view.

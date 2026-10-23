@@ -8,6 +8,9 @@ import { monthlyGoal, weeklyGoal } from "../data/goalMath";
 import { SCRIBE_GENERATED_PREFIX } from "../data/exclusion";
 import { confirm } from "../utils/confirmModal";
 import { FolderSuggest } from "./folderSuggest";
+import { renderSeriesButton, SERIES_HEADING, seriesRows } from "./seriesSection";
+
+const PLUGIN_ID = "scribe-of-lagash-goals-stats";
 
 const SUPPORT_NAME = "If this plugin helps your writing, you can support its development";
 const SUPPORT_URL = "https://ko-fi.com/O3J528W3FZ";
@@ -74,6 +77,11 @@ export class ScribeGoalsStatsSettingTab extends PluginSettingTab {
 		this.renderGeneral(containerEl);
 		this.renderWritingGoals(containerEl);
 
+		new Setting(containerEl).setName(SERIES_HEADING).setHeading();
+		for (const row of seriesRows(PLUGIN_ID)) {
+			renderSeriesButton(new Setting(containerEl).setName(row.name).setDesc(row.desc), row);
+		}
+
 		new Setting(containerEl).setName("Support").setHeading();
 		this.renderSupportButton(new Setting(containerEl).setName(SUPPORT_NAME));
 	}
@@ -135,6 +143,16 @@ export class ScribeGoalsStatsSettingTab extends PluginSettingTab {
 						render: (setting) => this.renderDailyGoalField(setting),
 					},
 				],
+			},
+			{
+				type: "group",
+				heading: SERIES_HEADING,
+				items: seriesRows(PLUGIN_ID).map((row) => ({
+					name: row.name,
+					desc: row.desc,
+					searchable: false,
+					render: (setting) => renderSeriesButton(setting, row),
+				})),
 			},
 			{
 				type: "group",
