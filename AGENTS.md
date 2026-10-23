@@ -112,7 +112,9 @@ Shape so far (grows as features land):
     grid DOM, shared by `goalWidgetView.ts` and `goalsStatsTabView.ts` so both
     stay identical without duplicating the DOM building. A day with data gets
     an `aria-label` tooltip (its total, via `formatCount`) and, if `onDayClick`
-    is passed, is clickable — a day with none has neither.
+    is passed, is clickable — a day with none has neither. The tab also passes
+    `onToggleExpand`/`expanded`, which adds the bottom-right expand button and
+    swaps the month grid for all twelve months of the cursor's year.
   - `progressRing.ts` — `renderProgressRing`: the disc-plus-arc SVG shared by
     the daily-goal ring and the writing-session countdown, so both stay
     visually identical without duplicating the SVG construction.

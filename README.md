@@ -68,7 +68,9 @@ with.
 A main-area tab (ribbon icon or the "Open goals and stats" command) with a "Writing goal history" section: week/month, rolling
 7-/30-day, and year/365-day totals with daily averages, beside the same
 month calendar as the sidebar widget with today's total and, when clicked,
-any other day's total shown next to it.
+any other day's total shown next to it. The expand button in the calendar
+card's bottom-right corner switches it to the whole year (all twelve months,
+with year prev/next); click it again to return to the month.
 
 #### Story stats
 

@@ -293,6 +293,14 @@ leaves the device. A real vault file is the only option that satisfies both.
     detail (today's own total is already shown above); navigating months
     also clears the selection, so a stale selection from a different month
     is never shown.
+    An expand/collapse button (`.scribe-goal-calendar-expand`, plugin accent
+    color) sits in the card's bottom-right corner, passed to
+    `renderCalendarWidget` as `onToggleExpand` + `expanded` — the sidebar
+    widget omits it, so it has no button. Expanded, the card (`mod-expanded`)
+    widens to the pane and the calendar shows all twelve months of the cursor's
+    year (`.scribe-goal-calendar-year`), with prev/next stepping a year; a
+    day shows only in its own month. Toggling resets the cursor to today and
+    clears the selected day.
     Both the calendar's nav+grid wrapper (`.scribe-goal-calendar-block`,
     11rem) and the side panel (`.scribe-goal-calendar-side`, 6.5rem) are
     pinned to a fixed width, and the card itself to `20.5rem`
