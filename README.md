@@ -65,26 +65,41 @@ with.
 
 ### Goals and Stats tab
 
-A main-area tab (ribbon icon or the "Open goals and stats" command) with a "Writing goal history" section: week/month, rolling
-7-/30-day, and year/365-day totals with daily averages, beside the same
-month calendar as the sidebar widget with today's total and, when clicked,
-any other day's total shown next to it. The expand button in the calendar
-card's bottom-right corner switches it to the whole year (all twelve months,
-with year prev/next); click it again to return to the month.
+A main-area tab (ribbon icon or the "Open goals and stats" command) with two
+sections: your writing goal history and a table of stats for every note in the
+story.
+
+#### Writing goal history
+
+Totals with daily averages for the current week and month, the last 7 and 30
+days, and the current year and last 365 days, shown beside the same month
+calendar as the sidebar widget. The calendar shows today's total and, when you
+click another day, that day's total next to it. The expand button in the
+calendar card's bottom-right corner switches the calendar to the whole year
+(all twelve months, with previous/next year buttons); click it again to return
+to the month.
+
+<img src="docs/images/writing-goal-history-collapsed.png" alt="Writing goal history collapsed">
+<img src="docs/images/writing-goal-history-expanded.png" alt="Writing goal history expanded">
 
 #### Story stats
 
-Below the goal history, the tab's "Story Stats" section is a table of every
-note in the story folder, grouped by folder (click a folder to collapse it;
-each folder shows its own subtotal, and a Total row closes the table). For
-each note: words (or characters, following your metric setting), read time,
-syllables, sentences, paragraphs, pages and status. Status is the note's
-Status column of the Visualization plugin's Outline file (the row whose Act,
-Chapter and Scene numbers match the note's folders and file name — digits or
-roman numerals, any title language) or, when the outline has none for it, its
-`scribe-note-status` property. As in the Visualization plugin, the outline wins. Click a note's name to open it.
+The "Story Stats" section is a table of every note in
+the story folder, grouped by folder. Click a folder to collapse it; each folder
+shows its own subtotal, and a Total row closes the table. Click a note's name
+to open it.
 
-<img src="docs/images/goals-and-stats-tab.png" alt="Goals and Stats tab">
+Each note row shows its words (or characters, following your metric setting),
+read time, syllables, sentences, paragraphs, pages and status.
+
+A note's status comes from one of two places, in this order:
+
+1. The Status column of the (SL) Visualization plugin's Outline file, in the row
+   whose Act, Chapter and Scene numbers match the note's folders and file name
+   (digits or roman numerals, any title language).
+2. Otherwise, the note's `scribe-note-status` property.
+
+As in the (SL) Visualization plugin, the outline wins when both exist.
 
 ### Note stats popup
 
