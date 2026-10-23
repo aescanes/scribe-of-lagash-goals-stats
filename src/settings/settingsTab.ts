@@ -82,7 +82,6 @@ export class ScribeGoalsStatsSettingTab extends PluginSettingTab {
 
 		this.renderGeneral(containerEl);
 		this.renderWritingGoals(containerEl);
-		this.renderStats(containerEl);
 	}
 
 	/**
@@ -162,11 +161,6 @@ export class ScribeGoalsStatsSettingTab extends PluginSettingTab {
 						render: (setting) => this.describeMonthlyGoal(setting),
 					},
 				],
-			},
-			{
-				type: "group",
-				heading: "Stats",
-				items: [{ name: "", desc: "Statistics options will appear here in a future release." }],
 			},
 		];
 	}
@@ -429,10 +423,5 @@ export class ScribeGoalsStatsSettingTab extends PluginSettingTab {
 				);
 			}),
 		);
-	}
-
-	private renderStats(containerEl: HTMLElement): void {
-		new Setting(containerEl).setName("Stats").setHeading();
-		new Setting(containerEl).setDesc("Statistics options will appear here in a future release.");
 	}
 }

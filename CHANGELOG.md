@@ -5,6 +5,27 @@ is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+### Added
+- Story stats: the Goals and Stats tab's "Story Stats" section now shows a
+  table of every note grouped by folder, with words (or characters), read time,
+  syllables, sentences, paragraphs, pages and status (the note's
+  `scribe-note-status` property), folder subtotals and a total.
+- Note stats popup: an icon in the note's header (and a
+  "Show note stats" command) opens a
+  centered popup with the active note's stats: title and status, the headline
+  count, a strip of read time, pages, sentences, paragraphs and syllables, and
+  ratios (words per sentence, sentences per paragraph, syllables per word).
+- A note's status comes from the Status column of the Visualization plugin's
+  Outline file, falling back to its `scribe-note-status` property (the same
+  precedence as the Visualization plugin: the outline wins). Outline files are found by
+  their `scribe-visualization: outline` marker, so there is no setting for it.
+- Status pills are colored by stage: TO DO neutral, First Draft yellow, Revised
+  Draft yellow-orange, Final Draft orange, In Progress blue, Done green.
+- Read time uses 245 words per minute and pages 250 words per page, shown in a
+  (?) tooltip beside "Read time" and "Pages" (in the table and the note popup).
+  A (?) beside the table's "Status" lists the statuses and where they are set
+  (the outline file or the `scribe-note-status` property).
+
 ## [0.8.2](https://github.com/aescanes/scribe-of-lagash-goals-stats/releases/tag/0.8.2) - 2026-10-19
 
 ### Changed

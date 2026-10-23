@@ -7,8 +7,10 @@ import { CalendarCell, dayStatus } from "../data/calendarGrid";
 import { formatCount } from "../data/countFormat";
 import { dateKey, GoalHistory, resolveDayGoal, writtenBetween, writtenFor } from "../data/goalHistory";
 import type { GoalMetric } from "../settings/settings";
+import { groupByFolder } from "../data/statsTable";
 import { renderCalendarWidget } from "./calendarWidget";
 import { GOAL_WIDGET_ICON } from "./goalWidgetView";
+import { renderStoryStatsTable } from "./storyStatsTable";
 
 export const VIEW_TYPE_GOALS_STATS_TAB = "scribe-goals-stats-tab";
 
@@ -54,13 +56,18 @@ interface PeriodStat {
  *     365 days — each showing its total (`formatCount`) and, since these are
  *     multi-day windows, a "(N per day)" average below it.
  * - "Story Stats" (heading icon: `GOALS_STATS_TAB_ICON_ID`, this view's own)
- *   — not built yet.
+ *   — a table of every in-scope note's stats grouped by folder, from
+ *   `NoteStatsStore` (see `storyStatsTable.ts`).
  */
 export class GoalsStatsTabView extends ItemView {
 	/** Which month is on screen; starts on the current month each time the view opens. */
 	private cursor = new Date();
 	/** The non-today day last clicked in the calendar, or null (none yet, cleared, or navigated away from). */
 	private selectedDay: CalendarCell | null = null;
+	/** Folder groups the user collapsed in the story stats table (relative path; "" is the story root). */
+	private collapsedFolders = new Set<string>();
+	/** Set when the story stats changed while the tab was hidden; cleared by the next render. */
+	private stale = false;
 
 	constructor(
 		leaf: WorkspaceLeaf,
@@ -83,11 +90,26 @@ export class GoalsStatsTabView extends ItemView {
 
 	onOpen(): Promise<void> {
 		this.register(this.plugin.goalHistoryStore.onChange(() => this.render()));
+		// The table can be large and typing re-notifies often, so a hidden tab only
+		// notes that it is out of date — e.g. after editing the outline in another
+		// tab — and redraws when it is switched back to.
+		this.register(
+			this.plugin.noteStatsStore.onChange(() => {
+				if (this.containerEl.isShown()) this.render();
+				else this.stale = true;
+			}),
+		);
+		this.registerEvent(
+			this.app.workspace.on("active-leaf-change", (leaf) => {
+				if (this.stale && leaf?.view === this) this.render();
+			}),
+		);
 		this.render();
 		return Promise.resolve();
 	}
 
 	private render(): void {
+		this.stale = false;
 		const { contentEl } = this;
 		contentEl.empty();
 		contentEl.addClass("scribe-goals-view");
@@ -278,9 +300,25 @@ export class GoalsStatsTabView extends ItemView {
 
 	private renderStoryStatsSection(containerEl: HTMLElement): void {
 		this.renderSectionTitle(containerEl, GOALS_STATS_TAB_ICON_ID, "Story Stats");
-		containerEl.createEl("p", {
-			cls: "scribe-stats-placeholder",
-			text: "Statistics options will appear here in a future release.",
+
+		const rows = this.plugin.noteStatsStore.getRows();
+		if (rows.length === 0) {
+			containerEl.createEl("p", { cls: "scribe-stats-placeholder", text: "No notes to show yet." });
+			return;
+		}
+
+		const { storyFolder, metric } = this.plugin.settings;
+		renderStoryStatsTable(containerEl, groupByFolder(rows, storyFolder), {
+			metric,
+			collapsed: this.collapsedFolders,
+			onToggleFolder: (folder) => {
+				if (!this.collapsedFolders.delete(folder)) this.collapsedFolders.add(folder);
+				this.render();
+			},
+			onOpenNote: (path) => {
+				const file = this.app.vault.getFileByPath(path);
+				if (file) void this.app.workspace.getLeaf("tab").openFile(file);
+			},
 		});
 	}
 

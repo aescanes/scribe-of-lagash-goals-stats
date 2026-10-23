@@ -41,9 +41,9 @@ Shape so far (grows as features land):
   start-of-day text snapshot — called from the settings tab when the story
   folder changes mid-day, so a different folder's files don't inherit a
   baseline recorded for someone else's.
-- `src/types.ts` — *not created yet*. When frontmatter or shared domain types
-  are needed, this holds `FRONTMATTER_KEYS` (**single source of truth** for key
-  names) plus the plugin's own data types (goals, snapshots, stat results).
+- [`src/types.ts`](src/types.ts) — `FRONTMATTER_KEYS` (**single source of truth**
+  for key names; today just `status`) and `NoteStats`, the per-note statistic
+  set. Add the plugin's other shared domain types here as they appear.
 - [`src/data/`](src/data/) — **pure modules, no Obsidian imports** (importing a
   type-only symbol from `src/settings/` is fine). Everything unit-testable
   lives here: `goalMath` (weekly/monthly targets), `exclusion` (`isExcluded`
@@ -69,8 +69,15 @@ Shape so far (grows as features land):
   `calendarGrid`
   (`monthGrid`, `buildCalendar`, `dayStatus`), `writingSession`
   (`formatDuration`, `sessionProgress` — a countdown's own math, unrelated to
-  the goal history). Later: tokenizing, sentence counting, stop-word
-  filtering, repeated-word tallying, pace / projection.
+  the goal history), `textStats` (`computeNoteStats`: syllables, sentences,
+  paragraphs, read time, pages — first-party heuristics, no NLP dependency),
+  `statsTable` (`groupByFolder`, `sumStats`), `statusLabel` (status
+  normalizing, the known statuses), `statsFormat` (display strings, ratios,
+  goal progress, the (?) tooltips) and `outlineStatus` (the Visualization
+  Outline file's Status column, matched to notes by Act/Chapter/Scene
+  numbers) — see
+  [story-stats-plan.md](docs/feature-plans/story-stats-plan.md). Later:
+  stop-word filtering, repeated-word tallying, pace / projection.
 - [`src/views/`](src/views/) — Obsidian-facing, not necessarily DOM: any
   non-trivial computation is a pure function in `src/data/` that these call,
   they don't do math inline.
@@ -96,6 +103,11 @@ Shape so far (grows as features land):
     folder changes mid-day (see `settingsTab.ts` below), so the new folder's
     files start the day's diff from scratch instead of inheriting a snapshot
     that was never theirs.
+  - `noteStatsStore.ts` — derives each in-scope note's full `NoteStats` from
+    the scanner's kept text (cached by content) and resolves its status (the
+    Outline file's row first, then the `scribe-note-status` property); feeds `storyStatsTable.ts` (the Story Stats table),
+    `noteStatsModal.ts` (the per-note popup) and `noteStatsHeaderAction.ts`
+    (the note-header icon that opens it).
   - `calendarWidget.ts` — `renderCalendarWidget`: the month-calendar nav +
     grid DOM, shared by `goalWidgetView.ts` and `goalsStatsTabView.ts` so both
     stay identical without duplicating the DOM building. A day with data gets
@@ -143,8 +155,8 @@ Shape so far (grows as features land):
     `workspace.getLeaf("tab")`, like the Visualization plugin's StoryLines,
     not a sidebar). Two sections: "Writing goal history" (period totals with
     daily averages beside the calendar, which shows Today's total plus, when a
-    different day is clicked, that day's) and "Story Stats" (placeholder, not
-    built yet).
+    different day is clicked, that day's) and "Story Stats" (the per-note
+    stats table, `storyStatsTable.ts`).
 - [`src/settings/`](src/settings/) — `settings.ts` (interface, defaults,
   `normalizeSettings`; includes `charactersIncludeSpaces`, the "Count spaces
   in character counts" toggle) and `settingsTab.ts` (the tab; imperative
