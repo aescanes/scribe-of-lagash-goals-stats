@@ -64,6 +64,8 @@ export class GoalsStatsTabView extends ItemView {
 	private cursor = new Date();
 	/** The non-today day last clicked in the calendar, or null (none yet, cleared, or navigated away from). */
 	private selectedDay: CalendarCell | null = null;
+	/** Whether the calendar shows the whole year instead of one month. */
+	private calendarExpanded = false;
 	/** Folder groups the user collapsed in the story stats table (relative path; "" is the story root). */
 	private collapsedFolders = new Set<string>();
 	/** Set when the story stats changed while the tab was hidden; cleared by the next render. */
@@ -239,11 +241,20 @@ export class GoalsStatsTabView extends ItemView {
 	): void {
 		const todayIso = dateKey(new Date());
 		const card = containerEl.createDiv({ cls: "scribe-goal-card mod-calendar" });
+		card.toggleClass("mod-expanded", this.calendarExpanded);
 		const layout = card.createDiv({ cls: "scribe-goal-calendar-columns" });
 
 		const calendarBlock = layout.createDiv({ cls: "scribe-goal-calendar-block" });
 		renderCalendarWidget(calendarBlock, {
 			cursor: this.cursor,
+			expanded: this.calendarExpanded,
+			onToggleExpand: () => {
+				this.calendarExpanded = !this.calendarExpanded;
+				// Expanding shows the current year; collapsing returns to the current month.
+				this.cursor = new Date();
+				this.selectedDay = null;
+				this.render();
+			},
 			metric,
 			writtenForDate: (iso) => writtenFor(history, iso, metric, charactersIncludeSpaces),
 			statusForDate: (iso) => {

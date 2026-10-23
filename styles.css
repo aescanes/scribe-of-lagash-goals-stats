@@ -567,6 +567,56 @@ body {
 	gap: var(--size-4-1);
 }
 
+/* Expanded calendar: the card grows to the pane and the side panel stays beside
+   the twelve month grids. The expand button sits at the right end of the nav. */
+.scribe-goal-card.mod-calendar.mod-expanded {
+	width: 100%;
+}
+
+.scribe-goal-card.mod-expanded .scribe-goal-calendar-block {
+	flex: 1;
+	width: auto;
+	min-width: 0;
+}
+
+/* Bottom-right corner of the calendar card, in the plugin's brand accent. The
+   card reserves extra bottom padding so the button never covers a day cell. */
+.scribe-goal-card.mod-calendar {
+	position: relative;
+	padding-bottom: var(--size-4-12);
+}
+
+.scribe-goal-calendar-expand {
+	position: absolute;
+	right: var(--size-4-2);
+	bottom: var(--size-4-2);
+	color: var(--scribe-accent);
+}
+
+.scribe-goal-calendar-expand:hover {
+	color: var(--scribe-accent);
+}
+
+.scribe-goal-calendar-year {
+	display: grid;
+	grid-template-columns: repeat(auto-fill, minmax(11rem, 1fr));
+	gap: var(--size-4-4);
+}
+
+.scribe-goal-calendar-year-month-title {
+	margin-bottom: var(--size-4-1);
+	color: var(--text-muted);
+	font-size: var(--font-ui-small);
+	font-weight: var(--font-weight-bold);
+	text-align: center;
+}
+
+/* Filler days from the neighboring months are already shown in their own
+   month's grid; blank them so a day never appears twice in the year. */
+.scribe-goal-calendar-year .scribe-goal-calendar-day.mod-out-of-month {
+	visibility: hidden;
+}
+
 /* ---- Story stats table ---- */
 
 .scribe-stats-table-wrapper {
