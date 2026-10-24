@@ -66,6 +66,13 @@ Shape so far (grows as features land):
   falling back to the legacy single `characters` field a day recorded before
   the with/without-spaces split still has; `hasWrittenAnything` says whether
   the history file is worth creating yet — see `GoalHistoryStore.save()`),
+  `importStats` (the source-agnostic half of the stats import:
+  `mergeImportedDays`, `estimateSpacesRatio`, `resolveCharacters`,
+  `describeImport`) with `importSources/` — `ImportSource`, the abstract parent
+  that owns JSON parsing, per-date aggregation and clamping, one subclass per
+  plugin (`keepTheRhythm.ts`) holding only that plugin's schema check and
+  counting logic, and the `IMPORT_SOURCES` registry — see
+  [import-stats-plan.md](docs/feature-plans/import-stats-plan.md),
   `calendarGrid`
   (`monthGrid`, `buildCalendar`, `dayStatus`), `writingSession`
   (`formatDuration`, `sessionProgress` — a countdown's own math, unrelated to
@@ -102,6 +109,8 @@ Shape so far (grows as features land):
     folder changes mid-day (see `settingsTab.ts` below), so the new folder's
     files start the day's diff from scratch instead of inheriting a snapshot
     that was never theirs.
+  - `goalHistoryStore.ts` also exposes `previewImport` / `importDays`, the only
+    path imported days take into the history file.
   - `noteStatsStore.ts` — derives each in-scope note's full `NoteStats` from
     the scanner's kept text (cached by content) and resolves its length target (the
     Outline file's row first, then the `scribe-note-target` property); feeds `storyStatsTable.ts` (the Story Stats table),
@@ -160,7 +169,8 @@ Shape so far (grows as features land):
     stats table, `storyStatsTable.ts`).
 - [`src/settings/`](src/settings/) — `settings.ts` (interface, defaults,
   `normalizeSettings`; includes `charactersIncludeSpaces`, the "Count spaces
-  in character counts" toggle) and `settingsTab.ts` (the tab; imperative
+  in character counts" toggle) and `importStatsSection.ts` (the "Import stats" rows and their transient
+  file/source state) with `filePicker.ts` (`pickTextFile`), and `settingsTab.ts` (the tab; imperative
   `display()`, with a declarative `getSettingDefinitions()` counterpart for
   Obsidian 1.13+'s settings search — the two are kept in sync by hand). The
   story folder is the one setting not applied as it's typed: `renderStoryFolderField`
