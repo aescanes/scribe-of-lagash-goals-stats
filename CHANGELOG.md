@@ -11,6 +11,10 @@ is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
   target.
 
 ### Added
+- Settings: an "Import stats" section that imports a writing history into the
+  goal history from another plugin's backup file, starting with Keep the
+  Rhythm. Existing days with writing are never overwritten, and characters the
+  source doesn't split into with/without spaces are estimated.
 - Settings: a "Support" section with a Ko-fi button for readers who want to
   support the plugin's development.
 - Settings: a "Scribe of Lagash series" section, above "Support", with a link
