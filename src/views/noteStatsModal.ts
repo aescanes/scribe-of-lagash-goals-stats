@@ -5,7 +5,7 @@ import { App, Modal } from "obsidian";
 import {
 	formatPages,
 	formatReadTime,
-	goalProgress,
+	targetProgress,
 	noteRatios,
 	PAGES_HELP,
 	READ_TIME_HELP,
@@ -14,14 +14,13 @@ import type { GoalMetric } from "../settings/settings";
 import type { NoteStats } from "../types";
 import { renderHelpIcon } from "./helpIcon";
 import type { NoteStatsStore } from "./noteStatsStore";
-import { renderStatusPill } from "./storyStatsTable";
 
 /**
- * The centered popup for one note: its title and status, the headline count,
+ * The centered popup for one note: its title, the headline count,
  * a strip of the other stats and a line of ratios. Stays live while open (the
  * store notifies as the note is typed in) and closes itself if the note leaves
- * scope or is deleted. `target`, when a note has a length goal, adds a progress
- * bar under the headline count; no note has one yet, so it is never passed.
+ * scope or is deleted. A note with a length target (Outline Target column or
+ * `scribe-note-target`) gets a progress block and bar under the headline count.
  */
 export class NoteStatsModal extends Modal {
 	private unsubscribe: (() => void) | null = null;
@@ -31,7 +30,6 @@ export class NoteStatsModal extends Modal {
 		private store: NoteStatsStore,
 		private path: string,
 		private getMetric: () => GoalMetric,
-		private target: number | null = null,
 	) {
 		super(app);
 	}
@@ -64,7 +62,7 @@ export class NoteStatsModal extends Modal {
 		this.renderRatios(contentEl, stats);
 	}
 
-	/** "Note stats" eyebrow, then the note's name with its status pill beside it. */
+	/** "Note stats" eyebrow, then the note's name. */
 	private renderHeader(): void {
 		const { titleEl } = this;
 		titleEl.empty();
@@ -73,10 +71,9 @@ export class NoteStatsModal extends Modal {
 		const row = titleEl.createDiv({ cls: "scribe-note-stats-title-row" });
 		const name = this.path.slice(this.path.lastIndexOf("/") + 1).replace(/\.md$/i, "");
 		row.createSpan({ cls: "scribe-note-stats-title", text: name });
-		renderStatusPill(row, this.store.getStatus(this.path));
 	}
 
-	/** The headline count, with the goal block and bar when there is a target. */
+	/** The headline count, with the target block and bar when there is a target. */
 	private renderHero(containerEl: HTMLElement, stats: NoteStats): void {
 		const hero = containerEl.createDiv({ cls: "scribe-note-stats-hero" });
 		const main = hero.createDiv({ cls: "scribe-note-stats-hero-main" });
@@ -86,14 +83,15 @@ export class NoteStatsModal extends Modal {
 			text: this.getMetric() === "characters" ? "characters" : "words",
 		});
 
-		if (this.target === null) return;
-		const progress = goalProgress(stats.size, this.target);
+		const target = this.store.getTarget(this.path);
+		if (target === null) return;
+		const progress = targetProgress(stats.size, target);
 
-		const goal = hero.createDiv({ cls: "scribe-note-stats-goal" });
-		const percent = goal.createDiv();
-		percent.createSpan({ cls: "scribe-note-stats-goal-percent", text: `${progress.percent}%` });
-		percent.appendText(` of ${this.target.toLocaleString()}`);
-		goal.createDiv({ text: `${progress.remaining.toLocaleString()} to go` });
+		const block = hero.createDiv({ cls: "scribe-note-stats-target" });
+		const percent = block.createDiv();
+		percent.createSpan({ cls: "scribe-note-stats-target-percent", text: `${progress.percent}%` });
+		percent.appendText(` of ${target.toLocaleString()}`);
+		block.createDiv({ text: `${progress.remaining.toLocaleString()} to go` });
 
 		const bar = containerEl.createDiv({ cls: "scribe-note-stats-bar" });
 		// A computed width, which is what a runtime style property is for.

@@ -12,8 +12,8 @@ export interface StatsRow {
 	path: string;
 	name: string;
 	stats: NoteStats;
-	/** Empty when the note has no status. */
-	status: string;
+	/** Target length in the active metric; null when the note has none. */
+	target: number | null;
 }
 
 /** The notes of one folder, plus that folder's rolled-up numbers. */
@@ -22,6 +22,8 @@ export interface FolderGroup {
 	folder: string;
 	rows: StatsRow[];
 	totals: NoteStats;
+	/** Sum of the targets the folder's notes have; null when none has one. */
+	target: number | null;
 }
 
 const ZERO: NoteStats = { size: 0, words: 0, readMinutes: 0, syllables: 0, sentences: 0, paragraphs: 0, pages: 0 };
@@ -42,6 +44,13 @@ export function sumStats(list: NoteStats[]): NoteStats {
 	}
 	total.readMinutes = readMinutes(total.words, WORDS_PER_MINUTE);
 	total.pages = pageCount(total.words, WORDS_PER_PAGE);
+	return total;
+}
+
+/** Sum of the targets that are set; null when none is, so "no targets" never reads as a 0 target. */
+export function sumTargets(targets: Array<number | null>): number | null {
+	let total: number | null = null;
+	for (const target of targets) if (target !== null) total = (total ?? 0) + target;
 	return total;
 }
 
@@ -79,6 +88,7 @@ export function groupByFolder(rows: StatsRow[], storyFolder: string): FolderGrou
 				folder,
 				rows: sorted,
 				totals: sumStats(sorted.map((row) => row.stats)),
+				target: sumTargets(sorted.map((row) => row.target)),
 			};
 		});
 }

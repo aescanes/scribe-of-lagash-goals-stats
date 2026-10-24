@@ -44,6 +44,9 @@ plugins for planning and writing stories:
 Each plugin works fine on its own, and none requires another, but they are
 designed to complement each other and work best together.
 
+Learn more about the series on the
+[Scribe of Lagash website](https://aescanes.github.io/scribe-of-lagash-website/).
+
 ### About the name
 
 "Scribe" is the writer at the center of every plugin in the series, and
@@ -65,32 +68,50 @@ with.
 
 ### Goals and Stats tab
 
-A main-area tab (ribbon icon or the "Open goals and stats" command) with a "Writing goal history" section: week/month, rolling
-7-/30-day, and year/365-day totals with daily averages, beside the same
-month calendar as the sidebar widget with today's total and, when clicked,
-any other day's total shown next to it. The expand button in the calendar
-card's bottom-right corner switches it to the whole year (all twelve months,
-with year prev/next); click it again to return to the month.
+A main-area tab (ribbon icon or the "Open goals and stats" command) with two
+sections: your writing goal history and a table of stats for every note in the
+story.
+
+#### Writing goal history
+
+Totals with daily averages for the current week and month, the last 7 and 30
+days, and the current year and last 365 days, shown beside the same month
+calendar as the sidebar widget. The calendar shows today's total and, when you
+click another day, that day's total next to it. The expand button in the
+calendar card's bottom-right corner switches the calendar to the whole year
+(all twelve months, with previous/next year buttons); click it again to return
+to the month.
+
+<img src="docs/images/writing-goal-history-collapsed.png" alt="Writing goal history collapsed">
+<img src="docs/images/writing-goal-history-expanded.png" alt="Writing goal history expanded">
 
 #### Story stats
 
-Below the goal history, the tab's "Story Stats" section is a table of every
-note in the story folder, grouped by folder (click a folder to collapse it;
-each folder shows its own subtotal, and a Total row closes the table). For
-each note: words (or characters, following your metric setting), read time,
-syllables, sentences, paragraphs, pages and status. Status is the note's
-Status column of the Visualization plugin's Outline file (the row whose Act,
-Chapter and Scene numbers match the note's folders and file name — digits or
-roman numerals, any title language) or, when the outline has none for it, its
-`scribe-note-status` property. As in the Visualization plugin, the outline wins. Click a note's name to open it.
+The "Story Stats" section is a table of every note in
+the story folder, grouped by folder. Click a folder to collapse it; each folder
+shows its own subtotal, and a Total row closes the table. Click a note's name
+to open it.
 
-<img src="docs/images/goals-and-stats-tab.png" alt="Goals and Stats tab">
+Each note row shows its words (or characters, following your metric setting),
+read time, syllables, sentences, paragraphs and pages.
+
+The Target column, beside words (or characters), is the note's target length in
+the same unit. It comes from the Target column of the (SL) Visualization plugin's
+Outline file, in the row whose Act, Chapter and Scene numbers match the note's
+folders and file name (digits or roman numerals, any title language), or,
+failing that, the note's `scribe-note-target` property (a plain number
+such as `5000`). Folder rows and the Total add up the targets that are set; a note
+without one shows a dash. A note with a target also gets a small progress ring
+beside the number, like the daily goal ring.
+
+<img src="docs/images/story-stats.png" alt="Story stats">
 
 ### Note stats popup
 
 While a note in the story is open, a stats icon appears in the note's header,
 next to its other buttons. Click it, or run "Show note stats", to open a popup with the same
-numbers for just that note: its status, the headline word count, read time,
+numbers for just that note: the headline word count (with a
+progress bar toward the note's target, when it has one), read time,
 pages, sentences, paragraphs and syllables, and words per sentence, sentences
 per paragraph and syllables per word. It updates as you type and follows the
 light and dark themes.
@@ -98,6 +119,9 @@ light and dark themes.
 Syllable and sentence counts are estimates. Read time is based on 245 words
 per minute and pages on 250 words per page; a (?) icon beside each label says
 so.
+
+<img src="docs/images/note-stats-icon.png" alt="Note stats icon">
+<img src="docs/images/note-stats-popup.png" alt="Note stats popup">
 
 ### Daily-goal celebration
 
