@@ -5,6 +5,8 @@ is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+## [1.0.0](https://github.com/aescanes/scribe-of-lagash-goals-stats/releases/tag/1.0.0) - 2026-10-24
+
 ### Removed
 - Settings: the "Writing days", "Weekly goal" and "Monthly goal" rows are gone
   (they didn't affect anything); "Daily writing goal" is now a plain daily
