@@ -25,21 +25,21 @@ is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
   read time, syllables, sentences, paragraphs and pages, folder subtotals and a
   total. Folders collapse, and long note names are cut with an ellipsis
   (the full name shows on hover).
-  - Target: a note's target length, from the Target column of the Visualization
-    plugin's Outline file or the note's `scribe-note-target` property (the
-    outline wins, as in the Visualization plugin; outline files are found by
-    their `scribe-visualization: outline` marker, so there is no setting).
-    Folder rows and the Total sum the targets that are set. A small progress
-    ring in its own column (the daily goal ring's logic: size against target,
-    glowing once met) shows how far along a note is.
-  - Read time uses 245 words per minute and pages 250 words per page; a (?)
-    tooltip beside "Read time", "Pages" and "Target" explains each.
-  - Note stats popup: an icon in the note's header (and a "Show note stats"
-    command) opens a centered popup with the active note's stats: title, the
-    headline count (with the percent, the amount left and a progress bar when
-    the note has a target), a strip of read time, pages, sentences, paragraphs
-    and syllables, and ratios (words per sentence, sentences per paragraph,
-    syllables per word).
+- Target: a note's target length, from the Target column of the Visualization
+  plugin's Outline file or the note's `scribe-note-target` property (the
+  outline wins, as in the Visualization plugin; outline files are found by
+  their `scribe-visualization: outline` marker, so there is no setting).
+  Folder rows and the Total sum the targets that are set. A small progress
+  ring in its own column (the daily goal ring's logic: size against target,
+  glowing once met) shows how far along a note is.
+- Read time uses 245 words per minute and pages 250 words per page; a (?)
+  tooltip beside "Read time", "Pages" and "Target" explains each.
+- Note stats popup: an icon in the note's header (and a "Show note stats"
+  command) opens a centered popup with the active note's stats: title, the
+  headline count (with the percent, the amount left and a progress bar when
+  the note has a target), a strip of read time, pages, sentences, paragraphs
+  and syllables, and ratios (words per sentence, sentences per paragraph,
+  syllables per word).
 
 ## [0.8.2](https://github.com/aescanes/scribe-of-lagash-goals-stats/releases/tag/0.8.2) - 2026-10-19
 
