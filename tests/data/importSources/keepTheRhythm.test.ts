@@ -13,7 +13,7 @@ function backup(dailyActivity: unknown[], schema = "0.2"): string {
 }
 
 function days(result: ImportResult) {
-	assert.ok("days" in result, "expected days, got " + JSON.stringify(result));
+	if (!("days" in result)) throw new Error("expected days, got " + JSON.stringify(result));
 	return result.days;
 }
 
