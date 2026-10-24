@@ -104,6 +104,8 @@ such as `5000`). Folder rows and the Total add up the targets that are set; a no
 without one shows a dash. A note with a target also gets a small progress ring
 beside the number, like the daily goal ring.
 
+<img src="docs/images/story-stats.png" alt="Story stats">
+
 ### Note stats popup
 
 While a note in the story is open, a stats icon appears in the note's header,
@@ -117,6 +119,9 @@ light and dark themes.
 Syllable and sentence counts are estimates. Read time is based on 245 words
 per minute and pages on 250 words per page; a (?) icon beside each label says
 so.
+
+<img src="docs/images/note-stats-icon.png" alt="Note stats icon">
+<img src="docs/images/note-stats-popup.png" alt="Note stats popup">
 
 ### Daily-goal celebration
 
