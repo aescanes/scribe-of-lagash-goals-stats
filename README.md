@@ -165,6 +165,28 @@ words/characters metric (with a with/without-spaces toggle for characters),
 and a daily goal. Plus a list of notes and folders to
 exclude from everything the plugin measures.
 
+### Import stats
+
+Bring your writing history from another plugin into your goal history, from
+the "Import stats" section of the settings: pick the source, choose its backup
+file, and click Import. You're shown how many days will be added before
+anything is written.
+
+- **Where it goes:** the history file of the current story folder
+  (`(SL) Goals History.json`), which is created if it doesn't exist yet.
+- **Existing days are protected:** a day that already has writing here is never
+  overwritten. A day with nothing written, today included, is filled in.
+- **No negative counts:** a day's total is never below zero. If a source's
+  total for a day comes out negative, because more was deleted than written,
+  it counts as zero, and a day with nothing left to import is skipped.
+- **Goal and metric:** imported days use your current daily goal and metric.
+- **Characters:** the history keeps characters both with and without spaces.
+  When a source only counts one of them, that count is imported as it is, and
+  the other is estimated from it. The estimate uses the ratio between the two
+  in your own history once you have a few days with both, or a typical 15%
+  fewer without spaces until then. You're told which one was estimated before
+  you confirm.
+
 ### Files starting with "(SL)"
 
 Your writing history is kept in `(SL) Goals History.json`, a file this plugin

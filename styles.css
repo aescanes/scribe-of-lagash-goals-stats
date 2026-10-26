@@ -910,3 +910,8 @@ body {
 .scribe-help-icon:hover {
 	color: var(--text-muted);
 }
+
+/* Hidden file input driven by the "Import stats" file picker. */
+.scribe-file-input {
+	display: none;
+}

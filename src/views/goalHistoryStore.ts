@@ -3,6 +3,7 @@
 
 import { App, Component, debounce, normalizePath, TFile, TFolder } from "obsidian";
 import {
+	DayTotals,
 	dateKey,
 	FileText,
 	GoalHistory,
@@ -11,6 +12,8 @@ import {
 	serializeHistory,
 	writtenAcrossFiles,
 } from "../data/goalHistory";
+import type { ImportedDay } from "../data/importSources/importSource";
+import { mergeImportedDays, MergeResult } from "../data/importStats";
 import type { GoalMetric } from "../settings/settings";
 import type { ScopeScanner } from "./scopeScanner";
 
@@ -27,6 +30,10 @@ export interface GoalHistoryStoreConfig {
 export interface TodayTextBaseline {
 	date: string;
 	perFile: FileText;
+	/** Writing imported into today from another plugin (see `importDays`). It
+	 *  is not in any note's text, so the live diff can't see it — it's kept
+	 *  here and added on top of that diff, or the next scan would erase it. */
+	imported?: DayTotals;
 }
 
 /**
@@ -67,6 +74,8 @@ export class GoalHistoryStore extends Component {
 	private dayStartText: FileText | null = null;
 	/** Which date `dayStartText` belongs to, so a day rollover is detected. */
 	private dayStartDate: string | null = null;
+	/** Today's imported writing, mirrored from `TodayTextBaseline.imported`. */
+	private todayImported: DayTotals | null = null;
 	private listeners: Array<() => void> = [];
 
 	/** Coalesces bursts of scanner updates into one write. */
@@ -109,6 +118,11 @@ export class GoalHistoryStore extends Component {
 		return this.history;
 	}
 
+	/** The history file the next import would be checked against (for messages). */
+	getHistoryPath(): string {
+		return this.path();
+	}
+
 	/** Where the history file lives for the current story-folder setting. */
 	private path(): string {
 		const configured = normalizePath(this.getConfig().storyFolder.trim());
@@ -129,6 +143,7 @@ export class GoalHistoryStore extends Component {
 		// today baseline; recompute it fresh the next time recordToday() runs.
 		this.dayStartDate = null;
 		this.dayStartText = null;
+		this.todayImported = null;
 	}
 
 	/**
@@ -157,6 +172,7 @@ export class GoalHistoryStore extends Component {
 		if (this.dayStartDate !== today) {
 			const cached = await this.textCache.load();
 			this.dayStartText = cached && cached.date === today ? cached.perFile : currentText;
+			this.todayImported = cached && cached.date === today ? (cached.imported ?? null) : null;
 			this.dayStartDate = today;
 			if (!cached || cached.date !== today) await this.textCache.save({ date: today, perFile: this.dayStartText });
 		}
@@ -164,13 +180,48 @@ export class GoalHistoryStore extends Component {
 		// Falls back to "today started right now" in the unreachable case where
 		// the block above hasn't run yet — sound either way, never just a cast.
 		const baselineText = this.dayStartText ?? currentText;
-		const written = writtenAcrossFiles(baselineText, currentText);
+		const written = addTotals(writtenAcrossFiles(baselineText, currentText), this.todayImported);
 		const { dailyGoal, metric } = this.getConfig();
 
 		this.history = { ...this.history, [today]: { written, dailyGoal, metric } };
 
 		for (const listener of this.listeners) listener();
 		this.scheduleSave();
+	}
+
+	/**
+	 * What `importDays` would do, without committing it — for the confirm
+	 * dialog. Records today first, so "does today already have writing" is
+	 * judged against the live count rather than a not-yet-written entry.
+	 */
+	async previewImport(days: ImportedDay[]): Promise<MergeResult> {
+		await this.recordToday();
+		const { dailyGoal, metric } = this.getConfig();
+		return mergeImportedDays(this.history, days, { dailyGoal, metric });
+	}
+
+	/**
+	 * Merges another plugin's days into the history (see `mergeImportedDays`
+	 * for the rules) and writes the file right away, creating it if the story
+	 * folder has none yet. Goes through the store, not the file directly, so it
+	 * can't race the debounced save or leave `lastSavedContent` stale. Today's
+	 * share, if any, is remembered separately so `recordToday` keeps it.
+	 */
+	async importDays(days: ImportedDay[]): Promise<MergeResult> {
+		const result = await this.previewImport(days);
+		if (result.added.length === 0) return result;
+		this.history = result.history;
+
+		const today = dateKey(new Date());
+		const importedToday = result.added.includes(today) ? result.history[today]?.written : undefined;
+		if (importedToday && this.dayStartText) {
+			this.todayImported = importedToday;
+			await this.textCache.save({ date: today, perFile: this.dayStartText, imported: importedToday });
+		}
+
+		for (const listener of this.listeners) listener();
+		await this.save();
+		return result;
 	}
 
 	private async save(): Promise<void> {
@@ -196,4 +247,14 @@ export class GoalHistoryStore extends Component {
 		}
 		this.lastSavedContent = content;
 	}
+}
+
+/** `a` plus `b` (when present), field by field — the split character fields stay split. */
+function addTotals(a: DayTotals, b: DayTotals | null): DayTotals {
+	if (!b) return a;
+	return {
+		words: a.words + b.words,
+		charactersWithSpaces: (a.charactersWithSpaces ?? 0) + (b.charactersWithSpaces ?? 0),
+		charactersWithoutSpaces: (a.charactersWithoutSpaces ?? 0) + (b.charactersWithoutSpaces ?? 0),
+	};
 }

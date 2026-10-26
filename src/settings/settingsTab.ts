@@ -8,6 +8,7 @@ import { monthlyGoal, weeklyGoal } from "../data/goalMath";
 import { SCRIBE_GENERATED_PREFIX } from "../data/exclusion";
 import { confirm } from "../utils/confirmModal";
 import { FolderSuggest } from "./folderSuggest";
+import { ImportStatsSection } from "./importStatsSection";
 import { renderSeriesButton, SERIES_HEADING, seriesRows } from "./seriesSection";
 
 const PLUGIN_ID = "scribe-of-lagash-goals-stats";
@@ -17,6 +18,11 @@ const SUPPORT_URL = "https://ko-fi.com/O3J528W3FZ";
 
 /** Every day counts as a writing day: the goals below are just the daily goal scaled up. */
 const EVERY_DAY: readonly boolean[] = [true, true, true, true, true, true, true];
+
+const IMPORT_SOURCE_DESC = "The plugin whose writing history you want to bring in.";
+const IMPORT_ACTION_DESC =
+	"Adds that history to your goal history. Days that already have writing are never overwritten, " +
+	"and imported days use your current daily goal and metric.";
 
 export class ScribeGoalsStatsSettingTab extends PluginSettingTab {
 	plugin: ScribeGoalsStatsPlugin;
@@ -65,9 +71,12 @@ export class ScribeGoalsStatsSettingTab extends PluginSettingTab {
 		});
 	}
 
+	private importStats: ImportStatsSection;
+
 	constructor(app: App, plugin: ScribeGoalsStatsPlugin) {
 		super(app, plugin);
 		this.plugin = plugin;
+		this.importStats = new ImportStatsSection(app, () => plugin.goalHistoryStore);
 	}
 
 	display(): void {
@@ -76,6 +85,7 @@ export class ScribeGoalsStatsSettingTab extends PluginSettingTab {
 
 		this.renderGeneral(containerEl);
 		this.renderWritingGoals(containerEl);
+		this.renderImportStats(containerEl);
 
 		new Setting(containerEl).setName(SERIES_HEADING).setHeading();
 		for (const row of seriesRows(PLUGIN_ID)) {
@@ -141,6 +151,26 @@ export class ScribeGoalsStatsSettingTab extends PluginSettingTab {
 						name: "Daily writing goal",
 						desc: this.dailyGoalDesc(),
 						render: (setting) => this.renderDailyGoalField(setting),
+					},
+				],
+			},
+			{
+				type: "group",
+				heading: "Import stats",
+				items: [
+					{
+						name: "Source",
+						desc: IMPORT_SOURCE_DESC,
+						render: (setting) => this.importStats.renderSource(setting),
+					},
+					{
+						name: "File",
+						render: (setting) => this.importStats.renderFile(setting),
+					},
+					{
+						name: "Import",
+						desc: IMPORT_ACTION_DESC,
+						render: (setting) => this.importStats.renderImport(setting),
 					},
 				],
 			},
@@ -251,6 +281,16 @@ export class ScribeGoalsStatsSettingTab extends PluginSettingTab {
 					await this.plugin.saveSettings();
 				});
 			});
+	}
+
+	private renderImportStats(containerEl: HTMLElement): void {
+		new Setting(containerEl).setName("Import stats").setHeading();
+
+		const source = new Setting(containerEl).setName("Source").setDesc(IMPORT_SOURCE_DESC);
+		this.importStats.renderSource(source);
+		this.importStats.renderFile(new Setting(containerEl).setName("File"));
+		const action = new Setting(containerEl).setName("Import").setDesc(IMPORT_ACTION_DESC);
+		this.importStats.renderImport(action);
 	}
 
 	private renderWritingGoals(containerEl: HTMLElement): void {
