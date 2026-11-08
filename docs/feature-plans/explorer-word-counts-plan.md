@@ -30,7 +30,9 @@ the notes beneath it.
 - **Live** — the shared scanner recomputes (debounced) on `vault`
   create/modify/delete/rename and on `metadataCache` "resolved", and on
   `saveSettings()`; the explorer repaints on every scan.
-- **Always on** — no toggle.
+- **Toggle** — the "Show counts in file explorer" setting (`showExplorerCounts`,
+  default on; a missing value in an older `data.json` also reads as on). When
+  off, `paint()` clears every badge instead of writing them.
 
 ## Modules
 
