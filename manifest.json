@@ -1,7 +1,7 @@
 {
 	"id": "scribe-of-lagash-goals-stats",
 	"name": "Scribe of Lagash - Goals and Stats",
-	"version": "1.0.0",
+	"version": "1.1.0",
 	"minAppVersion": "1.10.0",
 	"description": "Set daily writing goals for your story and track word counts, progress and stats over time.",
 	"author": "aescanes",

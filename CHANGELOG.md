@@ -5,6 +5,8 @@ is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+## [1.1.0](https://github.com/aescanes/scribe-of-lagash-goals-stats/releases/tag/1.1.0) - 2026-11-08
+
 ### Added
 - Settings: a "Show counts in file explorer" toggle, on by default (also for
   existing installs), hides or shows the count next to each note and folder in
