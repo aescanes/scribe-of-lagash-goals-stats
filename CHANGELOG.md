@@ -10,6 +10,9 @@ is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
   existing installs), hides or shows the count next to each note and folder in
   the file explorer.
 
+### Changed
+- The descriptions in the manifest, package, and community page are being standardized.
+
 ## [1.0.0](https://github.com/aescanes/scribe-of-lagash-goals-stats/releases/tag/1.0.0) - 2026-10-24
 
 ### Removed
