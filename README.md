@@ -153,6 +153,9 @@ which counts every character including spaces and line breaks — turn on
 "Count spaces in character counts" in settings to match that convention
 instead.
 
+The counts are on by default; turn off "Show counts in file explorer" in
+settings to hide them.
+
 <img src="docs/images/story-count.png" alt="File-explorer counts" width="500">
 
 ### Writing-goal settings

@@ -12,6 +12,8 @@ import { renderSeriesButton, SERIES_HEADING, seriesRows } from "./seriesSection"
 
 const PLUGIN_ID = "scribe-of-lagash-goals-stats";
 
+const EXPLORER_COUNTS_DESC =
+	"Show the word (or character) count next to each note and folder in the file explorer.";
 const SUPPORT_NAME = "If this plugin helps your writing, you can support its development";
 const SUPPORT_URL = "https://ko-fi.com/O3J528W3FZ";
 
@@ -75,6 +77,7 @@ export class ScribeGoalsStatsSettingTab extends PluginSettingTab {
 		containerEl.empty();
 
 		this.renderGeneral(containerEl);
+		this.renderFileExplorer(containerEl);
 		this.renderWritingGoals(containerEl);
 
 		new Setting(containerEl).setName(SERIES_HEADING).setHeading();
@@ -111,6 +114,20 @@ export class ScribeGoalsStatsSettingTab extends PluginSettingTab {
 							key: "excludedPaths",
 							placeholder: "Notes/scratchpad\narchive",
 							rows: 4,
+						},
+					},
+				],
+			},
+			{
+				type: "group",
+				heading: "File explorer",
+				items: [
+					{
+						name: "Show counts in file explorer",
+						desc: EXPLORER_COUNTS_DESC,
+						control: {
+							type: "toggle",
+							key: "showExplorerCounts",
 						},
 					},
 				],
@@ -176,6 +193,8 @@ export class ScribeGoalsStatsSettingTab extends PluginSettingTab {
 				return this.plugin.settings.metric;
 			case "charactersIncludeSpaces":
 				return this.plugin.settings.charactersIncludeSpaces;
+			case "showExplorerCounts":
+				return this.plugin.settings.showExplorerCounts;
 			default:
 				return undefined;
 		}
@@ -197,6 +216,9 @@ export class ScribeGoalsStatsSettingTab extends PluginSettingTab {
 				break;
 			case "charactersIncludeSpaces":
 				this.plugin.settings.charactersIncludeSpaces = value === true;
+				break;
+			case "showExplorerCounts":
+				this.plugin.settings.showExplorerCounts = value !== false;
 				break;
 			default:
 				return;
@@ -248,6 +270,21 @@ export class ScribeGoalsStatsSettingTab extends PluginSettingTab {
 						.split("\n")
 						.map((line) => line.trim())
 						.filter(Boolean);
+					await this.plugin.saveSettings();
+				});
+			});
+	}
+
+	private renderFileExplorer(containerEl: HTMLElement): void {
+		new Setting(containerEl).setName("File explorer").setHeading();
+
+		new Setting(containerEl)
+			.setName("Show counts in file explorer")
+			.setDesc(EXPLORER_COUNTS_DESC)
+			.addToggle((toggle) => {
+				toggle.setValue(this.plugin.settings.showExplorerCounts);
+				toggle.onChange(async (value) => {
+					this.plugin.settings.showExplorerCounts = value;
 					await this.plugin.saveSettings();
 				});
 			});

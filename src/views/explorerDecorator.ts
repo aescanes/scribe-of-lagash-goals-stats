@@ -9,6 +9,8 @@ import type { ScopeScanner } from "./scopeScanner";
 
 /** The settings slice the decorator needs, read lazily so it always sees current values. */
 export interface ExplorerDecoratorConfig {
+	/** When false, no badges are shown and any existing ones are removed. */
+	enabled: boolean;
 	metric: GoalMetric;
 	/** Only meaningful when `metric` is "characters" — see `ScribeGoalsStatsSettings.charactersIncludeSpaces`. */
 	charactersIncludeSpaces: boolean;
@@ -108,6 +110,11 @@ export class ExplorerDecorator extends Component {
 		const items = this.explorerView()?.fileItems;
 		if (!items) return;
 
+		if (!this.getConfig().enabled) {
+			this.clearBadges();
+			return;
+		}
+
 		// Our own DOM writes would retrigger the observer; pause it for the pass.
 		this.observer?.disconnect();
 		try {
@@ -180,6 +187,10 @@ export class ExplorerDecorator extends Component {
 	private teardown(): void {
 		this.observer?.disconnect();
 		this.observer = null;
+		this.clearBadges();
+	}
+
+	private clearBadges(): void {
 		const items = this.explorerView()?.fileItems ?? {};
 		for (const item of Object.values(items)) {
 			(item.selfEl ?? item.titleEl)?.querySelector(`.${COUNT_CLASS}`)?.remove();
