@@ -64,6 +64,7 @@ export default class ScribeGoalsStatsPlugin extends Plugin {
 
 		this.addChild(
 			new ExplorerDecorator(this.app, this.scanner, () => ({
+				enabled: this.settings.showExplorerCounts,
 				metric: this.settings.metric,
 				charactersIncludeSpaces: this.settings.charactersIncludeSpaces,
 			})),

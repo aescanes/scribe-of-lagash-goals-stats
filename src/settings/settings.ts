@@ -29,6 +29,13 @@ export interface ScribeGoalsStatsSettings {
 	 */
 	charactersIncludeSpaces: boolean;
 
+	/**
+	 * Whether the file explorer shows a count badge next to each note and
+	 * folder. On by default — including for older `data.json` files that
+	 * predate this setting.
+	 */
+	showExplorerCounts: boolean;
+
 	/** Target for a single writing day, in the chosen metric. */
 	dailyGoal: number;
 
@@ -45,6 +52,7 @@ export const DEFAULT_SETTINGS: ScribeGoalsStatsSettings = {
 	excludedPaths: [],
 	metric: "words",
 	charactersIncludeSpaces: false,
+	showExplorerCounts: true,
 	dailyGoal: 500,
 	// Default to writing every day; the author unchecks the days they take off.
 	writingDays: [true, true, true, true, true, true, true],
@@ -67,6 +75,8 @@ export function normalizeSettings(
 			: [],
 		metric: merged.metric === "characters" ? "characters" : "words",
 		charactersIncludeSpaces: merged.charactersIncludeSpaces === true,
+		// Only an explicit `false` turns it off; missing (old data.json) means on.
+		showExplorerCounts: merged.showExplorerCounts !== false,
 		dailyGoal:
 			Number.isFinite(merged.dailyGoal) && merged.dailyGoal > 0
 				? Math.round(merged.dailyGoal)
